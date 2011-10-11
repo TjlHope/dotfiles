@@ -98,7 +98,7 @@ export EDITOR="vim"
 export PAGER="/usr/bin/vimpager"
 export MANPAGER="/usr/bin/vimmanpager"
 
-# alias list
+# fs viewing aliases
 alias ll='ls -l'
 alias la='ls -A'
 alias lal='ls -Al'
@@ -110,34 +110,45 @@ alias lah='ls -Ash'
 alias lalh='ls -Alh'
 alias duh='du -sh'
 alias dfh='df -h'
+
+# vi like stuff aliases
 alias vp='vimpager'
 alias vmp='vimmanpager'
-alias lgrep='grep -A2 -B2'
-alias rgrep='grep ./ -Re'
-alias lpgrep='pgrep -l'
-alias elist='equery list --installed --portage-tree --overlay-tree'
-alias ssh='keychain -q id_dsa; ssh'
-alias which='(alias; declare -f) | which -i'
-alias luvcview.i='luvcview -f yuv -i 30'
-alias :q='exit'
-#alias batt='echo "$(( $(cat /sys/class/power_supply/BAT1/charge_now) * 100 / $(cat /sys/class/power_supply/BAT1/charge_full) )) %"'
-#alias umount.media='for x in /media/[^c][^d]* ; do pumount "$x" ; done'
-#alias rename.spaces='while [ "$(ls | grep \ )" ]; do rename \  _ * ; done'
-#alias umount.cd='pumount /media/cdrom/'
-alias DSLoA='wine ~/Games/Dungeon\ Siege/DSLOA.exe'
-alias VisualBoyAdvance='VisualBoyAdvance --config="/home/tom/.VBArc"'
-alias prog.msp430='make; echo -e "\n###########\n"; mspdebug -q rf2500 "prog main.elf"'
-alias opera='opera -nomail'
 alias pydoc='PAGER="$MANPAGER" pydoc'
 alias python='PAGER="$MANPAGER" python'
 alias python2='PAGER="$MANPAGER" python2'
 alias python3='PAGER="$MANPAGER" python3'
 alias octave='octave --silent'
 alias dash='dash -V'
+alias :q='exit'
+
+# searching aliases
+alias lgrep='grep -A2 -B2'
+alias rgrep='grep ./ -Re'
+alias lpgrep='pgrep -l'
+alias which='(alias; declare -f) | which -i'
+
+# gentoo aliases
+alias elist='equery list --installed --portage-tree --overlay-tree'
+
+# git aliases
+alias gs='git status'
+alias gca='git commit -a'
+
+# game aliases
+alias DSLoA='wine ~/Games/Dungeon\ Siege/DSLOA.exe'
+alias VisualBoyAdvance='VisualBoyAdvance --config="/home/tom/.VBArc"'
+
+# misc aliases
+alias luvcview.i='luvcview -f yuv -i 30'
+#alias umount.media='for x in /media/[^c][^d]* ; do pumount "$x" ; done'
+#alias umount.cd='pumount /media/cdrom/'
+alias prog.msp430='make; echo -e "\n###########\n"; mspdebug -q rf2500 "prog main.elf"'
+alias opera='opera -nomail'
 
 ### enable bash completion
-[[ -f /etc/profile.d/bash-completion.sh ]] &&
-    source /etc/profile.d/bash-completion.sh
+[ -f /etc/profile.d/bash-completion.sh ] &&
+    . /etc/profile.d/bash-completion.sh
 ## and for sudo
 #complete -cf sudo
 ## and for apvlv
@@ -149,22 +160,23 @@ complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume-glade
 complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume-cli 
 
 ### python vars
-[[ "$PYTHONPATH" ]] &&
-    export PYTHONPATH="$PYTHONPATH:$HOME/Documents/Code/python/" ||
-    export PYTHONPATH="$HOME/Documents/Code/python/"
+pythonpath="$HOME/Documents/Code/python"
+[ -n "${PYTHONPATH}" ] &&
+    export PYTHONPATH="${PYTHONPATH%${pythonpath}}:${pythonpath}" ||
+    export PYTHONPATH=${pythonpath}
+unset pythonpath	# keep env pollution down
 
 ### gnuplot vars
 GNUPLOT_FONTPATH+=":/usr/share/fonts/!"
 GDFONTPATH+=":/usr/share/fonts/!"
 GNUPLOT_DEFAULT_GDFONT="veranda"
-# Prevent fsync spinning up disks
-#export LD_PRELOAD="/usr/local/lib/fsync.so"
-#alias opera='LD_PRELOAD="/usr/local/lib/fsync.so" opera'
-#alias firefox='LD_PRELOAD="/usr/local/lib/fsync.so" firefox'
 
 ### gnash / lightspark
 export GNASH_PLUGIN_DESCRIPTION="Shockwave Flash 10.1 r999"
 
 #export WINEDEBUG="-all"
 export INTEL_BATCH=1
+
+# Add ssh keys to agent
+/usr/bin/keychain -q $(ls "${HOME}/.ssh/" | sed -ne '/id.*[^\(.pub\)]$/p')
 
