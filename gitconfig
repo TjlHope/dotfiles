@@ -1,0 +1,8 @@
+[user]
+    name = Tom JL Hope
+    email = tjlhope@gmail.com
+[merge]
+    conflictstyle = diff3
+    tool = vimdiff
+[core]
+    excludesfile = /home/tom/.gitexclude
