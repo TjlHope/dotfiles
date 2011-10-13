@@ -145,6 +145,7 @@ alias luvcview.i='luvcview -f yuv -i 30'
 #alias umount.cd='pumount /media/cdrom/'
 alias prog.msp430='make; echo -e "\n###########\n"; mspdebug -q rf2500 "prog main.elf"'
 alias opera='opera -nomail'
+alias bc='bc --quiet'
 
 ### enable bash completion
 [ -f /etc/profile.d/bash-completion.sh ] &&
