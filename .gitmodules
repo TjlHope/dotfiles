@@ -40,3 +40,12 @@
 [submodule "vim/bundle-all/zencoding"]
 	path = vim/bundle-all/zencoding
 	url = https://github.com/mattn/zencoding-vim.git
+[submodule "vim/bundle-all/info"]
+	path = vim/bundle-all/info
+	url = https://github.com/vim-scripts/info.vim.git
+[submodule "vim/bundle-all/now-sudo"]
+	path = vim/bundle-all/now-sudo
+	url = https://github.com/now/vim-sudo.git
+[submodule "vim/bundle-all/now-man"]
+	path = vim/bundle-all/now-man
+	url = https://github.com/now/vim-man.git

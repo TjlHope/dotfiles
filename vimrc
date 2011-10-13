@@ -344,7 +344,7 @@ nnoremap <Leader>e :LustyBufferExplorer<CR>
 nnoremap <Leader>f :LustyFilesystemExplorer<CR>
 
 """ Man
-runtime ftplugin/man.vim
+"runtime ftplugin/man.vim
 
 """ NERDTree
 let NERDTreeChDirMode = 2
