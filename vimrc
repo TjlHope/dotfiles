@@ -367,6 +367,12 @@ runtime ftplugin/pdf.vim
 """ Pydiction
 "let g:pydiction_location = '~/.vim/after/pydiction/complete-dict'
 
+""" pyflakes
+let g:pyflakes_use_quickfix = 0
+
+""" pep8
+let g:pep8_map='<Leader>8'
+
 """ Screen
 let g:ScreenImpl = 'Tmux'
 let g:ScreenShellHeight = 10
