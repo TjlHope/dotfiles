@@ -118,13 +118,15 @@ autocmd Filetype python setlocal expandtab		" for python 3 compatibility
 """ control wrapping
 set linebreak 						" wraps without <eol>
 autocmd Filetype text setlocal textwidth=0		" overide system vimrc
-autocmd Filetype c,cpp,python setlocal textwidth=78
-autocmd Filetype html,tex,text setlocal wrapmargin=2
-autocmd Filetype html,tex,text setlocal formatoptions+=aw
-autocmd Filetype c,cpp,python setlocal formatoptions-=r	" don't insert comment on <CR>
-autocmd Filetype c,cpp,python setlocal formatoptions-=o	" don't insert comment on o/O
-autocmd Filetype c,cpp,python setlocal formatoptions-=l	" auto format long lines
-autocmd Filetype c,cpp,python setlocal formatoptions+=aw2 " Auto Wrap on textwidth to 2nd line
+autocmd Filetype html,tex,text setlocal
+	    \ wrapmargin=2
+	    \ formatoptions+=aw
+autocmd Filetype c,cpp,python setlocal
+	    \ textwidth=78
+	    \ formatoptions-=r		" don't insert comment on <CR>
+	    \ formatoptions-=o		" don't insert comment on o/O
+	    \ formatoptions-=l		" auto format long lines
+	    \ formatoptions+=aw2	" Auto Wrap on textwidth to 2nd line
 
 
 """"""""""""""""""""""""""""""
@@ -163,16 +165,17 @@ nnoremap <silent> <Space> :nohlsearch<CR>
 " Folding
 """""""""""""""""""""""""
 
-let $code_types = "c,cpp,css,gentoo-init-d,html,js,php,prolog,python,sh,verilog,vhdl,xml"
+" let $code_types = "c,cpp,css,gentoo-init-d,html,js,php,prolog,python,sh,verilog,vhdl,xml"
 "set foldcolumn=5
-autocmd Filetype c,cpp,css,gentoo-init-d,html,js,php,prolog,python,sh,verilog,vhdl,vim,xml setlocal foldcolumn=5
-autocmd Filetype prolog,vim setlocal foldcolumn=3
-autocmd Filetype c,cpp,css,gentoo-init-d,html,js,php,prolog,python,sh,verilog,vhdl,vim,xml setlocal foldmethod=indent
-autocmd Filetype c,cpp,css,gentoo-init-d,html,js,php,prolog,python,sh,verilog,vhdl,vim,xml setlocal foldlevel=0
-autocmd Filetype c,cpp,css,gentoo-init-d,html,js,php,prolog,python,sh,verilog,vhdl,vim,xml setlocal foldlevelstart=2
-autocmd Filetype c,cpp,css,gentoo-init-d,html,js,php,prolog,python,sh,verilog,vhdl,vim,xml setlocal foldminlines=1
-autocmd Filetype c,cpp,css,gentoo-init-d,html,js,php,prolog,python,sh,verilog,vhdl,vim,xml setlocal foldnestmax=10
+autocmd Filetype c,cpp,css,gentoo-init-d,html,js,php,prolog,python,sh,verilog,vhdl,vim,xml setlocal
+	    \ foldcolumn=5
+	    \ foldmethod=indent
+	    \ foldlevel=0
+	    \ foldlevelstart=2
+	    \ foldminlines=1
+	    \ foldnestmax=10
 autocmd Filetype c,cpp,js setlocal foldignore="#"
+autocmd Filetype prolog,vim setlocal foldcolumn=3
 "autocmd Filetype python,sh,js,css,html,xml,php,vhdl,verilog set foldignore="#"
 "autocmd Filetype python autocmd BufWritePre python mkview
 "autocmd Filetype python autocmd BufReadPost python silent loadview
@@ -271,13 +274,13 @@ autocmd BufRead tjh08*.* setlocal spellfile+=/home/tom/.vim/spell/elec.latin1.ad
 " Completion
 """""""""""""""""""""""""
 
-"set autoindent						" indent new line to same as previous
-"set smartindent					" indent on code type
+"set autoindent					" indent new line to same as previous
+"set smartindent				" indent on code type
 
 " automatically open and close the popup menu / preview window
-autocmd CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
-set completeopt=longest,menuone,menu,preview
+"autocmd CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
 
+set completeopt=longest,menuone,menu,preview
 set complete=.,k,w,b,u,t,i				" add dictionary completion
 
 "set omnifunc=syntaxcomplete#Complete
@@ -402,10 +405,14 @@ let g:secure_modelines_verbose = 1
 
 """ SuperTab
 let g:SuperTabDefaultCompletionType = 'context'
-"let g:SuperTabContextDefaultCompletionType = '<c-x><c-o>'
+autocmd Filetype python
+	    \let g:SuperTabContextDefaultCompletionType = '<c-x><c-o>'
 let g:SuperTabMidWordCompletion = 1
-let g:SuperTabCrMapping = 1
+let g:SuperTabRetainCompletionDuration = 'completion'
+let g:SuperTabNoCompletionAfter = ['\s', ',', ';', '|', '&']
+let g:SuperTabLongestEnhanced = 1
 let g:SuperTabLongestHighlight = 0
+let g:SuperTabCrMapping = 1
 
 """ TagList
 noremap <Leader>tl :TlistToggle<CR>
