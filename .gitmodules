@@ -31,8 +31,8 @@
 [submodule "vim/bundle-all/lusty"]
 	path = vim/bundle-all/lusty
 	url = https://github.com/sjbach/lusty.git
-[submodule "vim/bundle-all/info"]
-	path = vim/bundle-all/info
+[submodule "vim/bundle-all/now-info"]
+	path = vim/bundle-all/now-info
 	url = https://github.com/now/vim-info.git
 [submodule "vim/bundle-all/supertab"]
 	path = vim/bundle-all/supertab

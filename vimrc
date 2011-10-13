@@ -2,32 +2,63 @@
 " General settings
 """""""""""""""""""""""""
 
-set nocompatible					" not VI compatible
-set vb t_vb=						" disable bell
-set listchars=trail:-,nbsp:% 				" characters to display specials
-set history=50 						" lines of history to remember
-set mouse=a						" always enable mouse input
-set timeoutlen=500					" shorter timeout
+set nocompatible				" not VI compatible
+set vb t_vb=					" disable bell
+set listchars=trail:-,nbsp:% 			" characters to display specials
+set history=50 					" lines of history to remember
+set mouse=a					" always enable mouse input
+set timeoutlen=500				" shorter timeout
 
-let mapleader = '`'
-noremap! jj <Esc>
+set viminfo='100 				" save marks and jumps in viminfo
 
-command! SV :source $MYVIMRC
-command! SourceVimRC :source $MYVIMRC
+"let &cdpath=substitute($CDPATH, ':', ',', 'g')
+
+""" Pathogen
+runtime bundle/pathogen/autoload/pathogen.vim
+"call pathogen#infect()
+call pathogen#runtime_append_all_bundles()
+
+
+""""""""""""""""""""""""""""""
+" VIM UI
+"""""""""""""""""""""""""
+
+""" Look
+set ruler					" always display cursor position
+
+set number					" set numbering rows
+autocmd StdinReadPost * setlocal nonumber	" but not in man
+
+set showtabline=1				" 0:never 1:>1page 2:always
+autocmd StdinReadPost * set showtabline=1
+
+set tabpagemax=40				" max number opening tabs = ?
 
 colorscheme TjlH_col
 "colorscheme desert
 "colorscheme elflord
 
-"let &cdpath=substitute($CDPATH, ':', ',', 'g')
+""" Feel
+let mapleader = '`'
+noremap! jj <Esc>
 
-"autocmd BufWritePost .vimrc !source ~/.vimrc	" auto reload vimrc
+noremap <Leader>rv :source $MYVIMRC<CR>
+"autocmd BufWritePost **vimrc !source ~/.vimrc	" auto reload vimrc
 "autocmd BufWritePost $MYVIMRC : $MYVIMRC
 
-" use stronger encryption
-set cryptmethod="blowfish"
+set scrolloff=4					" keep cursor 5 lines from edge
+set sidescrolloff=10
 
-""" buffer operations and mappings
+set whichwrap=b,s,>,< 				" which movement chars move lines
+
+set incsearch					" search as type
+set ignorecase smartcase 			" ignore case except explicit UC
+
+" remove search highlighting
+"nohlsearch
+nnoremap <silent> <Space> :nohlsearch<CR>
+
+""" quit for buffers
 function! ExitBuf(...)
     " function to inteligently close windows and buffers
     if a:0	| let bang = a:1
@@ -77,6 +108,36 @@ nnoremap <silent> ZX :Bx<CR>
 
 
 """"""""""""""""""""""""""""""
+" Style and Syntax
+"""""""""""""""""""""""""
+
+syntax on					" enable syntax highlighting
+filetype plugin indent on			" enable file type check and indent
+
+""" Tabs
+set tabstop=8					" spaces per tab
+autocmd Filetype c,cpp setlocal tabstop=4
+set softtabstop=8
+set shiftwidth=4				" spaces per indent
+set noexpandtab					" don't expand tabs to spaces
+set smarttab					" at start shiftwidth, else tabstop
+autocmd Filetype python setlocal expandtab	" for python 3 compatibility
+
+""" control wrapping
+set linebreak 					" wraps without <eol>
+autocmd Filetype text setlocal textwidth=0	" overide system vimrc
+autocmd Filetype html,tex,text setlocal
+	    \ wrapmargin=2
+	    \ formatoptions+=aw
+autocmd Filetype c,cpp,python setlocal
+	    \ textwidth=78
+	    \ formatoptions-=r			" don't insert comment on <CR>
+	    \ formatoptions-=o			" don't insert comment on o/O
+	    \ formatoptions-=l			" auto format long lines
+	    \ formatoptions+=aw2		" Auto Wrap on textwidth to 2nd line
+
+
+""""""""""""""""""""""""""""""
 " File Formats
 """""""""""""""""""""""""
 
@@ -93,72 +154,6 @@ let g:tex_flavor='latex'				" use latex styles
 
 """ use skeleton files
 autocmd BufNewFile * silent! 0r ~/Templates/%:e.%:e
-
-""""""""""""""""""""""""""""""
-" Style and Syntax
-"""""""""""""""""""""""""
-
-""" Pathogen
-runtime bundle/pathogen/autoload/pathogen.vim
-call pathogen#infect()
-
-""" General
-filetype plugin indent on				" enable file type check and indent
-syntax on						" enable syntax highlighting
-
-""" Tabs
-set tabstop=8						" spaces per tab
-autocmd Filetype c,cpp setlocal tabstop=4
-set softtabstop=8
-set shiftwidth=4					" spaces per indent
-set noexpandtab						" don't expand tabs to spaces
-set smarttab						" at start shiftwidth, else tabstop
-autocmd Filetype python setlocal expandtab		" for python 3 compatibility
-
-""" control wrapping
-set linebreak 						" wraps without <eol>
-autocmd Filetype text setlocal textwidth=0		" overide system vimrc
-autocmd Filetype html,tex,text setlocal
-	    \ wrapmargin=2
-	    \ formatoptions+=aw
-autocmd Filetype c,cpp,python setlocal
-	    \ textwidth=78
-	    \ formatoptions-=r		" don't insert comment on <CR>
-	    \ formatoptions-=o		" don't insert comment on o/O
-	    \ formatoptions-=l		" auto format long lines
-	    \ formatoptions+=aw2	" Auto Wrap on textwidth to 2nd line
-
-
-""""""""""""""""""""""""""""""
-" VIM UI
-"""""""""""""""""""""""""
-
-set ruler						" always display cursor position
-
-set number						" set numbering rows
-autocmd StdinReadPost * setlocal nonumber		" but not in man
-
-set showtabline=1					" 0:never 1:>1page 2:always
-autocmd StdinReadPost * set showtabline=1
-
-set tabpagemax=40					" max number opening tabs = ?
-
-set incsearch						" search as type
-set ignorecase smartcase 				" ignore case except explicit UC
-
-set scrolloff=4						" keep cursor 5 lines from edge
-set sidescrolloff=10
-
-"set wildmenu
-set wildmode=longest:list				" bash style file completion
-
-set viminfo='100 					" save marks and jumps in viminfo
-
-set whichwrap=b,s,>,< 					" which movement chars move lines
-
-" remove search highlighting
-nohlsearch
-nnoremap <silent> <Space> :nohlsearch<CR>
 
 
 """"""""""""""""""""""""""""""
@@ -274,14 +269,17 @@ autocmd BufRead tjh08*.* setlocal spellfile+=/home/tom/.vim/spell/elec.latin1.ad
 " Completion
 """""""""""""""""""""""""
 
+"set wildmenu
+set wildmode=longest:list				" bash style file completion
+
+set completeopt=longest,menuone,menu,preview
+set complete=.,k,w,b,u,t,i				" add dictionary completion
+
 "set autoindent					" indent new line to same as previous
 "set smartindent				" indent on code type
 
 " automatically open and close the popup menu / preview window
 "autocmd CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
-
-set completeopt=longest,menuone,menu,preview
-set complete=.,k,w,b,u,t,i				" add dictionary completion
 
 "set omnifunc=syntaxcomplete#Complete
 "autocmd FileType css set omnifunc=csscomplete#CompleteCSS
@@ -406,7 +404,7 @@ let g:secure_modelines_verbose = 1
 """ SuperTab
 let g:SuperTabDefaultCompletionType = 'context'
 autocmd Filetype python
-	    \let g:SuperTabContextDefaultCompletionType = '<c-x><c-o>'
+	    \ let g:SuperTabContextDefaultCompletionType = '<c-x><c-o>'
 let g:SuperTabMidWordCompletion = 1
 let g:SuperTabRetainCompletionDuration = 'completion'
 let g:SuperTabNoCompletionAfter = ['\s', ',', ';', '|', '&']
@@ -436,6 +434,9 @@ set printfont=:h9
 """"""""""""""""""""""""""""""
 " Misc
 """""""""""""""""""""""""
+
+" use stronger encryption
+set cryptmethod="blowfish"
 
 function! SetLastModified()
     " Function to set the modified time in a file
