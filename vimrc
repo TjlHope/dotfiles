@@ -98,12 +98,15 @@ autocmd BufNewFile * silent! 0r ~/Templates/%:e.%:e
 " Style and Syntax
 """""""""""""""""""""""""
 
+""" Pathogen
+runtime bundle/pathogen/autoload/pathogen.vim
+call pathogen#infect()
+
+""" General
 filetype plugin indent on				" enable file type check and indent
 syntax on						" enable syntax highlighting
 
-set number							" set numbering rows
-autocmd StdinReadPost * setlocal nonumber		" but not in man
-
+""" Tabs
 set tabstop=8						" spaces per tab
 autocmd Filetype c,cpp setlocal tabstop=4
 set softtabstop=8
@@ -129,6 +132,10 @@ autocmd Filetype c,cpp,python setlocal formatoptions+=aw2 " Auto Wrap on textwid
 """""""""""""""""""""""""
 
 set ruler						" always display cursor position
+
+set number						" set numbering rows
+autocmd StdinReadPost * setlocal nonumber		" but not in man
+
 set showtabline=1					" 0:never 1:>1page 2:always
 autocmd StdinReadPost * set showtabline=1
 
@@ -200,7 +207,7 @@ function! Fold_vimrc(l)
 	"endif
     endif
 endfunction
-autocmd BufRead $MYVIMRC setlocal foldmethod=expr foldexpr=Fold_vimrc(v:lnum) 
+autocmd BufRead **vimrc setlocal foldmethod=expr foldexpr=Fold_vimrc(v:lnum) 
 "autocmd Filetype vim setlocal foldlevel=1
 
 """ fold python
@@ -327,9 +334,11 @@ let g:easytags_resolve_links = 1
 nnoremap <Leader>tu :UpdateTags<CR>
 nnoremap <Leader>th :HighlightTags<CR>
 
-""" lustyexplorer
+""" lusty
 set hidden		" just hide abandoned buffers, don't unload
 let g:LustyExplorerSuppressHiddenWarning = 1
+nnoremap <Leader>j :LustyJuggler<CR>
+nnoremap <Leader>p :LustyJugglePrevious<CR>
 nnoremap <Leader>e :LustyBufferExplorer<CR>
 nnoremap <Leader>f :LustyFilesystemExplorer<CR>
 
@@ -367,6 +376,7 @@ noremap <Leader>sv :ScreenShell<CR>
 noremap <Leader>sb :ScreenShell bash<CR>
 noremap <Leader>sd :ScreenShell dash<CR>
 noremap <Leader>sp :ScreenShell python<CR>
+noremap <Leader>si :ScreenShell ipython<CR>
 noremap <Leader>so :ScreenShell octave<CR>
 noremap <Leader>sa :ScreenShellAttach<CR>
 noremap <Leader>ss :ScreenSend<CR>
@@ -398,8 +408,8 @@ noremap <Leader>tl :TlistToggle<CR>
 autocmd FileType *.tft setlocal filetype=text.txtfmt
 autocmd FileType *.tft.?,*.tft.??,*.tft.???,*.tft.???? setlocal filetype+=.txtfmt
 
-""" zen coding
-let g:user_zen_leader_key = '<C-Space>'
+""" zencoding
+let g:user_zen_leader_key = '<Leader>z'
 let g:use_zen_complete_tag = 1
 
 

@@ -5,4 +5,4 @@
     conflictstyle = diff3
     tool = vimdiff
 [core]
-    excludesfile = /home/tom/.gitexclude
+    excludesfile = ~/.cvsignore
