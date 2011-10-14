@@ -129,8 +129,8 @@ autocmd Filetype text setlocal textwidth=0	" overide system vimrc
 autocmd Filetype html,tex,text setlocal
 	    \ wrapmargin=2
 	    \ formatoptions+=aw
-autocmd Filetype c,cpp,python setlocal
-	    \ textwidth=78
+autocmd Filetype c,cpp,python,sh setlocal
+	    \ textwidth=79
 	    \ formatoptions-=r			" don't insert comment on <CR>
 	    \ formatoptions-=o			" don't insert comment on o/O
 	    \ formatoptions-=l			" auto format long lines
@@ -270,7 +270,7 @@ autocmd BufRead tjh08*.* setlocal spellfile+=/home/tom/.vim/spell/elec.latin1.ad
 """""""""""""""""""""""""
 
 "set wildmenu
-set wildmode=longest:list				" bash style file completion
+set wildmode=longest:list				" shell style file completion
 
 set completeopt=longest,menuone,menu,preview
 set complete=.,k,w,b,u,t,i				" add dictionary completion
