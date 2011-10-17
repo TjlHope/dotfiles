@@ -56,7 +56,7 @@ set ignorecase smartcase 			" ignore case except explicit UC
 
 " remove search highlighting
 "nohlsearch
-nnoremap <silent> <Space> :nohlsearch<CR>
+nnoremap <Space> :nohlsearch<CR>:<CR>
 
 """ quit for buffers
 function! ExitBuf(...)
@@ -279,7 +279,7 @@ set complete=.,k,w,b,u,t,i				" add dictionary completion
 "set smartindent				" indent on code type
 
 " automatically open and close the popup menu / preview window
-autocmd CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
+autocmd InsertLeave * if pumvisible() == 0|silent! pclose|endif
 
 "set omnifunc=syntaxcomplete#Complete
 "autocmd FileType css set omnifunc=csscomplete#CompleteCSS
@@ -334,6 +334,15 @@ let g:easytags_autorecurse = 0
 let g:easytags_resolve_links = 1
 nnoremap <Leader>tu :UpdateTags<CR>
 nnoremap <Leader>th :HighlightTags<CR>
+
+""" fugitive
+nnoremap <Leader>gs :Gstatus<CR>
+nnoremap <Leader>gc :Gcommit<CR>
+nnoremap <Leader>gca :Gcommit -a<CR>
+nnoremap <Leader>gd :Gdiff<CR>
+" get branch info in ruler (statusline)
+set rulerformat=%32(%{fugitive#statusline()}%=%-12.(%c%V,%l%)%)\ %P
+set laststatus=0		" don't show status line at bottom of tab
 
 """ lusty
 set hidden		" just hide abandoned buffers, don't unload
