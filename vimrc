@@ -279,7 +279,7 @@ set complete=.,k,w,b,u,t,i				" add dictionary completion
 "set smartindent				" indent on code type
 
 " automatically open and close the popup menu / preview window
-"autocmd CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
+autocmd CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
 
 "set omnifunc=syntaxcomplete#Complete
 "autocmd FileType css set omnifunc=csscomplete#CompleteCSS
