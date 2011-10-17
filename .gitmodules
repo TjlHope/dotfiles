@@ -49,3 +49,6 @@
 [submodule "vim/bundle-all/now-man"]
 	path = vim/bundle-all/now-man
 	url = https://github.com/now/vim-man.git
+[submodule "vim/bundle-all/sparkup"]
+	path = vim/bundle-all/sparkup
+	url = https://github.com/rstacruz/sparkup.git

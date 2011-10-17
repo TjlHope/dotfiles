@@ -128,6 +128,11 @@ alias rgrep='grep ./ -Re'
 alias lpgrep='pgrep -l'
 alias which='(alias; declare -f) | which -i'
 
+# program aliases
+alias bc='bc --quiet'
+alias opera='opera -nomail'
+alias xo='xdg-open'
+
 # gentoo aliases
 alias elist='equery list --installed --portage-tree --overlay-tree'
 
@@ -141,11 +146,9 @@ alias VisualBoyAdvance='VisualBoyAdvance --config="/home/tom/.VBArc"'
 
 # misc aliases
 alias luvcview.i='luvcview -f yuv -i 30'
+alias prog.msp430='make; echo -e "\n###########\n"; mspdebug -q rf2500 "prog main.elf"'
 #alias umount.media='for x in /media/[^c][^d]* ; do pumount "$x" ; done'
 #alias umount.cd='pumount /media/cdrom/'
-alias prog.msp430='make; echo -e "\n###########\n"; mspdebug -q rf2500 "prog main.elf"'
-alias opera='opera -nomail'
-alias bc='bc --quiet'
 
 ### enable bash completion
 [ -f /etc/profile.d/bash-completion.sh ] &&
