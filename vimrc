@@ -64,15 +64,20 @@ function! ExitBuf(...)
     if a:0	| let bang = a:1
     else	| let bang = ''
     endif
+    " first check if it's a [Preview] window
+    if &previewwindow == 1
+	execute 'pclose' . bang
+	return
+    endif
     " current vars
-    let c_b = bufnr("%")			" current buffer
+    let c_b = bufnr('%')			" current buffer
     let c_w = winnr()				" current window
     let c_t = tabpagenr()			" current tabpage
     " control vars
     let o_b = 1					" assume only buffer
     let o_w = 1					" assume only window to buffer
     " find if we're the only listed buffer
-    for b_i in range(1, bufnr("$"))		" iterate from first buffer to last
+    for b_i in range(1, bufnr('$'))		" iterate from first buffer to last
 	if buflisted(b_i)			" valid buffer?
 	    if b_i != c_b
 		let o_b = 0 | break		" not only buffer
@@ -80,9 +85,9 @@ function! ExitBuf(...)
 	endif
     endfor
     " find if we're the only window linked to the  buffer
-    for t_i in range(1, tabpagenr("$"))		" iterate by tab and window
+    for t_i in range(1, tabpagenr('$'))		" iterate by tab and window
 	let t_bs = tabpagebuflist(t_i)
-	for w_i in range(1, tabpagewinnr(t_i, "$"))
+	for w_i in range(1, tabpagewinnr(t_i, '$'))
 	    if (! (t_i == c_t && w_i == c_w)) && (t_bs[w_i - 1] == c_b)
 		let o_w = 0 | break		" not only window to buffer
 	    endif
