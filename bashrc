@@ -82,9 +82,6 @@ fi
 ## Put your fun stuff here.
 ######################
 
-# set user locale
-export LANG="en_GB.utf8"
-
 # prevents adding of useless commands to bash_history
 export HISTCONTROL="ignoreboth"
 export HISTIGNORE="ls:lh:ll:la:lA:lal:lAl:lgd:lagd:duh:df:dfh:cd:[bf]g:batt:exit:?q"
@@ -114,11 +111,6 @@ alias dfh='df -h'
 # vi like stuff aliases
 alias vp='vimpager'
 alias vmp='vimmanpager'
-alias pydoc='PAGER="$MANPAGER" pydoc'
-alias python='PAGER="$MANPAGER" python'
-alias python2='PAGER="$MANPAGER" python2'
-alias python3='PAGER="$MANPAGER" python3'
-alias octave='octave --silent'
 alias dash='dash -V'
 alias :q='exit'
 
@@ -130,7 +122,13 @@ alias which='(alias; declare -f) | which -i'
 
 # program aliases
 alias bc='bc --quiet'
+alias ipython='PAGER="$MANPAGER" ipython'
 alias opera='opera -nomail'
+alias pydoc='PAGER="$MANPAGER" pydoc'
+alias python='PAGER="$MANPAGER" python'
+alias python2='PAGER="$MANPAGER" python2'
+alias python3='PAGER="$MANPAGER" python3'
+alias octave='octave --silent'
 alias xo='xdg-open'
 
 # gentoo aliases
@@ -162,24 +160,6 @@ complete -o dirnames -fX '!*.[Gg][Bb]*' VisualBoyAdvance
 complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume 
 complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume-glade
 complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume-cli 
-
-### python vars
-pythonpath="$HOME/Documents/Code/python"
-[ -n "${PYTHONPATH}" ] &&
-    export PYTHONPATH="${PYTHONPATH%${pythonpath}}:${pythonpath}" ||
-    export PYTHONPATH=${pythonpath}
-unset pythonpath	# keep env pollution down
-
-### gnuplot vars
-GNUPLOT_FONTPATH+=":/usr/share/fonts/!"
-GDFONTPATH+=":/usr/share/fonts/!"
-GNUPLOT_DEFAULT_GDFONT="veranda"
-
-### gnash / lightspark
-export GNASH_PLUGIN_DESCRIPTION="Shockwave Flash 10.1 r999"
-
-#export WINEDEBUG="-all"
-export INTEL_BATCH=1
 
 # Add ssh keys to agent
 /usr/bin/keychain -q $(ls "${HOME}/.ssh/" | sed -ne '/id.*[^\(.pub\)]$/p')
