@@ -64,8 +64,11 @@ function! ExitBuf(...)
     if a:0	| let bang = a:1
     else	| let bang = ''
     endif
-    " first check if it's a [Preview] window
-    if &previewwindow == 1
+    " first check if it's a help/quickfix/preview windoe 
+    if &filetype =~ '\(help\|man\|info\|qf\)'
+	execute 'close' . bang
+	return
+    elseif &previewwindow == 1
 	execute 'pclose' . bang
 	return
     endif
