@@ -1,0 +1,13 @@
+
+[default]
+# Write your default config options here!
+ao=alsa
+vo=xv
+
+stop-xscreensaver=true
+
+[gnome-mplayer]
+msglevel=all=5
+vo=xv
+vf=eq2
+ao=alsa
