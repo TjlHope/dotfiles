@@ -345,6 +345,7 @@ let g:easytags_autorecurse = 0
 let g:easytags_resolve_links = 1
 nnoremap <Leader>tu :UpdateTags<CR>
 nnoremap <Leader>th :HighlightTags<CR>
+set notagbsearch	" file generated seems to not play nice with binary search
 
 """ fugitive
 nnoremap <Leader>gs :Gstatus<CR>
