@@ -46,6 +46,9 @@ noremap <Leader>rv :source $MYVIMRC<CR>
 "autocmd BufWritePost **vimrc !source ~/.vimrc	" auto reload vimrc
 "autocmd BufWritePost $MYVIMRC : $MYVIMRC
 
+noremap <Leader>mx :!chmod +x %<CR>
+noremap <Leader>x :!"$(dirname %)/$(basename %)"<CR>
+
 set scrolloff=4					" keep cursor 5 lines from edge
 set sidescrolloff=10
 
