@@ -27,9 +27,11 @@ call pathogen#runtime_append_all_bundles()
 set ruler					" always display cursor position
 
 set number					" set numbering rows
-autocmd StdinReadPost * setlocal nonumber	" but not in man
+autocmd Filetype info,man setlocal nonumber
+"autocmd StdinReadPost * setlocal nonumber	" but not in man
 
 set showtabline=1				" 0:never 1:>1page 2:always
+"autocmd Filetype info,man setlocal showtabline=1
 autocmd StdinReadPost * set showtabline=1
 
 set tabpagemax=40				" max number opening tabs = ?
@@ -136,16 +138,19 @@ autocmd Filetype python setlocal expandtab	" for python 3 compatibility
 
 """ control wrapping
 set linebreak 					" wraps without <eol>
-autocmd Filetype text setlocal textwidth=0	" overide system vimrc
-autocmd Filetype html,tex,text setlocal
-	    \ wrapmargin=2
-	    \ formatoptions+=aw
 autocmd Filetype c,cpp,python,sh setlocal
 	    \ textwidth=79
 	    \ formatoptions-=r			" don't insert comment on <CR>
 	    \ formatoptions-=o			" don't insert comment on o/O
 	    \ formatoptions-=l			" auto format long lines
 	    \ formatoptions+=aw2		" Auto Wrap on textwidth to 2nd line
+autocmd Filetype text setlocal textwidth=0	" overide system vimrc
+autocmd Filetype html,markdown,rst,tex,text setlocal
+	    \ wrapmargin=2
+	    \ formatoptions+=aw
+autocmd Filetype markdown,rst setlocal
+	    \ textwidth=79
+	    \ formatoptions+=n
 
 
 """"""""""""""""""""""""""""""
@@ -265,8 +270,8 @@ noremap <Leader>o <C-o>
 
 "autocmd Filetype tex,python,javascript,html,css,php,c,cpp set spell
 autocmd Filetype css,html,javascript,php,tex,text setlocal spell
-autocmd Filetype help,conf setlocal nospell
-autocmd StdinReadPost * setlocal nospell		" but not in man
+autocmd Filetype conf,help,info,man setlocal nospell
+"autocmd StdinReadPost * setlocal nospell		" but not in man
 
 set spelllang=en_gb					" spell check language to GB
 set spellfile=/home/tom/.vim/spell/I.latin1.add		" set my spellfile
