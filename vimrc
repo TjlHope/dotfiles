@@ -132,9 +132,10 @@ set tabstop=8					" spaces per tab
 autocmd Filetype c,cpp setlocal tabstop=4
 set softtabstop=8
 set shiftwidth=4				" spaces per indent
+autocmd Filetype markdown,rst setlocal shiftwidth=2
 set noexpandtab					" don't expand tabs to spaces
+autocmd Filetype rst,python setlocal expandtab	" for python 3 compatibility
 set smarttab					" at start shiftwidth, else tabstop
-autocmd Filetype python setlocal expandtab	" for python 3 compatibility
 
 """ control wrapping
 set linebreak 					" wraps without <eol>
