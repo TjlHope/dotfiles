@@ -39,14 +39,14 @@ if ${use_color} ; then
     alias grep='grep --colour=auto'
     [[ ${EUID} == 0 ]] &&
 	PS1='\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] ' ||
-	PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \$\[\033[00m\] '
+	PS1='\[\033[01;32m\]\u\[\033[00;32m\]@\[\033[00;92m\]\h\[\033[01;34m\] $(_W)\[\033[00;36m\]$(__git_ps1) \[\033[01;34m\]\$\[\033[00m\] '
     # set color terminal
     #[[ "$XAUTHORITY" ]] && export TERM="xterm-256color"
 else
     # show root@ when we don't have colors
     [[ ${EUID} == 0 ]] &&
 	PS1='\u@\h \W \$ ' ||
-	PS1='\u@\h \w \$ '
+	PS1='\u@\h $(_W) $(__git_ps1) \$ '
     # set non-color terminal
     #[[ "$XAUTHORITY" ]] && export TERM="xterm"
 fi
@@ -75,7 +75,39 @@ then
     esac
 fi
 
-## end color control
+## End vte fix
+######################
+
+###############################
+## Short version of \w for PS1
+
+_W () {
+    wd="${PWD/#${HOME}/~}"	# CWD with ~ for $HOME
+    len=30			# max length of \w
+    min_len=3			# min length to try and shrink (?.. = 3)
+    # Keep trying to shrink, one directory at a time
+    while [ ${#wd} -gt ${len} ]
+    do
+	h=${wd%%/*}		# head (~) if it's there
+	b=${wd#${h}/}		# main body
+	# Iterate over directories for one to shrink
+	nb=""			# new body (before current dir)
+	d=${b%%/*}		# current directory
+	b=${b#${d}/}		# body (after current dir)
+	while [ "${d}" != "${b}" -a ${#d} -le ${min_len} ]
+	do			# if current directory too short
+	    nb="${nb}/${d}"	# add it to new body
+	    d=${b%%/*}		# get next directory
+	    b=${b#${d}/}	# get rest of body after new dir
+	done
+	[ "${d}" = "${b}" ] &&	# if dir = body (ie tried to shrink all dirs)
+	    break ||
+	    wd="${h}/${nb#/}${nb:+/}${d:0:1}../${b}"	# join for new \w
+    done
+    echo "${wd}"
+}
+
+## End Short \w for PS1
 ######################
 
 ###############################
@@ -133,6 +165,7 @@ alias elist='equery list --installed --portage-tree --overlay-tree'
 
 # git aliases
 alias gs='git status'
+alias gl='git log'
 alias gca='git commit -a'
 
 # game aliases
@@ -142,8 +175,6 @@ alias VisualBoyAdvance='VisualBoyAdvance --config="/home/tom/.VBArc"'
 # misc aliases
 alias luvcview.i='luvcview -f yuv -i 30'
 alias prog.msp430='make; echo -e "\n###########\n"; mspdebug -q rf2500 "prog main.elf"'
-#alias umount.media='for x in /media/[^c][^d]* ; do pumount "$x" ; done'
-#alias umount.cd='pumount /media/cdrom/'
 
 ### enable bash completion
 [ -f /etc/profile.d/bash-completion.sh ] &&
