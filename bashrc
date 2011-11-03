@@ -115,9 +115,6 @@ alias dash='dash -V'
 alias :q='exit'
 
 # searching aliases
-alias lgrep='grep -A2 -B2'
-alias rgrep='grep ./ -Re'
-alias lpgrep='pgrep -l'
 alias which='(alias; declare -f) | which -i'
 
 # program aliases
