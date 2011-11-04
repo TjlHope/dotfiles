@@ -39,14 +39,14 @@ if ${use_color} ; then
     alias grep='grep --colour=auto'
     [[ ${EUID} == 0 ]] &&
 	PS1='\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] ' ||
-	PS1='\[\033[01;32m\]\u\[\033[00;32m\]@\[\033[00;92m\]\h\[\033[01;34m\] $(_W)\[\033[00;36m\]$(__git_ps1) \[\033[01;34m\]\$\[\033[00m\] '
+	PS1='\[\033[01;32m\]\u\[\033[00;32m\]@\[\033[00;92m\]\h\[\033[01;34m\] $(_W)\[\033[00;36m\]$(_B) \[\033[01;34m\]\$\[\033[00m\] '
     # set color terminal
     #[[ "$XAUTHORITY" ]] && export TERM="xterm-256color"
 else
     # show root@ when we don't have colors
     [[ ${EUID} == 0 ]] &&
 	PS1='\u@\h \W \$ ' ||
-	PS1='\u@\h $(_W) $(__git_ps1) \$ '
+	PS1='\u@\h $(_W)$(_B) \$ '
     # set non-color terminal
     #[[ "$XAUTHORITY" ]] && export TERM="xterm"
 fi
@@ -79,11 +79,12 @@ fi
 ######################
 
 ###############################
-## Short version of \w for PS1
+## Functions to customise PS1
 
+# Short version of \w
 _W () {
     local wd="${PWD/#${HOME}/~}"	# CWD with ~ for $HOME
-    local len=30		# max length of \w
+    local len=$((${COLUMNS}/2-25))	# max length of \w
     #local rep=".."		# replacement string to indicate shriking
     local rep="…"		# term needs same encoding as file (utf8)
     local chars=1		# number of characters to keep from name
@@ -116,7 +117,29 @@ _W () {
     echo "${wd}"
 }
 
-## End Short \w for PS1
+# repo branch
+_B () {
+    local d=$PWD
+    local b=""
+    while [ -n "${d}" ]
+    do
+	if [ -d ${d}/.git ]
+	then
+	    b=$(<${d}/.git/HEAD)
+	    b=${b##*/}
+	elif [ -d ${d}/.hg ]
+	then
+	    b=$(<${d}/.hg/branch)
+	else
+	    d=${d%/*}
+	    continue
+	fi
+	echo " (${b})"
+	break
+    done
+}
+
+## End functions
 ######################
 
 ###############################
