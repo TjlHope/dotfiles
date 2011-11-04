@@ -47,33 +47,44 @@ unset use_color safe_term match_lhs
 ## Short version of \w - attempt to limit PWD to set length.
 _W () {
     local wd="${PWD/#${HOME}/~}"	# CWD with ~ for $HOME
-    local len=$((${COLUMNS:-80} / 2 - 25))	# max length of \w
-    #local rep=".."		# replacement string to indicate shriking
-    local rep="…"		# term needs same encoding as file (utf8)
-    local chars=1		# number of characters to keep from name
-    local fixdot=1		# positive to have ${chars} after . in .dirs
+    local len=${1:-30}			# max length of \w
+    #local len=$((${COLUMNS:-80} / 2 - 25))
+    #local rep=".."	# replacement string to indicate shriking
+    local rep="…"	# for this term needs same encoding as file (utf8)
+    local chars=1	# minimum number of characters to keep from name
+    local fixdot=1	# non-zero to have ${chars} after . in .dirs
+    local iter=3	# incrementally decrement len to ${chars}...
+    local sep=2		# ... using decrement of ${sep}
+    local nchars=$((${chars}+${iter}*${sep}))	# chars depending on ${iter}
     # Keep trying to shrink, one directory at a time
     while [ ${#wd} -gt ${len} ]
     do
 	local h=${wd%%/*}	# head (~) if it's there
 	local b=${wd#${h}/}	# main body
-	# Iterate over directories for one to shrink
 	local nb=""		# new body (before current dir)
 	local d=${b%%/*}	# current directory
 	# Number of chars depending on ${fixdot}
 	[ ${fixdot:-0} -gt 0 -a ${d} != ${d#.} ] &&
-	    local nc=$((${chars}+1)) || local nc=${chars}
+	    local nc=$((${nchars}+1)) || local nc=${nchars}
 	b=${b#${d}/}		# body (after current dir)
+	# Iterate over directories for directory to shrink
 	while [ "${d}" != "${b}" -a ${#d} -le $((${nc}+${#rep})) ]
 	do			# if current directory too short
 	    nb="${nb}/${d}"	# add it to new body
 	    d=${b%%/*}		# get next directory
 	    b=${b#${d}/}	# get rest of body after new dir
+	    # Number of chars depending on ${fixdot}
 	    [ ${fixdot:-0} -gt 0 -a ${d} != ${d#.} ] &&
-		nc=$((${chars}+1)) || nc=${chars}
+		nc=$((${nchars}+1)) || nc=${nchars}
 	done
-	[ "${d}" = "${b}" ] &&	# if dir = body (ie tried to shrink all dirs)
-	    break		# ... done all we can, so end
+	[ "${d}" = "${b}" ] && {	# tried to shrink all dirs?
+	    [ ${iter} -gt 0 ] && {	# still got iterations to go?
+		iter=$((${iter}-1))
+		nchars=$((${chars}+${iter}*${sep}))
+		continue
+	    } ||
+		break			# ... done all we can, so end
+	}
 	# Join with reduced dir for new CWD
 	wd="${h}/${nb#/}${nb:+/}${d:0:${nc}}${rep}/${b}"
     done
@@ -129,10 +140,12 @@ _R () {
 
 # If run as a program, output a representation of PS1
 [ ${0##*/} != "bash" ] &&
+    [ "${1}" = "raw" ] &&
+    echo "PS1:	${PS1}" ||
     echo -e "PS1:\t$(echo "${PS1}" | sed -e 's:\\\(\[\|\]\)::g' \
 					-e "s:\\\\u:$USER:g" \
 					-e "s:\\\\h:$(hostname):g" \
 					-e "s:\$(_W):$(_W):g" \
 					-e "s:\$(_R):$(_R):g" \
 					-e 's:\\\$:$:g' \
-			    )"
+		    )"
