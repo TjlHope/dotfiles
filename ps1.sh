@@ -90,8 +90,31 @@ _R () {
     do
 	if [ -d ${d}/.git ]	# git repo
 	then
-	    b=$(<${d}/.git/HEAD)
-	    b=${b##*/}
+	    # Take action parsing from git bash completion
+	    if [ -f "${d}/.git/rebase-merge/interactive" ]; then
+		x="|REBASE-i"
+		b="$(< "${d}/.git/rebase-merge/head-name")"
+	    elif [ -d "${d}/.git/rebase-merge" ]; then
+		x="|REBASE-m"
+		b="$(< "${d}/.git/rebase-merge/head-name")"
+	    else
+		if [ -d "${d}/.git/rebase-apply" ]; then
+		    if [ -f "${d}/.git/rebase-apply/rebasing" ]; then
+			x="|REBASE"
+		    elif [ -f "${d}/.git/rebase-apply/applying" ]; then
+			x="|AM"
+		    else
+			x="|AM/REBASE"
+		    fi
+		elif [ -f "${d}/.git/MERGE_HEAD" ]; then
+		    x="|MERGING"
+		elif [ -f "${d}/.git/BISECT_LOG" ]; then
+		    x="|BISECTING"
+		fi
+	    # End action parsing from git bash completion.
+		b=$(< "${d}/.git/HEAD")
+		b=${b##*/}
+	    fi
 	elif [ -d ${d}/.hg ]	# mercurial repo
 	then
 	    b=$(<${d}/.hg/branch)
