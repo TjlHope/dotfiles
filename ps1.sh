@@ -139,7 +139,7 @@ _R () {
 }
 
 # If run as a program, output a representation of PS1
-[ ${0##*/} != "bash" ] &&
+[ ${0##*/} = "ps1.sh" ] && {
     [ "${1}" = "raw" ] &&
     echo "PS1:	${PS1}" ||
     echo -e "PS1:\t$(echo "${PS1}" | sed -e 's:\\\(\[\|\]\)::g' \
@@ -149,3 +149,4 @@ _R () {
 					-e "s:\$(_R):$(_R):g" \
 					-e 's:\\\$:$:g' \
 		    )"
+}
