@@ -10,9 +10,9 @@ do
 	[ -d ${d} ] ||
 	    mkdir ${d}
 	cd ${d}
-	for sf in ${f}/*
+	for sf in ../${f}/*
 	do
-	    ln -fs "../${sf}"
+	    ln -fs ${sf}
 	done
 	cd -
     else
