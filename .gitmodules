@@ -52,3 +52,6 @@
 [submodule "vim/bundle-all/sparkup"]
 	path = vim/bundle-all/sparkup
 	url = https://github.com/rstacruz/sparkup.git
+[submodule "vim/bundle-all/afterimage"]
+	path = vim/bundle-all/afterimage
+	url = https://github.com/tpope/vim-afterimage.git
