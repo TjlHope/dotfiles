@@ -152,6 +152,7 @@ autocmd Filetype html,markdown,rst,tex,text setlocal
 autocmd Filetype markdown,rst setlocal
 	    \ textwidth=79
 	    \ formatoptions+=n
+autocmd Filetype gif,png,xpm,xbm setlocal nowrap
 
 
 """"""""""""""""""""""""""""""
