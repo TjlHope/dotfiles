@@ -12,11 +12,11 @@ do
 	cd ${d}
 	for sf in ${f}/*
 	do
-	    echo ln -s "../${sf}"
+	    ln -fs "../${sf}"
 	done
 	cd -
     else
-	echo ln -s ${f} ".$(basename ${f})"
+	ln -fs ${f} ".$(basename ${f})"
     fi
 done
 
