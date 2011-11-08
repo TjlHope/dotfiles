@@ -59,22 +59,22 @@ _W () {
     # Keep trying to shrink, one directory at a time
     while [ ${#wd} -gt ${len} ]
     do
-	local h=${wd%%/*}	# head (~) if it's there
-	local b=${wd#${h}/}	# main body
+	local h="${wd%%/*}"	# head (~) if it's there
+	local b="${wd#${h}/}"	# main body
 	local nb=""		# new body (before current dir)
-	local d=${b%%/*}	# current directory
+	local d="${b%%/*}"	# current directory
 	# Number of chars depending on ${fixdot}
-	[ ${fixdot:-0} -gt 0 -a ${d} != ${d#.} ] &&
+	[ ${fixdot:-0} -gt 0 -a "${d}" != "${d#.}" ] &&
 	    local nc=$((${nchars}+1)) || local nc=${nchars}
-	b=${b#${d}/}		# body (after current dir)
+	b="${b#${d}/}"		# body (after current dir)
 	# Iterate over directories for directory to shrink
 	while [ "${d}" != "${b}" -a ${#d} -le $((${nc}+${#rep})) ]
 	do			# if current directory too short
 	    nb="${nb}/${d}"	# add it to new body
-	    d=${b%%/*}		# get next directory
-	    b=${b#${d}/}	# get rest of body after new dir
+	    d="${b%%/*}"	# get next directory
+	    b="${b#${d}/}"	# get rest of body after new dir
 	    # Number of chars depending on ${fixdot}
-	    [ ${fixdot:-0} -gt 0 -a ${d} != ${d#.} ] &&
+	    [ ${fixdot:-0} -gt 0 -a "${d}" != "${d#.}" ] &&
 		nc=$((${nchars}+1)) || nc=${nchars}
 	done
 	[ "${d}" = "${b}" ] && {	# tried to shrink all dirs?
@@ -93,13 +93,13 @@ _W () {
 
 ## Include repositary information, e.g. branch, etc.
 _R () {
-    local d=$PWD	# current dir
+    local d="$PWD"	# current dir
     local b=""		# branch name
     local x=""		# extra information about repo
     # Iterate up to root directory searching for repo.
     while [ -n "${d}" ]
     do
-	if [ -d ${d}/.git ]	# git repo
+	if [ -d "${d}/.git" ]	# git repo
 	then
 	    # Take action parsing from git bash completion
 	    if [ -f "${d}/.git/rebase-merge/interactive" ]; then
@@ -123,14 +123,14 @@ _R () {
 		    x="|BISECTING"
 		fi
 	    # End action parsing from git bash completion.
-		b=$(< "${d}/.git/HEAD")
-		b=${b##*/}
+		b="$(< "${d}/.git/HEAD")"
+		b="${b##*/}"
 	    fi
-	elif [ -d ${d}/.hg ]	# mercurial repo
+	elif [ -d "${d}/.hg" ]	# mercurial repo
 	then
-	    b=$(<${d}/.hg/branch)
+	    b="$(< ${d}/.hg/branch)"
 	else
-	    d=${d%/*}		# up a directory
+	    d="${d%/*}"		# up a directory
 	    continue
 	fi
 	echo " (${b}${x})"
@@ -139,7 +139,7 @@ _R () {
 }
 
 # If run as a program, output a representation of PS1
-[ ${0##*/} = "ps1.sh" ] && {
+[ "${0##*/}" = "ps1.sh" ] && {
     [ "${1}" = "raw" ] &&
     echo "PS1:	${PS1}" ||
     echo -e "PS1:\t$(echo "${PS1}" | sed -e 's:\\\(\[\|\]\)::g' \
