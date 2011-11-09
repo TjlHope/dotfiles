@@ -1,7 +1,7 @@
 # ~/.profile
 # vim: ft=sh
 
-export PATH="~/bin:${PATH}"
+export PATH="${HOME}/bin:${PATH}"
 
 # set user locale
 export LANG="en_GB.utf8"
