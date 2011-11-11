@@ -50,6 +50,7 @@ noremap <Leader>rv :source $MYVIMRC<CR>
 
 noremap <Leader>mx :!chmod +x %<CR>
 noremap <Leader>x :!"$(dirname %)/$(basename %)"<CR>
+noremap <Leader>X :!"$(dirname %)/$(basename %)"<Up>
 
 set scrolloff=4					" keep cursor 5 lines from edge
 set sidescrolloff=10
@@ -431,8 +432,8 @@ let g:secure_modelines_verbose = 1
 
 """ SuperTab
 let g:SuperTabDefaultCompletionType = 'context'
-autocmd Filetype python
-	    \ let g:SuperTabContextDefaultCompletionType = '<c-x><c-o>'
+"autocmd Filetype python
+	    "\ let g:SuperTabContextDefaultCompletionType = '<c-x><c-o>'
 let g:SuperTabMidWordCompletion = 1
 let g:SuperTabRetainCompletionDuration = 'completion'
 let g:SuperTabNoCompletionAfter = ['\s', ',', ';', '|', '&']
