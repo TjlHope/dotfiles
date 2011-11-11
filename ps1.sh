@@ -17,6 +17,7 @@ match_lhs=""
 [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] && use_color=true
 
 if ${use_color} ; then
+    [ "${TERM}" = "linux" ] && hi="01;3" || hi="00;9"
     # Enable colors for ls, etc.  Prefer ~/.dir_colors #64489
     if type -P dircolors >/dev/null ; then
 	if [[ -f ~/.dir_colors ]] ; then
@@ -28,8 +29,8 @@ if ${use_color} ; then
     alias ls='ls --color=auto'
     alias grep='grep --colour=auto'
     [[ ${EUID} == 0 ]] &&
-	PS1='\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] ' ||
-	PS1='\[\033[01;32m\]\u\[\033[00;32m\]@\[\033[00;92m\]\h\[\033[01;34m\] $(_W)\[\033[00;36m\]$(_R) \[\033[01;34m\]\$\[\033[00m\] '
+	PS1='\[\033['"$hi"'1m\]\h\[\033[01;34m\] \W \$\[\033[00m\] ' ||
+	PS1='\[\033[01;32m\]\u\[\033[00;32m\]@\[\033['"$hi"'2m\]\h\[\033[01;34m\] $(_W)\[\033[00;36m\]$(_R) \[\033[01;34m\]\$\[\033[00m\] '
     # set color terminal
     #[[ "$XAUTHORITY" ]] && export TERM="xterm-256color"
 else
@@ -42,7 +43,7 @@ else
 fi
 
 # Try to keep environment pollution down, EPA loves us.
-unset use_color safe_term match_lhs
+unset use_color safe_term match_lhs hi
 
 ## Short version of \w - attempt to limit PWD to set length.
 _W () {
