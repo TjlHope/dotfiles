@@ -55,3 +55,12 @@
 [submodule "vim/bundle-all/afterimage"]
 	path = vim/bundle-all/afterimage
 	url = https://github.com/tpope/vim-afterimage.git
+[submodule "vim/bundle-all/taglist"]
+	path = vim/bundle-all/taglist
+	url = https://github.com/vim-scripts/taglist.vim.git
+[submodule "vim/bundle-all/octave"]
+	path = vim/bundle-all/octave
+	url = https://github.com/vim-scripts/octave.vim--.git
+[submodule "vim/bundle-all/AutomaticLaTexPlugin"]
+	path = vim/bundle-all/AutomaticLaTexPlugin
+	url = https://github.com/vim-scripts/AutomaticLaTexPlugin.git
