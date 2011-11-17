@@ -64,3 +64,9 @@
 [submodule "vim/bundle-all/AutomaticLaTexPlugin"]
 	path = vim/bundle-all/AutomaticLaTexPlugin
 	url = https://github.com/vim-scripts/AutomaticLaTexPlugin.git
+[submodule "vim/bundle-all/Align"]
+	path = vim/bundle-all/Align
+	url = https://github.com/vim-scripts/Align.git
+[submodule "vim/bundle-all/VimPdb"]
+	path = vim/bundle-all/VimPdb
+	url = https://github.com/vim-scripts/VimPdb.git
