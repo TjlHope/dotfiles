@@ -188,7 +188,8 @@ autocmd Filetype c,cpp,css,gentoo-init-d,html,js,php,prolog,python,sh,verilog,vh
 	    \ foldlevelstart=2
 	    \ foldminlines=1
 	    \ foldnestmax=10
-autocmd Filetype c,cpp,js setlocal foldignore="#"
+"autocmd Filetype c,cpp,js setlocal foldignore="#"
+setlocal foldignore=""
 autocmd Filetype prolog,vim setlocal foldcolumn=3
 "autocmd Filetype python,sh,js,css,html,xml,php,vhdl,verilog set foldignore="#"
 "autocmd Filetype python autocmd BufWritePre python mkview
@@ -404,6 +405,10 @@ let g:pyflakes_use_quickfix = 0
 let g:pep8_map='<Leader>8'
 
 """ Screen
+" Fix colors for xfce4 terminal
+if $COLORTERM == 'Terminal'
+    set t_Co=256
+endif
 let g:ScreenImpl = 'Tmux'
 let g:ScreenShellHeight = 10
 let g:ScreenShellExpandTabs = 1
