@@ -1,0 +1,17 @@
+# xpdf config file
+
+#urlCommand	 "netscape -remote 'openURL(%s)'"
+#initialZoom     width
+#continuousView  yes
+#bind            0 any zoomPercent(149)
+
+initialZoom		width
+
+bind	h	any	scrollLeft(16)
+bind	j	any	scrollDown(16)
+bind	k	any	scrollUp(16)
+bind	l	any	scrollRight(16)
+bind	/	any	find
+
+# Allow inverse searching with AutomaticLaTexPlugin
+bind shift-mousePress1 any 'run(python $HOME/.vim/bundle/latex/ftplugin/ATP_files/atp_RevSearch.py --synctex  "%f" %i %j %k)'

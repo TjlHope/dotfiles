@@ -42,6 +42,7 @@ colorscheme TjlH_col
 
 """ Feel
 let mapleader = '`'
+let maplocalleader = '\'
 noremap! jj <Esc>
 
 noremap <Leader>rv :source $MYVIMRC<CR>
@@ -168,6 +169,7 @@ autocmd BufRead,BufNewFile *.prb setfiletype tex
 autocmd BufRead,BufNewFile */AI/**/*.pl,*/prolog/**/*.pl setfiletype prolog
 
 "autocmd FileType python set bomb			" enable BOM for listend filetypes
+							" messes up *n?x #!s
 
 let g:tex_flavor='latex'				" use latex styles
 
@@ -248,12 +250,12 @@ autocmd Filetype python setlocal foldmethod=expr foldexpr=Fold_python(v:lnum)
 """""""""""""""""""""""""
 
 """ Quick move windows
-nmap gw <C-W>
-nmap gW <C-W>
+nnoremap gw <C-W>
+nnoremap gW <C-W>
 
 """ Quick move buffers
-nmap <silent> gb :bnext<CR>
-nmap <silent> gB :bprevious<CR>
+nnoremap <silent> gb :bnext<CR>
+nnoremap <silent> gB :bprevious<CR>
 
 """ Redifine tag mappings
 nnoremap g] g<C-]>
@@ -314,6 +316,8 @@ autocmd InsertLeave * if pumvisible() == 0|silent! pclose|endif
 """"""""""""""""""""""""""""""
 " Plugin configuration
 """""""""""""""""""""""""
+
+""" AutomaticLaTexPlugin
 
 """ csv
 autocmd BufRead,BufNewFile *.?sv setfiletype csv	" Allow for ?sv file editing
@@ -443,8 +447,8 @@ let g:SuperTabMidWordCompletion = 1
 let g:SuperTabRetainCompletionDuration = 'completion'
 let g:SuperTabNoCompletionAfter = ['\s', ',', ';', '|', '&']
 let g:SuperTabLongestEnhanced = 1
-let g:SuperTabLongestHighlight = 0
-let g:SuperTabCrMapping = 1
+let g:SuperTabLongestHighlight = 1
+let g:SuperTabCrMapping = 0
 
 """ TagList
 noremap <Leader>tl :TlistToggle<CR>
