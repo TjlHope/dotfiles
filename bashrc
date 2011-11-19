@@ -39,7 +39,7 @@ fi
 ## pulled from Gentoo's /etc/bashrc to allow changing PS1 with colour
 
 # Get PS1 functions.
-. ~/.dotfiles/ps1.sh
+. ~/.dotfiles/ps1.bash
 
 use_color=false
 safe_term=${TERM//[^[:alnum:]]/?}   # sanitize TERM
@@ -97,7 +97,7 @@ export CDPATH=".:~:~/Documents/Imperial/EE4:~/Games:~/Documents:~/Videos:/media:
 set -o vi
 # use vim as editor and pager
 export EDITOR="vim"
-export PAGER="/usr/bin/vimpager"
+#export PAGER="/usr/bin/vimpager"
 export MANPAGER="/usr/bin/vimmanpager"
 
 # fs viewing aliases
@@ -124,12 +124,12 @@ alias which='(alias; declare -f) | which -i'
 
 # program aliases
 alias bc='bc --quiet'
-alias ipython='PAGER="$MANPAGER" ipython'
+#alias ipython='PAGER="$MANPAGER" ipython'
 alias opera='opera -nomail'
-alias pydoc='PAGER="$MANPAGER" pydoc'
-alias python='PAGER="$MANPAGER" python'
-alias python2='PAGER="$MANPAGER" python2'
-alias python3='PAGER="$MANPAGER" python3'
+#alias pydoc='PAGER="$MANPAGER" pydoc'
+#alias python='PAGER="$MANPAGER" python'
+#alias python2='PAGER="$MANPAGER" python2'
+#alias python3='PAGER="$MANPAGER" python3'
 alias octave='octave --silent'
 alias xo='xdg-open'
 
