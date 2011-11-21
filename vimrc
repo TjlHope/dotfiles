@@ -49,7 +49,7 @@ noremap <Leader>rv :source $MYVIMRC<CR>
 "autocmd BufWritePost **vimrc !source ~/.vimrc	" auto reload vimrc
 "autocmd BufWritePost $MYVIMRC : $MYVIMRC
 
-noremap <Leader>mx :!chmod +x %<CR>
+noremap <Leader>mx :!chmod +x %<CR><CR>
 noremap <Leader>x :!"$(dirname %)/$(basename %)"<CR>
 noremap <Leader>X :!"$(dirname %)/$(basename %)"<Up>
 
@@ -77,6 +77,10 @@ function! ExitBuf(...)
 	return
     elseif &previewwindow == 1
 	execute 'pclose' . bang
+	return
+    elseif exists('b:fugitive_type')
+	" also check if its from fugitive (e.g. Gdiff window)
+	execute 'close' . bang
 	return
     endif
     " current vars
@@ -445,7 +449,7 @@ let g:SuperTabDefaultCompletionType = 'context'
 	    "\ let g:SuperTabContextDefaultCompletionType = '<c-x><c-o>'
 let g:SuperTabMidWordCompletion = 1
 let g:SuperTabRetainCompletionDuration = 'completion'
-let g:SuperTabNoCompletionAfter = ['\s', ',', ';', '|', '&']
+let g:SuperTabNoCompleteAfter = ['\s', ',', ';', '|', '&', '+', '-', '=']
 let g:SuperTabLongestEnhanced = 1
 let g:SuperTabLongestHighlight = 1
 let g:SuperTabCrMapping = 0
