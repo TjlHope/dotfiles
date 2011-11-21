@@ -451,14 +451,14 @@ let g:SuperTabMidWordCompletion = 1
 let g:SuperTabRetainCompletionDuration = 'completion'
 let g:SuperTabNoCompleteAfter = ['\s', ',', ';', '|', '&', '+', '-', '=']
 let g:SuperTabLongestEnhanced = 1
-let g:SuperTabLongestHighlight = 1
+let g:SuperTabLongestHighlight = 0
 let g:SuperTabCrMapping = 0
+autocmd InsertCharPre <CR> let v:char = pumvisible() ? <C-E><CR>
 
 """ TagList
 noremap <Leader>tl :TlistToggle<CR>
 
 """ txtfmt
-autocmd FileType *.tft setlocal filetype=text.txtfmt
 autocmd FileType *.tft.?,*.tft.??,*.tft.???,*.tft.???? setlocal filetype+=.txtfmt
 
 """ zencoding
