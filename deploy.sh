@@ -1,6 +1,8 @@
 #!/bin/sh
 
 p="$(dirname ${0})"
+[ "${1}" = '-f' ] &&
+    force='f'
 
 for f in ${p}/*
 do
@@ -12,7 +14,7 @@ do
 	cd ${d}
 	for sf in ../${f}/*
 	do
-	    ln -fs ${sf}
+	    ln -${force}s ${sf}
 	done
 	cd -
     else
