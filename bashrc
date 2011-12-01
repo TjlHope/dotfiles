@@ -101,6 +101,7 @@ export EDITOR="vim"
 export MANPAGER="/usr/bin/vimmanpager"
 
 # fs viewing aliases
+alias l='ls'
 alias ll='ls -l'
 alias la='ls -A'
 alias lal='ls -Al'
