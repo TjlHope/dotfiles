@@ -41,7 +41,7 @@ colorscheme TjlH_col
 "colorscheme elflord
 
 """ Feel
-let mapleader = '`'
+let mapleader = ','
 let maplocalleader = '\'
 noremap! jj <Esc>
 
