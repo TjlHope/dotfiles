@@ -412,6 +412,12 @@ let g:pyflakes_use_quickfix = 0
 """ pep8
 let g:pep8_map='<Leader>8'
 
+""" ros
+" Enable ros specific scripts if we're in a ROS environment.
+if $ROS_ROOT != ''
+    set filetype+=.ros
+endif
+
 """ Screen
 " Fix colors for xfce4 terminal
 if $COLORTERM == 'Terminal'
