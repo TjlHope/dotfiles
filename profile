@@ -13,7 +13,9 @@ export EDITOR="vim"
 eval $(keychain --eval --quiet --noask)
 
 ### python vars
-export PYTHONPATH="$HOME/Documents/Code/python:${PYTHONPATH}"
+pypath="${HOME}/Documents/Code/python"
+export PYTHONPATH="${pypath}:${PYTHONPATH#${pypath}}"
+unset pypath
 
 ### gnuplot vars
 GNUPLOT_FONTPATH="${GNUPLOT_FONTPATH}:/usr/share/fonts/!"
