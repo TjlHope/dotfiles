@@ -61,7 +61,7 @@ if ${use_color} ; then
 	    eval $(dircolors -b /etc/DIR_COLORS)
 	fi
     fi
-    alias ls='ls --color=auto'
+    alias ls='ls --color=always'
     alias grep='grep --colour=auto'
     [[ ${EUID} == 0 ]] &&
 	PS1='\[\033['"$hi"'1m\]\h\[\033[01;34m\] \W \$\[\033[00m\] ' ||
@@ -69,6 +69,9 @@ if ${use_color} ; then
     # set color terminal
     #[[ "$XAUTHORITY" ]] && export TERM="xterm-256color"
 else
+    # Disable colors for ls, etc.
+    alias ls='ls --color=never'
+    alias ls='grep --color=never'
     # show root@ when we don't have colors
     [[ ${EUID} == 0 ]] &&
 	PS1='\u@\h \W \$ ' ||
