@@ -105,6 +105,11 @@ export MANPAGER="/usr/bin/vimmanpager"
 
 # fs viewing aliases
 alias l='ls'
+lpg () {
+    [ -n ${PAGER} ] &&
+	ls ${@} | ${PAGER} ||
+	ls ${@}
+}
 alias ll='ls -l'
 alias la='ls -A'
 alias lal='ls -Al'
@@ -129,6 +134,7 @@ alias which='(alias; declare -f) | which -i'
 # program aliases
 alias bc='bc --quiet'
 #alias ipython='PAGER="$MANPAGER" ipython'
+alias keychain.add_all='keychain $(ls "${HOME}/.ssh/" | sed -ne "/id.*[^\(.pub\)]$/p")'
 alias opera='opera -nomail'
 #alias pydoc='PAGER="$MANPAGER" pydoc'
 #alias python='PAGER="$MANPAGER" python'
@@ -150,7 +156,7 @@ alias DSLoA='wine ~/Games/Dungeon\ Siege/DSLOA.exe'
 alias VisualBoyAdvance='VisualBoyAdvance --config="/home/tom/.VBArc"'
 
 # misc aliases
-alias .rc='. ~/.bashrc'
+alias .rc='. ${HOME}/.bashrc'
 alias luvcview.i='luvcview -f yuv -i 30'
 alias prog.msp430='make; echo -e "\n###########\n"; mspdebug -q rf2500 "prog main.elf"'
 
@@ -167,6 +173,9 @@ complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume
 complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume-glade
 complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume-cli 
 
-# Add ssh keys to agent
-/usr/bin/keychain -q $(ls "${HOME}/.ssh/" | sed -ne '/id.*[^\(.pub\)]$/p')
+### Add ssh keys to agent, use ssh-add as keychain already set up from .profile
+trap ":" SIGINT		# catch SIGINT to prevent it stopping the sourcing.
+# If not tried before, add keys; if problem, stop future tries:
+[ -f "${SHM}/pass_id_add" ] || ssh-add || touch "${SHM}/pass_id_add"
+trap SIGINT		# remove trap for following execution
 

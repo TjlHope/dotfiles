@@ -12,9 +12,15 @@ export EDITOR="vim"
 ### auth agents
 eval $(keychain --eval --quiet --noask)
 
+### export SHM var pointing to personal tempory storage
+shm_dir="$(/bin/sed -ne 's:^shm\s\+\(\S\+\)\s\+tmpfs\s\+.*$:\1:p' /proc/mounts)"
+export SHM="${shm_dir:-/tmp}/${USER}"	# default to /tmp if no shared memory
+unset shm_dir				# stop environment pollution
+[ -d "${SHM}" ] || mkdir "${SHM}"	# no -p as ${SHM:-/tmp} must exist
+
 ### python vars
-pypath="${HOME}/Documents/Code/python"
-export PYTHONPATH="${pypath}:${PYTHONPATH#${pypath}}"
+pypath="${HOME}/Documents/Code/python:"
+export PYTHONPATH="${pypath}${PYTHONPATH#${pypath}}"
 unset pypath
 
 ### gnuplot vars
