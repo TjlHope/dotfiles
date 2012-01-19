@@ -73,3 +73,6 @@
 [submodule "vim/bundle-all/AutoAlign"]
 	path = vim/bundle-all/AutoAlign
 	url = https://github.com/vim-scripts/AutoAlign.git
+[submodule "vim/bundle-all/SudoEdit"]
+	path = vim/bundle-all/SudoEdit
+	url = https://github.com/vim-scripts/SudoEdit.vim.git

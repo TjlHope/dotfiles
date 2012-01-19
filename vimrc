@@ -7,7 +7,8 @@ set vb t_vb=					" disable bell
 set listchars=trail:-,nbsp:% 			" characters to display specials
 set history=50 					" lines of history to remember
 set mouse=a					" always enable mouse input
-set timeoutlen=500				" shorter timeout
+set timeoutlen=700				" shorter timeout for mappings
+set ttimeoutlen=100				" shorter timeout for key codes
 
 set viminfo='100 				" save marks and jumps in viminfo
 
@@ -40,12 +41,14 @@ colorscheme TjlH_col
 "colorscheme desert
 "colorscheme elflord
 
+set display=lastline		" show as much of lastline as possible, not '@'s
+
 """ Feel
 let mapleader = ','
 let maplocalleader = '\'
 noremap! jj <Esc>
 
-noremap <Leader>rv :source $MYVIMRC<CR>
+noremap <Leader>rc :source $MYVIMRC<CR>
 "autocmd BufWritePost **vimrc !source ~/.vimrc	" auto reload vimrc
 "autocmd BufWritePost $MYVIMRC : $MYVIMRC
 
@@ -64,6 +67,9 @@ set ignorecase smartcase 			" ignore case except explicit UC
 " remove search highlighting
 "nohlsearch
 nnoremap <Space> :nohlsearch<CR>:<CR>
+
+" add PYTHONPATH to search path for 'gf' TODO: parse line for import, etc.
+"autocmd FileType python let &path = &path . substitute($PYTHONPATH, ':', ',', 'g')
 
 """ quit for buffers
 function! ExitBuf(...)
@@ -133,9 +139,12 @@ nnoremap <silent> ZX :Bx<CR>
 syntax on					" enable syntax highlighting
 filetype plugin indent on			" enable file type check and indent
 
+" allow syntax refreshing
+noremap <Leader>rs :syntax sync fromstart<CR>
+
 """ Tabs
 set tabstop=8					" spaces per tab
-autocmd Filetype c,cpp setlocal tabstop=4
+autocmd Filetype c,cpp* setlocal tabstop=4
 set softtabstop=8
 set shiftwidth=4				" spaces per indent
 autocmd Filetype markdown,rst setlocal shiftwidth=2
@@ -143,21 +152,28 @@ set noexpandtab					" don't expand tabs to spaces
 autocmd Filetype rst,python setlocal expandtab	" for python 3 compatibility
 set smarttab					" at start shiftwidth, else tabstop
 
-""" control wrapping
+""" Wrapping
 set linebreak 					" wraps without <eol>
-autocmd Filetype c,cpp,python,sh setlocal
+" code style: wrap at length, normal navigation
+autocmd Filetype c,cpp,html,make,python,sh,vim setlocal
 	    \ textwidth=79
 	    \ formatoptions-=r			" don't insert comment on <CR>
 	    \ formatoptions-=o			" don't insert comment on o/O
 	    \ formatoptions-=l			" auto format long lines
 	    \ formatoptions+=aw2		" Auto Wrap on textwidth to 2nd line
+" text style: no line wrap, g{j,k} <==> {j,k} for movement
 autocmd Filetype text setlocal textwidth=0	" overide system vimrc
-autocmd Filetype html,markdown,rst,tex,text setlocal
-	    \ wrapmargin=2
-	    \ formatoptions+=aw
-autocmd Filetype markdown,rst setlocal
-	    \ textwidth=79
+autocmd Filetype markdown,rst,tex,text setlocal
 	    \ formatoptions+=n
+	    "\ wrapmargin=2
+	    "\ formatoptions+=aw
+"autocmd Filetype markdown,rst setlocal
+	    "\ textwidth=79
+autocmd Filetype markdown,rst,tex,text noremap gj j
+autocmd Filetype markdown,rst,tex,text noremap gk k
+autocmd Filetype markdown,rst,tex,text noremap j gj
+autocmd Filetype markdown,rst,tex,text noremap k gk
+" image formats: for use with afterimage
 autocmd Filetype gif,png,xpm,xbm setlocal nowrap
 
 
@@ -171,6 +187,7 @@ autocmd BufRead,BufNewFile *.txt setfiletype text
 autocmd BufRead,BufNewFile *.prb setfiletype tex
 "autocmd BufRead,BufNewFile *.bib setfiletype bib
 autocmd BufRead,BufNewFile */AI/**/*.pl,*/prolog/**/*.pl setfiletype prolog
+autocmd BufRead,BufNewFile *.pde setfiletype cpp
 
 "autocmd FileType python set bomb			" enable BOM for listend filetypes
 							" messes up *n?x #!s
@@ -194,8 +211,8 @@ autocmd Filetype c,cpp,css,gentoo-init-d,html,js,php,prolog,python,sh,verilog,vh
 	    \ foldlevelstart=2
 	    \ foldminlines=1
 	    \ foldnestmax=10
-"autocmd Filetype c,cpp,js setlocal foldignore="#"
-setlocal foldignore=""
+autocmd Filetype c,cpp* setlocal foldignore="#"
+"setlocal foldignore=""
 autocmd Filetype prolog,vim setlocal foldcolumn=3
 "autocmd Filetype python,sh,js,css,html,xml,php,vhdl,verilog set foldignore="#"
 "autocmd Filetype python autocmd BufWritePre python mkview
@@ -286,7 +303,7 @@ autocmd Filetype conf,help,info,man setlocal nospell
 set spelllang=en_gb					" spell check language to GB
 set spellfile=/home/tom/.vim/spell/I.latin1.add		" set my spellfile
 autocmd FileType tex setlocal spellfile+=/home/tom/.vim/spell/latex.latin1.add
-autocmd BufRead tjh08*.* setlocal spellfile+=/home/tom/.vim/spell/elec.latin1.add
+autocmd BufRead **/Imperial/**/*.* setlocal spellfile+=/home/tom/.vim/spell/elec.latin1.add
 
 " set dictionary+=/usr/share/dict/words			" add standard words
 
@@ -324,9 +341,13 @@ autocmd InsertLeave * if pumvisible() == 0|silent! pclose|endif
 """ AutomaticLaTexPlugin
 
 """ csv
+
+autocmd BufNewFile *.csv let g:csv_delim = ','	" set the ?sv delimiter for new files
+autocmd BufNewFile *.tsv let g:csv_delim = '	'	" - - '' - -
+"autocmd BufNewFile *.csv let g:csv_delim=','
+"autocmd BufNewFile *.tsv let g:csv_delim='	'
 autocmd BufRead,BufNewFile *.?sv setfiletype csv	" Allow for ?sv file editing
-"autocmd BufNewFile *.csv let g:csv_delim=','		" set the tsv delimiter to a TAB
-"autocmd BufNewFile *.tsv let g:csv_delim='	'	" set the tsv delimiter to a TAB
+" some nice mappings
 autocmd Filetype csv nnoremap <Leader>h :Header<CR>
 autocmd Filetype csv nnoremap <Leader>H :Header!<CR>
 autocmd Filetype csv nnoremap <Leader>ch :HiColumn<CR>
@@ -354,15 +375,16 @@ autocmd BufRead,BufNew */avr/**/*.c setlocal tags+=~/.vim/tags/avr
 "set tags+=~/.vim/tags/gtk-2 
 
 """ easytags
+autocmd Filetype c,cpp* let g:easytags_on_cursorhold = 0
 let g:easytags_file = "~/.vim/tags/general"
 let g:easytags_by_filetype = "~/.vim/tags/"
 "let g:easytags_dynamic_files = 1
-let g:easytags_include_members = 1
+let g:easytags_include_members = 0
 let g:easytags_autorecurse = 0
 let g:easytags_resolve_links = 1
 nnoremap <Leader>tu :UpdateTags<CR>
 nnoremap <Leader>th :HighlightTags<CR>
-set notagbsearch	" file generated seems to not play nice with binary search
+set notagbsearch	" tag file seems to not play nice with binary search
 
 """ fugitive
 nnoremap <Leader>gs :Gstatus<CR>
@@ -372,6 +394,9 @@ nnoremap <Leader>gd :Gdiff<CR>
 " get branch info in ruler (statusline)
 set rulerformat=%32(%{fugitive#statusline()}%=%-12.(%c%V,%l%)%)\ %P
 set laststatus=0		" don't show status line at bottom of tab
+
+""" gentoo
+let g:bugsummary_browser = "xdg-open '%s'"	" uses the desktop default
 
 """ lusty
 set hidden		" just hide abandoned buffers, don't unload
@@ -455,7 +480,7 @@ let g:SuperTabDefaultCompletionType = 'context'
 	    "\ let g:SuperTabContextDefaultCompletionType = '<c-x><c-o>'
 let g:SuperTabMidWordCompletion = 1
 let g:SuperTabRetainCompletionDuration = 'completion'
-let g:SuperTabNoCompleteAfter = ['\s', ',', ';', '|', '&', '+', '-', '=']
+let g:SuperTabNoCompleteAfter = ['\s', ',', ';', '|', '&', '+', '-', '=', '#']
 let g:SuperTabLongestEnhanced = 1
 let g:SuperTabLongestHighlight = 0
 let g:SuperTabCrMapping = 0
