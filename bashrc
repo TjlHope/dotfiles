@@ -13,6 +13,9 @@ if [[ $- != *i* ]] ; then
 	return
 fi
 
+# Prevent tests for commands getting aliases/functions when re-sourcing.
+unalias which 2> /dev/null
+
 ###############################
 ## Fix vte screwing TERM var
 
@@ -52,7 +55,6 @@ match_lhs=""
 [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] && use_color=true
 
 if ${use_color} ; then
-    [ "${TERM}" = "linux" ] && hi="01;3" || hi="00;9"
     # Enable colors for ls, etc.  Prefer ~/.dir_colors #64489
     if type -P dircolors >/dev/null ; then
 	if [[ -f ~/.dir_colors ]] ; then
@@ -63,25 +65,33 @@ if ${use_color} ; then
     fi
     alias ls='ls --color=always'
     alias grep='grep --colour=auto'
-    [[ ${EUID} == 0 ]] &&
-	PS1='\[\033['"$hi"'1m\]\h\[\033[01;34m\] \W \$\[\033[00m\] ' ||
-	PS1='\[\033[01;32m\]\u\[\033[00;32m\]@\[\033['"$hi"'2m\]\h\[\033[01;34m\] $(_W)\[\033[00;36m\]$(_R) \[\033[01;34m\]\$\[\033[00m\] '
-    # set color terminal
-    #[[ "$XAUTHORITY" ]] && export TERM="xterm-256color"
+    # Variables to help setting PS1
+    _s='\[\033['		# start colour code
+    _n="${_s}00;3"		# normal colour code
+    _b="${_s}01;3"		# bold colour code
+    [ "${TERM}" != "linux" ] &&
+	_h="${_s}00;9" ||	# highlighted color code
+	_h="${_s}01;3"		# ...  (fall back to bold)
+    _e='m\]'			# end colour code
+    # Repo status and prompt (#/$) code
+    ps1="${_n}6${_e}"'$(_R) '"${_b}4${_e}"'\$ '"${_s}0${_e}"
+    [ ${EUID} = 0 ] &&		# prepend hostname, etc.
+	ps1="${_h}1${_e}\h ${_h}4${_e}\W${ps1}"	||
+	ps1="${_b}2${_e}\u${_n}2${_e}@${_h}2${_e}\h ${_h}4${_e}"'$(_W)'"${ps1}"
+    unset _s _n _b _h _e
 else
     # Disable colors for ls, etc.
     alias ls='ls --color=never'
     alias ls='grep --color=never'
     # show root@ when we don't have colors
     [[ ${EUID} == 0 ]] &&
-	PS1='\u@\h \W \$ ' ||
-	PS1='\u@\h $(_W)$(_R) \$ '
-    # set non-color terminal
-    #[[ "$XAUTHORITY" ]] && export TERM="xterm"
+	ps1='\u@\h \W \$ ' ||
+	ps1='\u@\h $(_W)$(_R) \$ '
 fi
 
+export PS1="${ps1}"
 # Try to keep environment pollution down, EPA loves us.
-unset use_color safe_term match_lhs hi
+unset use_color safe_term match_lhs ps1
 
 ## End Colourise
 ######################
@@ -98,17 +108,24 @@ export CDPATH=".:~:~/Documents/Imperial/EE4:~/Games:~/Documents:~/Videos:/media:
 
 # vi like line editing
 set -o vi
+# determine whether we have vim pager scripts.
+which 'vimpager' 2>&1 > /dev/null &&
+    export VIMPAGER='vimpager' ||
+    export VIMPAGER="${PAGER:-less}"
+which 'vimmanpager' 2>&1 > /dev/null &&
+    export VIMMANPAGER='vimmanpager' ||
+    export VIMMANPAGER="${MANPAGER:-less}"
 # use vim as editor and pager
 export EDITOR="vim"
-#export PAGER="/usr/bin/vimpager"
-export MANPAGER="/usr/bin/vimmanpager"
+#export PAGER="${VIMPAGER}"
+export MANPAGER="${VIMMANPAGER}"
 
 # fs viewing aliases
 alias l='ls'
 lpg () {
-    [ -n ${PAGER} ] &&
+    [ -n "${PAGER}" ] &&
 	ls ${@} | ${PAGER} ||
-	ls ${@}
+	ls ${@} | less
 }
 alias ll='ls -l'
 alias la='ls -A'
@@ -123,13 +140,10 @@ alias duh='du -sh'
 alias dfh='df -h'
 
 # vi like stuff aliases
-alias vp='vimpager'
-alias vmp='vimmanpager'
+alias vp="${VIMPAGER}"
+alias vmp="${VIMMANPAGER}"
 alias dash='dash -V'
 alias :q='exit'
-
-# searching aliases
-alias which='(alias; declare -f) | which -i'
 
 # program aliases
 alias bc='bc --quiet'
@@ -144,7 +158,12 @@ alias octave='octave --silent'
 alias xo='xdg-open'
 
 # gentoo aliases
-alias elist='equery list --installed --portage-tree --overlay-tree'
+which 'equery' 2>&1 > /dev/null && {
+    alias elist='equery list --installed --portage-tree --overlay-tree'
+    alias euses='equery uses'
+    alias egraph='equery depgraph'
+    alias edepend='equery depends'
+}
 
 # git aliases
 alias gs='git status'
@@ -152,17 +171,22 @@ alias gl='git log'
 alias gca='git commit -a'
 
 # game aliases
-alias DSLoA='wine ~/Games/Dungeon\ Siege/DSLOA.exe'
+alias DSLoA='wine "~/Games/Dungeon Siege/DSLOA.exe"'
 alias VisualBoyAdvance='VisualBoyAdvance --config="/home/tom/.VBArc"'
 
 # misc aliases
 alias .rc='. ${HOME}/.bashrc'
-alias luvcview.i='luvcview -f yuv -i 30'
+alias luvcview.n220='luvcview -f yuv -i 30'
 alias prog.msp430='make; echo -e "\n###########\n"; mspdebug -q rf2500 "prog main.elf"'
+
+# searching aliases
+alias which='(alias; declare -f) | which -i'
 
 ### enable bash completion
 [ -f /etc/profile.d/bash-completion.sh ] &&
     . /etc/profile.d/bash-completion.sh
+[ -f /etc/profile.d/bash_completion.sh ] &&
+    . /etc/profile.d/bash_completion.sh
 ## and for sudo
 #complete -cf sudo
 ## and for apvlv
@@ -175,7 +199,8 @@ complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume-cli
 
 ### Add ssh keys to agent, use ssh-add as keychain already set up from .profile
 trap ":" SIGINT		# catch SIGINT to prevent it stopping the sourcing.
-# If not tried before, add keys; if problem, stop future tries:
-[ -f "${SHM}/pass_id_add" ] || ssh-add || touch "${SHM}/pass_id_add"
+# If not tried before, add keys; then stop future tries:
+[ -f "${SHM}/pass_id_add" ] || keychain.add_all --quiet
+touch "${SHM}/pass_id_add"
 trap SIGINT		# remove trap for following execution
 
