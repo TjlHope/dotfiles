@@ -3,10 +3,6 @@
 ###############################
 ## Definition of bash aliases
 
-# check we have the special _which function:
-declare -f _which > /dev/null ||
-    _which () { false ; }
-
 # source aliases
 alias .rc=". ${RC_DIR}/bashrc"
 alias .ps1=". ${RC_DIR}/ps1.bash"
@@ -33,24 +29,24 @@ alias dfh='df -h'
     alias vp="${VIMPAGER}"
 [ -n "${VIMMANPAGER}" ] &&
     alias vmp="${VIMMANPAGER}"
-_which 'dash' &&
+type -p 'dash' &&
     alias dash='dash -V'
 alias :q='exit'
 
 # program aliases
-_which 'bc' &&
+type -p 'bc' &&
     alias bc='bc --quiet'
-_which "keychain" &&
+type -p "keychain" &&
     alias keychain.add_all='keychain "${HOME}/.ssh/id"*[^p][^u][^b]'
-_which 'opera' &&
+type -p 'opera' &&
     alias opera='opera -nomail'
-_which 'octave' &&
+type -p 'octave' &&
     alias octave='octave --silent'
-_which 'xdg-open' &&
+type -p 'xdg-open' &&
     alias xo='xdg-open'
 
 # gentoo aliases
-_which 'equery' && {
+type -p 'equery' && {
     alias elist='equery list --installed --portage-tree --overlay-tree'
     alias euses='equery uses'
     alias egraph='equery depgraph'
@@ -58,7 +54,7 @@ _which 'equery' && {
 }
 
 # git aliases
-_which 'git' && {
+type -p 'git' && {
     alias gs='git status'
     alias gl='git log'
     alias gca='git commit -a'
@@ -68,7 +64,7 @@ _which 'git' && {
 alias which='(alias; declare -f) | which -i'
 
 # game aliases
-_which 'VisualBoyAdvance' &&
+type -p 'VisualBoyAdvance' &&
     alias VisualBoyAdvance='VisualBoyAdvance --config="${HOME}/.VBArc"'
 for f in "${HOME}/Games/"*/*.exe
 do
@@ -76,9 +72,8 @@ do
     then
 	[ -x "${f}" -a "${f%orig*.exe}" = "${f}" ] && {
 	    name="$(echo "${f}" | sed -e 's:^.*/\(.*\)\.exe$:\1:; s:\s\+:_:g')"
-	    # Don't want to overwrite a system command (note use of previously
-	    # defined which alias).
-	    which "wine.${name}" > /dev/null 2>&1 ||
+	    # Don't want to overwrite a system command.
+	    type -p "wine.${name}" ||
 		eval "alias wine.${name}='wine ${f}'"
 	}
     else
@@ -88,9 +83,9 @@ done
 unset f name
 
 # misc aliases
-_which 'luvcview' &&
+type -p 'luvcview' &&
     alias luvcview.n220='luvcview -f yuv -i 30'
-_which 'msp430-gcc' 'mspdebug' &&
+type -p 'msp430-gcc' 'mspdebug' &&
     alias prog.msp430='make; echo -e "\n###########\n"; mspdebug -q rf2500 "prog main.elf"'
 
 ## End aliases

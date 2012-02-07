@@ -91,7 +91,7 @@ else
 fi
 
 PS1="${ps1}"
-# Try to keep environment pollution down, EPA loves us.
+# Try to keep environment pollution down.
 unset use_color safe_term match_lhs ps1
 
 ## End Colourise
@@ -112,9 +112,9 @@ export CDPATH=".:~:~/Documents/Imperial/EE4:~/Games:~/Documents:~/Videos:/media:
 set -o vi		# vi like line editing
 export EDITOR="vim"
 # determine whether we have vim pager scripts.
-which 'vimpager' > /dev/null 2>&1 &&
+type -p 'vimpager' &&
     export VIMPAGER='vimpager'
-which 'vimmanpager' > /dev/null 2>&1 &&
+type -p 'vimmanpager' &&
     export VIMMANPAGER='vimmanpager'
 #export PAGER="${VIMPAGER}"
 export MANPAGER="${VIMMANPAGER}"
@@ -155,7 +155,7 @@ shopt -qs extglob	# gentoo functions use this extensively
 }
 
 ### Add ssh keys to agent if we have keychain.
-_which 'keychain' && {
+type -p 'keychain' && {
     trap ":" SIGINT	# catch SIGINT to prevent it stopping the sourcing.
     # If not tried before, add keys; then stop future tries:
 	[ -f "${SHM}/skip_id_add" ] || keychain.add_all --quiet

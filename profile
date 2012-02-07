@@ -10,7 +10,7 @@ export LANG="en_GB.utf8"
 export EDITOR="vim"
 
 ### auth agents
-which 'keychain' > /dev/null 2>&1 &&
+type 'keychain' > /dev/null 2>&1 &&
     eval $(keychain --eval --quiet --noask)
 
 ### export SHM var pointing to personal tempory storage
