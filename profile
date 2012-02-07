@@ -1,7 +1,7 @@
 # ~/.profile
 # vim: ft=sh
 
-export PATH="${HOME}/bin:${PATH}"
+export PATH="${HOME}/Documents/Code/scripts/bin:${PATH}"
 
 # set user locale
 export LANG="en_GB.utf8"
@@ -10,13 +10,16 @@ export LANG="en_GB.utf8"
 export EDITOR="vim"
 
 ### auth agents
-eval $(keychain --eval --quiet --noask)
+which 'keychain' > /dev/null 2>&1 &&
+    eval $(keychain --eval --quiet --noask)
 
 ### export SHM var pointing to personal tempory storage
 shm_dir="$(/bin/sed -ne 's:^shm\s\+\(\S\+\)\s\+tmpfs\s\+.*$:\1:p' /proc/mounts)"
 export SHM="${shm_dir:-/tmp}/${USER}"	# default to /tmp if no shared memory
 unset shm_dir				# stop environment pollution
-[ -d "${SHM}" ] || mkdir "${SHM}"	# no -p as ${SHM:-/tmp} must exist
+[ -d "${SHM}" ] || mkdir "${SHM}"	# no -p as ${shm_dir:-/tmp} must exist
+[ -d "${SHM}" ] && chmod 700 "${SHM}"	# only we want to be able to read it
+[ -f "${SHM}/.keep" ] || > "${SHM}/.keep" # help persist over suspend/hibernate?
 
 ### python vars
 pypath="${HOME}/Documents/Code/python:"
@@ -36,17 +39,6 @@ export INTEL_BATCH=1
 
 # This file is sourced by bash for login shells.  The following line
 # runs your .bashrc and is recommended by the bash info pages.
-[ ${SHELL##*/} = "bash" ] && [ -f "${HOME}/.bashrc" ] && . "${HOME}/.bashrc"
-
-# home tmpfs vars
-export TMPFS_LINK_POINTS="$TMPFS_LINK_POINTS /home/tom/.claws-mail"
-#export TMPFS_LINK_POINTS="$TMPFS_LINK_POINTS /home/tom/.firefox"
-export TMPFS_LINK_POINTS="$TMPFS_LINK_POINTS /home/tom/.config/midori"
-export TMPFS_LINK_POINTS="$TMPFS_LINK_POINTS /home/tom/.opera"
-#export TMPFS_LINK_POINTS="$TMPFS_LINK_POINTS /home/tom/.thunderbird"
-# start home_tmpfs
-#/usr/local/share/home_tmpfs.sh start &>/dev/null &
-
-# start Dropbox
-#/usr/local/share/wrappers/Xdropbox.sh &
+[ "$(< "/proc/$$/comm")" = "bash" ] && [ -f "${HOME}/.bashrc" ] &&
+    . "${HOME}/.bashrc"
 

@@ -13,20 +13,19 @@ if [[ $- != *i* ]] ; then
 	return
 fi
 
-# Prevent tests for commands getting aliases/functions when re-sourcing.
-unalias which 2> /dev/null
+# Find path of this script, and consequently other conf files.
+bashrc_path="$(readlink --canonicalize "${BASH_SOURCE[@]}")"
+export RC_DIR="${bashrc_path%/*}"
+unset bashrc_path
 
 ###############################
 ## Fix vte screwing TERM var
 
-if [ "${TERM%color}" = "${TERM}" ]
+if [ -n "${COLORTERM}" -a "${TERM%color}" = "${TERM}" ]
 then
     case "$COLORTERM" in
 	"Terminal")
 	    export TERM="$TERM-256color"
-	    ;;
-	"")
-	    # not a color term!
 	    ;;
 	*)
 	    export TERM="$TERM-color"
@@ -42,7 +41,9 @@ fi
 ## pulled from Gentoo's /etc/bashrc to allow changing PS1 with colour
 
 # Get PS1 functions.
-. ~/.dotfiles/ps1.bash
+[ "${RC_DIR}" = "${HOME}" ] &&
+    . "${HOME}/.ps1.bash" ||
+    . "${RC_DIR}/ps1.bash"
 
 use_color=false
 safe_term=${TERM//[^[:alnum:]]/?}   # sanitize TERM
@@ -89,7 +90,7 @@ else
 	ps1='\u@\h $(_W)$(_R) \$ '
 fi
 
-export PS1="${ps1}"
+PS1="${ps1}"
 # Try to keep environment pollution down, EPA loves us.
 unset use_color safe_term match_lhs ps1
 
@@ -100,107 +101,65 @@ unset use_color safe_term match_lhs ps1
 ## Put your fun stuff here.
 ######################
 
+### bash control variables
 # prevents adding of useless commands to bash_history
 export HISTCONTROL="ignoreboth"
 export HISTIGNORE="ls:lh:ll:la:lA:lal:lAl:lgd:lagd:duh:df:dfh:cd:[bf]g:batt:exit:?q"
 # PATH completion for cd (need to enter full name - no bash file completion)
 export CDPATH=".:~:~/Documents/Imperial/EE4:~/Games:~/Documents:~/Videos:/media:/mnt"
 
-# vi like line editing
-set -o vi
-# determine whether we have vim pager scripts.
-which 'vimpager' 2>&1 > /dev/null &&
-    export VIMPAGER='vimpager' ||
-    export VIMPAGER="${PAGER:-less}"
-which 'vimmanpager' 2>&1 > /dev/null &&
-    export VIMMANPAGER='vimmanpager' ||
-    export VIMMANPAGER="${MANPAGER:-less}"
-# use vim as editor and pager
+### vi style
+set -o vi		# vi like line editing
 export EDITOR="vim"
+# determine whether we have vim pager scripts.
+which 'vimpager' > /dev/null 2>&1 &&
+    export VIMPAGER='vimpager'
+which 'vimmanpager' > /dev/null 2>&1 &&
+    export VIMMANPAGER='vimmanpager'
 #export PAGER="${VIMPAGER}"
 export MANPAGER="${VIMMANPAGER}"
 
-# fs viewing aliases
-alias l='ls'
-lpg () {
-    [ -n "${PAGER}" ] &&
-	ls ${@} | ${PAGER} ||
-	ls ${@} | less
+### Source bash additions, using dump files if they exist to cut down on magic
+shopt -qs extglob	# gentoo functions use this extensively
+# function definitions
+[ -f "${SHM}/function.cache" ] &&
+    . "${SHM}/function.cache" || {
+    [ "${RC_DIR}" = "${HOME}" ] &&
+	. "${HOME}/.function.bash" ||
+	. "${RC_DIR}/function.bash"
 }
-alias ll='ls -l'
-alias la='ls -A'
-alias lal='ls -Al'
-alias lgd='ls --group-directories-first'
-alias lagd='ls -A --group-directories-first'
-alias lh='ls -sh'
-alias llh='ls -lh'
-alias lah='ls -Ash'
-alias lalh='ls -Alh'
-alias duh='du -sh'
-alias dfh='df -h'
-
-# vi like stuff aliases
-alias vp="${VIMPAGER}"
-alias vmp="${VIMMANPAGER}"
-alias dash='dash -V'
-alias :q='exit'
-
-# program aliases
-alias bc='bc --quiet'
-#alias ipython='PAGER="$MANPAGER" ipython'
-alias keychain.add_all='keychain $(ls "${HOME}/.ssh/" | sed -ne "/id.*[^\(.pub\)]$/p")'
-alias opera='opera -nomail'
-#alias pydoc='PAGER="$MANPAGER" pydoc'
-#alias python='PAGER="$MANPAGER" python'
-#alias python2='PAGER="$MANPAGER" python2'
-#alias python3='PAGER="$MANPAGER" python3'
-alias octave='octave --silent'
-alias xo='xdg-open'
-
-# gentoo aliases
-which 'equery' 2>&1 > /dev/null && {
-    alias elist='equery list --installed --portage-tree --overlay-tree'
-    alias euses='equery uses'
-    alias egraph='equery depgraph'
-    alias edepend='equery depends'
+# alias definitions
+[ -f "${SHM}/alias.cache" ] &&
+    . "${SHM}/alias.cache" || {
+    [ "${RC_DIR}" = "${HOME}" ] &&
+	. "${HOME}/.alias.bash" ||
+	. "${RC_DIR}/alias.bash"
+}
+# completion definitions
+[ -f "${SHM}/complete.cache" ] &&
+    . "${SHM}/complete.cache" || {
+    [ "${RC_DIR}" = "${HOME}" ] &&
+	. "${HOME}/.complete.bash" ||
+	. "${RC_DIR}/complete.bash"
+}
+# Cache the definitions, so we only have to do the checks and magic once. It
+# can't be done in individual files as complete, for example, defines more
+# functions, etc.
+[ -d "${SHM}" -a -w "${SHM}" ] && {
+    [ -f "${SHM}/complete.cache" ] ||
+	complete -p > "${SHM}/complete.cache"
+    [ -f "${SHM}/alias.cache" ] ||
+	alias -p > "${SHM}/alias.cache"
+    [ -f "${SHM}/function.cache" ] ||
+	declare -fp > "${SHM}/function.cache"
 }
 
-# git aliases
-alias gs='git status'
-alias gl='git log'
-alias gca='git commit -a'
-
-# game aliases
-alias DSLoA='wine "~/Games/Dungeon Siege/DSLOA.exe"'
-alias VisualBoyAdvance='VisualBoyAdvance --config="/home/tom/.VBArc"'
-
-# misc aliases
-alias .rc='. ${HOME}/.bashrc'
-alias luvcview.n220='luvcview -f yuv -i 30'
-alias prog.msp430='make; echo -e "\n###########\n"; mspdebug -q rf2500 "prog main.elf"'
-
-# searching aliases
-alias which='(alias; declare -f) | which -i'
-
-### enable bash completion
-[ -f /etc/profile.d/bash-completion.sh ] &&
-    . /etc/profile.d/bash-completion.sh
-[ -f /etc/profile.d/bash_completion.sh ] &&
-    . /etc/profile.d/bash_completion.sh
-## and for sudo
-#complete -cf sudo
-## and for apvlv
-complete -o dirnames -fX '!*.[Pp][Dd][Ff]' apvlv 
-## and for VBA, DeSmuME
-complete -o dirnames -fX '!*.[Gg][Bb]*' VisualBoyAdvance 
-complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume 
-complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume-glade
-complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume-cli 
-
-### Add ssh keys to agent, use ssh-add as keychain already set up from .profile
-trap ":" SIGINT		# catch SIGINT to prevent it stopping the sourcing.
-# If not tried before, add keys; then stop future tries:
-[ -f "${SHM}/pass_id_add" ] || keychain.add_all --quiet
-touch "${SHM}/pass_id_add"
-trap SIGINT		# remove trap for following execution
+### Add ssh keys to agent if we have keychain.
+_which 'keychain' && {
+    trap ":" SIGINT	# catch SIGINT to prevent it stopping the sourcing.
+    # If not tried before, add keys; then stop future tries:
+	[ -f "${SHM}/skip_id_add" ] || keychain.add_all --quiet
+	> "${SHM}/skip_id_add"
+    trap SIGINT		# remove trap for following execution
+}
 

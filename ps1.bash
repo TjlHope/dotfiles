@@ -1,4 +1,5 @@
 #!/bin/bash
+
 ###############################
 ## Customisation of bash PS1
 
