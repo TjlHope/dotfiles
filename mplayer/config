@@ -2,6 +2,7 @@
 [default]
 # Write your default config options here!
 ao=alsa
+mixer-channel=master
 vo=xv
 
 stop-xscreensaver=true
