@@ -1,13 +1,13 @@
-# /etc/skel/.bashrc
+# ~/.bashrc
 #
-# This file is sourced by all *interactive* bash shells on startup,
-# including some apparently interactive shells such as scp and rcp
-# that can't tolerate any output.  So make sure this doesn't display
-# anything or bad things will happen !
+# This file is sourced by all *interactive* bash shells on startup, including
+# some apparently interactive shells such as scp and rcp that can't tolerate
+# any output. So make sure this doesn't display anything or bad things will
+# happen!
 
-# Test for an interactive shell.  There is no need to set anything
-# past this point for scp and rcp, and it's important to refrain from
-# outputting anything in those cases.
+# Test for an interactive shell. There is no need to set anything past this
+# point for scp and rcp, and it's important to refrain from outputting anything
+# in those cases.
 if [[ $- != *i* ]] ; then
 	# Shell is non-interactive.  Be done now!
 	return
@@ -19,7 +19,7 @@ export RC_DIR="${bashrc_path%/*}"
 unset bashrc_path
 
 ###############################
-## Fix vte screwing TERM var
+## Fix vte screwing TERM variable
 
 if [ -n "${COLORTERM}" -a "${TERM%color}" = "${TERM}" ]
 then
@@ -112,9 +112,9 @@ export CDPATH=".:~:~/Documents/Imperial/EE4:~/Games:~/Documents:~/Videos:/media:
 set -o vi		# vi like line editing
 export EDITOR="vim"
 # determine whether we have vim pager scripts.
-type -p 'vimpager' &&
+type 'vimpager' > /dev/null 2>&1 &&
     export VIMPAGER='vimpager'
-type -p 'vimmanpager' &&
+type 'vimmanpager' > /dev/null 2>&1 &&
     export VIMMANPAGER='vimmanpager'
 #export PAGER="${VIMPAGER}"
 export MANPAGER="${VIMMANPAGER}"
@@ -154,8 +154,8 @@ shopt -qs extglob	# gentoo functions use this extensively
 	declare -fp > "${SHM}/function.cache"
 }
 
-### Add ssh keys to agent if we have keychain.
-type -p 'keychain' && {
+### Add ssh keys to agent if we have keychain (and out handy alias defined).
+type 'keychain.add_all' > /dev/null 2>&1 && {
     trap ":" SIGINT	# catch SIGINT to prevent it stopping the sourcing.
     # If not tried before, add keys; then stop future tries:
 	[ -f "${SHM}/skip_id_add" ] || keychain.add_all --quiet

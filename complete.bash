@@ -11,9 +11,9 @@
 
 # And indiviual programs without thier own completion
 complete -o dirnames -fX '!*.[Pp][Dd][Ff]' apvlv mupdf
-type -p 'VisualBoyAdvance' &&
+type 'VisualBoyAdvance' > /dev/null 2>&1 &&
     complete -o dirnames -fX '!*.[Gg][Bb]*' VisualBoyAdvance 
-type -p 'desmume' &&
+type 'desmume' > /dev/null 2>&1 &&
     complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume desmume-glade desmume-cli
 
 ## End completions

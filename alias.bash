@@ -25,28 +25,28 @@ alias duh='du -sh'
 alias dfh='df -h'
 
 # vi like stuff aliases
-[ -n "${VIMPAGER}" ] &&
+type 'vimpager' > /dev/null 2>&1 &&
     alias vp="${VIMPAGER}"
-[ -n "${VIMMANPAGER}" ] &&
+type 'vimmanpager' > /dev/null 2>&1 &&
     alias vmp="${VIMMANPAGER}"
-type -p 'dash' &&
+type 'dash' > /dev/null 2>&1 &&
     alias dash='dash -V'
 alias :q='exit'
 
 # program aliases
-type -p 'bc' &&
+type 'bc' > /dev/null 2>&1 &&
     alias bc='bc --quiet'
-type -p "keychain" &&
+type 'keychain' > /dev/null 2>&1 &&
     alias keychain.add_all='keychain "${HOME}/.ssh/id"*[^p][^u][^b]'
-type -p 'opera' &&
+type 'opera' > /dev/null 2>&1 &&
     alias opera='opera -nomail'
-type -p 'octave' &&
+type 'octave' > /dev/null 2>&1 &&
     alias octave='octave --silent'
-type -p 'xdg-open' &&
+type 'xdg-open' > /dev/null 2>&1 &&
     alias xo='xdg-open'
 
 # gentoo aliases
-type -p 'equery' && {
+type 'equery' > /dev/null 2>&1 && {
     alias elist='equery list --installed --portage-tree --overlay-tree'
     alias euses='equery uses'
     alias egraph='equery depgraph'
@@ -54,7 +54,7 @@ type -p 'equery' && {
 }
 
 # git aliases
-type -p 'git' && {
+type 'git' > /dev/null 2>&1 && {
     alias gs='git status'
     alias gl='git log'
     alias gca='git commit -a'
@@ -64,7 +64,7 @@ type -p 'git' && {
 alias which='(alias; declare -f) | which -i'
 
 # game aliases
-type -p 'VisualBoyAdvance' &&
+type 'VisualBoyAdvance' > /dev/null 2>&1 &&
     alias VisualBoyAdvance='VisualBoyAdvance --config="${HOME}/.VBArc"'
 for f in "${HOME}/Games/"*/*.exe
 do
@@ -73,7 +73,7 @@ do
 	[ -x "${f}" -a "${f%orig*.exe}" = "${f}" ] && {
 	    name="$(echo "${f}" | sed -e 's:^.*/\(.*\)\.exe$:\1:; s:\s\+:_:g')"
 	    # Don't want to overwrite a system command.
-	    type -p "wine.${name}" ||
+	    type "wine.${name}" > /dev/null 2>&1 ||
 		eval "alias wine.${name}='wine ${f}'"
 	}
     else
@@ -83,9 +83,9 @@ done
 unset f name
 
 # misc aliases
-type -p 'luvcview' &&
+type 'luvcview' > /dev/null 2>&1 &&
     alias luvcview.n220='luvcview -f yuv -i 30'
-type -p 'msp430-gcc' 'mspdebug' &&
+type 'msp430-gcc' 'mspdebug' > /dev/null 2>&1 &&
     alias prog.msp430='make; echo -e "\n###########\n"; mspdebug -q rf2500 "prog main.elf"'
 
 ## End aliases
