@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 ###############################
-## Definition of bash functions
+## Definition of shell functions
 
 ls_pager () {
-    ls ${@} | ${PAGER:-less}
+    ls "${@}" | ${PAGER:-less}
 }
 
 ## End functions

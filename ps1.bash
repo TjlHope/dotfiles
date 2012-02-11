@@ -12,54 +12,82 @@
     _elip='..'		# replacement string to if no unicode
 }
 
-## Short version of \w - attempt to limit PWD to set length.
+### Short version of \w - attempt to limit PWD to set length.
 _W () {
-    local wd="${PWD/#${HOME}/~}"	# CWD with ~ for $HOME
-    local len=${1:-$(( (${COLUMNS} / 2) - 25))}	# max length of \w; def: ~1/2
-    #local len=$((${COLUMNS:-80} / 2 - 25))
+    #local wd="${PWD/#${HOME}/~}"	# CWD with ~ for $HOME
+    [ "${PWD#${HOME}}" = "${PWD}" ] &&
+	wd="${PWD}" ||			# current working directory
+	wd="~${PWD#${HOME}}"		# ... with ~ for $HOME
+    local len=${1:-$((${COLUMNS-80} / 2 - 25))}	# max length of \w; def: ~1/2
+    #[ -n "${DEBUG}" ] && echo "${COLUMNS-80} / 2 - 25 = $len" >&2
     local chars=1	# minimum number of characters to keep from name
-    local fixdot=1	# non-zero to have ${chars} after . in hidden .dirs
-    local iter=3	# incrementally decrement len to ${chars}...
-    local sep=2		# ... using decrement of ${sep}
-    local nchars=$((${chars}+${iter}*${sep}))	# chars depending on ${iter}
+    local fixdot=1	# set non-zero to have $chars after . in hidden .dirs
+    local iter=3	# incrementally decrement $len to $chars...
+    local sep=2		# ... using decrement of $sep
     # Keep trying to shrink, one directory at a time
+    #[ -n "${DEBUG}" ] && echo "${#wd} -> ${len}" >&2
     while [ ${#wd} -gt ${len} ]
     do
+	#[ -n "${DEBUG}" ] && echo "iter $iter" >&2
+	#[ -n "${DEBUG}" ] && echo "${#wd} -> ${len}" >&2
+	local nchars=$((${chars} + ${iter} * ${sep}))	# $iter dependent chars
 	local h="${wd%%/*}"	# head (~) if it's there
 	local b="${wd#${h}/}"	# main body
 	local nb=""		# new body (before current dir)
 	local d="${b%%/*}"	# current directory
+	b="${b#${d}/}"		# body (after current dir)
+	#[ -n "${DEBUG}" ] && echo "$h | $nb | $d | $b" >&2
 	# Number of chars depending on ${fixdot}
 	[ ${fixdot:-0} -gt 0 -a "${d}" != "${d#.}" ] &&
-	    local nc=$((${nchars}+1)) || local nc=${nchars}
-	b="${b#${d}/}"		# body (after current dir)
+	    local nc=$((${nchars} + 1)) || local nc=${nchars}
 	# Iterate over directories for directory to shrink
-	while [ "${d}" != "${b}" -a ${#d} -le $((${nc}+${#_elip})) ]
+	#[ -n "${DEBUG}" ] && echo "${#d} -> $((${nc} + ${#_elip}))" >&2
+	while [ "${b}" != "${b#*/}" -a ${#d} -le $((${nc} + ${#_elip})) ]
 	do			# if current directory too short
 	    nb="${nb}/${d}"	# add it to new body
 	    d="${b%%/*}"	# get next directory
 	    b="${b#${d}/}"	# get rest of body after new dir
+	    #[ -n "${DEBUG}" ] && echo "$h | $nb | $d | $b" >&2
 	    # Number of chars depending on ${fixdot}
 	    [ ${fixdot:-0} -gt 0 -a "${d}" != "${d#.}" ] &&
-		nc=$((${nchars}+1)) || nc=${nchars}
+		nc=$((${nchars} + 1)) || nc=${nchars}
 	done
-	[ "${d}" = "${b}" ] && {	# tried to shrink all dirs?
+	# Join with reduced dir for new CWD
+	wd="${h}/${nb#/}${nb:+/}${d:0:${nc}}${_elip}/${b}"	# FIXME:bashism
+	[ "${b}" = "${b#*/}" ] && {	# tried to shrink all dirs?
 	    [ ${iter} -gt 0 ] && {	# still got iterations to go?
-		iter=$((${iter}-1))
-		nchars=$((${chars}+${iter}*${sep}))
-		continue
+		iter=$((${iter} - 1))
+		continue		# ... go to next iteration
 	    } ||
 		break			# ... done all we can, so end
 	}
-	# Join with reduced dir for new CWD
-	wd="${h}/${nb#/}${nb:+/}${d:0:${nc}}${_elip}/${b}"
     done
     echo "${wd}"
 }
 
-## Include repositary information, e.g. branch, etc.
+### Short version of \w - uses sed instead of shell loops expansion and globs.
+# Executes an order of magnitude faster, but is less customisable, and will
+# either strip all chars from first dir, then all chars from second dir, etc.
+# or strip every directory by 1 char for each iteration.
+_sW () {
+    # Pass sed flags in as first, and length as second variables.
+    # 'p' flag good for debugging, 'g' flag reduces every dir simultaneously,
+    # instead of doin the first, then the second, etc.
+    local len=${2:-$((${COLUMNS-80} / 2 - 25))}	# max length of \w; def: ~1/2
+    local chs=1		# minimum number of characters to keep from name
+    local _el="${_elip//./\\.}"					# FIXME:bashism
+    echo "${PWD}" | sed -e "\
+	s:^${HOME}:\~:
+	:sub
+	s:\(\.\?[^/]\{${chs},\}\)[^/\(${_el}\)]\{1,\}\(${_el}\)\?/:\1${_el}/:${1}
+	T
+	\:.\{${len},\}: b sub
+	"
+}
+
+### Include repositary information, e.g. branch, etc.
 _R () {
-    local d="$PWD"	# current dir
+    local d="${PWD}"	# current dir
     local b=""		# branch name
     local x=""		# extra information about repo
     # Iterate up to root directory searching for repo.
@@ -70,10 +98,12 @@ _R () {
 	    # Take action parsing from git bash completion
 	    if [ -f "${d}/.git/rebase-merge/interactive" ]; then
 		x="|REBASE-i"
-		b="$(< "${d}/.git/rebase-merge/head-name")"
+		#b="$(< "${d}/.git/rebase-merge/head-name")"	# FIXME:bashism
+		read -r b < "${d}/.git/rebase-merge/head-name"
 	    elif [ -d "${d}/.git/rebase-merge" ]; then
 		x="|REBASE-m"
-		b="$(< "${d}/.git/rebase-merge/head-name")"
+		#b="$(< "${d}/.git/rebase-merge/head-name")"	# FIXME:bashism
+		read -r b < "${d}/.git/rebase-merge/head-name"
 	    else
 		if [ -d "${d}/.git/rebase-apply" ]; then
 		    if [ -f "${d}/.git/rebase-apply/rebasing" ]; then
@@ -89,12 +119,14 @@ _R () {
 		    x="|BISECTING"
 		fi
 	    # End action parsing from git bash completion.
-		b="$(< "${d}/.git/HEAD")"
+		#b="$(< "${d}/.git/HEAD")"			# FIXME:bashism
+		read -r b < "${d}/.git/HEAD"
 		b="${b##*/}"
 	    fi
 	elif [ -d "${d}/.hg" ]	# mercurial repo
 	then
-	    b="$(< ${d}/.hg/branch)"
+	    #b="$(< "${d}/.hg/branch")"				# FIXME:bashism
+	    read -r b < "${d}/.hg/branch"
 	else
 	    d="${d%/*}"		# up a directory
 	    continue
@@ -115,6 +147,7 @@ _R () {
 					    -e "s:\\\\u:$USER:g" \
 					    -e "s:\\\\h:$(hostname):g" \
 					    -e "s:\$(_W):$(_W):g" \
+					    -e "s:\$(_sW):$(_sW):g" \
 					    -e "s:\$(_R):$(_R):g" \
 					    -e 's:\\\$:$:g' \
 			)"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ###############################
 ## Definition of bash aliases
@@ -61,7 +61,7 @@ type 'git' > /dev/null 2>&1 && {
 }
 
 # searching aliases
-alias which='(alias; declare -f) | which -i'
+alias which='{ alias; declare -f; ) | which -i'
 
 # game aliases
 type 'VisualBoyAdvance' > /dev/null 2>&1 &&
