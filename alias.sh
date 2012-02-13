@@ -1,13 +1,18 @@
 #!/bin/sh
 
 ###############################
-## Definition of bash aliases
+## Definition of shell aliases
 
 # source aliases
 alias .rc=". ${RC_DIR}/bashrc"
-alias .ps1=". ${RC_DIR}/ps1.bash"
-alias .function=". ${RC_DIR}/function.bash"
-alias .alias=". ${RC_DIR}/alias.bash"
+for t in "ps1" "function" "alias"
+do
+    if [ -f "${RC_DIR}/${t}.${SHELL}" ]; then
+	eval "alias .${t}='. ${RC_DIR}/${t}.${SHELL}'"
+    elif [ -f "${RC_DIR}/${t}.sh" ]; then
+	eval "alias .${t}='. ${RC_DIR}/${t}.sh'"
+    fi
+done
 
 # fs viewing aliases
 alias l='ls'
