@@ -4,44 +4,40 @@
 ## Customisation of bash PS1
 
 # If on a LANG is utf8, we want unicode support for "…" in `_W`.
-[[ "${LANG}" =~ [Uu][Tt][Ff][-_]?8 ]] && {
+#[[ "${LANG}" =~ [Uu][Tt][Ff][-_]?8 ]] && {			# FIXME:bashism
+[ -z "${LANG##[Uu][Tt][Ff]8}" ] && {
     {	# If on a vt we need to successfully enable unicode
-	[[ "${TERM}" != 'linux' ]] || unicode_start
+	[ "${TERM}" != 'linux' ] || unicode_start
     } && _elip="…"	# then enable utf8 elipsis.
 } || {
     _elip='..'		# replacement string to if no unicode
+    _elip_regex='\.\.'	# define the regex for _sW
 }
 
 ### Short version of \w - attempt to limit PWD to set length.
 _W () {
-    #local wd="${PWD/#${HOME}/~}"	# CWD with ~ for $HOME
-    [ "${PWD#${HOME}}" = "${PWD}" ] &&
-	wd="${PWD}" ||			# current working directory
-	wd="~${PWD#${HOME}}"		# ... with ~ for $HOME
+    local wd="${PWD/#${HOME}/~}"	# CWD with ~ for $HOME	# FIXME:bashism
+    #[ "${PWD#${HOME}}" = "${PWD}" ] &&
+	#local wd="${PWD}" ||		# current working directory
+	#local wd="~${PWD#${HOME}}"	# ... with ~ for $HOME
     local len=${1:-$((${COLUMNS-80} / 2 - 25))}	# max length of \w; def: ~1/2
-    #[ -n "${DEBUG}" ] && echo "${COLUMNS-80} / 2 - 25 = $len" >&2
     local chars=1	# minimum number of characters to keep from name
     local fixdot=1	# set non-zero to have $chars after . in hidden .dirs
     local iter=3	# incrementally decrement $len to $chars...
     local sep=2		# ... using decrement of $sep
     # Keep trying to shrink, one directory at a time
-    #[ -n "${DEBUG}" ] && echo "${#wd} -> ${len}" >&2
     while [ ${#wd} -gt ${len} ]
     do
-	#[ -n "${DEBUG}" ] && echo "iter $iter" >&2
-	#[ -n "${DEBUG}" ] && echo "${#wd} -> ${len}" >&2
 	local nchars=$((${chars} + ${iter} * ${sep}))	# $iter dependent chars
 	local h="${wd%%/*}"	# head (~) if it's there
 	local b="${wd#${h}/}"	# main body
 	local nb=""		# new body (before current dir)
 	local d="${b%%/*}"	# current directory
 	b="${b#${d}/}"		# body (after current dir)
-	#[ -n "${DEBUG}" ] && echo "$h | $nb | $d | $b" >&2
 	# Number of chars depending on ${fixdot}
 	[ ${fixdot:-0} -gt 0 -a "${d}" != "${d#.}" ] &&
 	    local nc=$((${nchars} + 1)) || local nc=${nchars}
 	# Iterate over directories for directory to shrink
-	#[ -n "${DEBUG}" ] && echo "${#d} -> $((${nc} + ${#_elip}))" >&2
 	while [ "${b}" != "${b#*/}" -a ${#d} -le $((${nc} + ${#_elip})) ]
 	do			# if current directory too short
 	    nb="${nb}/${d}"	# add it to new body
@@ -65,17 +61,19 @@ _W () {
     echo "${wd}"
 }
 
-### Short version of \w - uses sed instead of shell loops expansion and globs.
-# Executes an order of magnitude faster, but is less customisable, and will
-# either strip all chars from first dir, then all chars from second dir, etc.
-# or strip every directory by 1 char for each iteration.
+### Short version of \w - uses sed instead of shell loops, expansion and globs.
+# Executes an order of magnitude faster, but is less customisable and elegant.
+# It will either strip all chars from first dir, then all chars from second
+# dir, etc.  or strip every directory by 1 char for each iteration, regardless
+# of individual directory length.
 _sW () {
     # Pass sed flags in as first, and length as second variables.
     # 'p' flag good for debugging, 'g' flag reduces every dir simultaneously,
     # instead of doin the first, then the second, etc.
     local len=${2:-$((${COLUMNS-80} / 2 - 25))}	# max length of \w; def: ~1/2
     local chs=1		# minimum number of characters to keep from name
-    local _el="${_elip//./\\.}"					# FIXME:bashism
+    #local _el="${_elip//./\\.}"					# FIXME:bashism
+    local _el="${_elip_regex-${_elip}}"
     echo "${PWD}" | sed -e "\
 	s:^${HOME}:\~:
 	:sub
@@ -95,17 +93,21 @@ _R () {
     do
 	if [ -d "${d}/.git" ]	# git repo
 	then
+
 	    # Take action parsing from git bash completion
-	    if [ -f "${d}/.git/rebase-merge/interactive" ]; then
+	    if [ -f "${d}/.git/rebase-merge/interactive" ]
+	    then
 		x="|REBASE-i"
 		#b="$(< "${d}/.git/rebase-merge/head-name")"	# FIXME:bashism
 		read -r b < "${d}/.git/rebase-merge/head-name"
-	    elif [ -d "${d}/.git/rebase-merge" ]; then
+	    elif [ -d "${d}/.git/rebase-merge" ]
+	    then
 		x="|REBASE-m"
 		#b="$(< "${d}/.git/rebase-merge/head-name")"	# FIXME:bashism
 		read -r b < "${d}/.git/rebase-merge/head-name"
 	    else
-		if [ -d "${d}/.git/rebase-apply" ]; then
+		if [ -d "${d}/.git/rebase-apply" ]
+		then
 		    if [ -f "${d}/.git/rebase-apply/rebasing" ]; then
 			x="|REBASE"
 		    elif [ -f "${d}/.git/rebase-apply/applying" ]; then
@@ -113,9 +115,11 @@ _R () {
 		    else
 			x="|AM/REBASE"
 		    fi
-		elif [ -f "${d}/.git/MERGE_HEAD" ]; then
+		elif [ -f "${d}/.git/MERGE_HEAD" ]
+		then
 		    x="|MERGING"
-		elif [ -f "${d}/.git/BISECT_LOG" ]; then
+		elif [ -f "${d}/.git/BISECT_LOG" ]
+		then
 		    x="|BISECTING"
 		fi
 	    # End action parsing from git bash completion.
@@ -127,8 +131,8 @@ _R () {
 	then
 	    #b="$(< "${d}/.hg/branch")"				# FIXME:bashism
 	    read -r b < "${d}/.hg/branch"
-	else
-	    d="${d%/*}"		# up a directory
+	else			# up a directory
+	    d="${d%/*}"	
 	    continue
 	fi
 	echo " (${b}${x})"

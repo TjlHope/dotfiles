@@ -38,13 +38,15 @@ export GNASH_PLUGIN_DESCRIPTION="Shockwave Flash 10.1 r999"
 export INTEL_BATCH=1
 
 # This file is sourced by bash for login shells. The following line runs your
-# .bashrc and is recommended by the bash info pages.
-# This has been modified to only run when this file is sourced by bash, I could
-# have checked BASH only variables, but thought this more elegant. This is
-# required as it's not infrequent for me to drop into a dash shell to play with
-# constructs for scripts, and this would otherwise play havoc (also why just
-# testing the $SHELL variable is insufficient, as that reports the login shell,
-# not the current one).
-[ "$(< "/proc/$$/comm")" = "bash" ] && [ -f "${HOME}/.bashrc" ] &&
-    . "${HOME}/.bashrc"
+# .bashrc and is recommended by the bash info pages.  This has been modified to
+# run the rc file with the name of the shell. I could have checked shell
+# dependent variables, but thought this simpler and more elegant. This is
+# required as it's not infrequent for me to drop (from bash) into a dash shell
+# to play with constructs for scripts, and if testing a login dash sourcing my
+# bashrc would play havoc. This is also why just testing the ${SHELL} variable
+# is insufficient, as that reports the ${USER}s default login shell, not the
+# current one.
+read _SH < "/proc/$$/comm"	# Get the name of the current shell.
+[ -f "${HOME}/.${_SH}rc" ] &&	# Source the rc file if it exists.
+    . "${HOME}/.${_SH}rc"
 

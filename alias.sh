@@ -4,13 +4,13 @@
 ## Definition of shell aliases
 
 # source aliases
-alias .rc=". ${RC_DIR}/bashrc"
-for t in "ps1" "function" "alias"
+alias .rc=". ${RC_DIR}/${_dot}${_SH}rc"
+for t in "ps1" "function" "alias" "complete"
 do
-    if [ -f "${RC_DIR}/${t}.${SHELL}" ]; then
-	eval "alias .${t}='. ${RC_DIR}/${t}.${SHELL}'"
-    elif [ -f "${RC_DIR}/${t}.sh" ]; then
-	eval "alias .${t}='. ${RC_DIR}/${t}.sh'"
+    if [ -f "${RC_DIR}/${_dot}${t}.${_SH}" ]; then
+	eval "alias .${t}='. ${RC_DIR}/${_dot}${t}.${_SH}'"
+    elif [ -f "${RC_DIR}/${_dot}${t}.sh" ]; then
+	eval "alias .${t}='. ${RC_DIR}/${_dot}${t}.sh'"
     fi
 done
 
@@ -52,6 +52,7 @@ type 'xdg-open' > /dev/null 2>&1 &&
 
 # gentoo aliases
 type 'equery' > /dev/null 2>&1 && {
+    alias equery='equery --no-pipe'
     alias elist='equery list --installed --portage-tree --overlay-tree'
     alias euses='equery uses'
     alias egraph='equery depgraph'
