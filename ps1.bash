@@ -5,13 +5,12 @@
 
 # If on a LANG is utf8, we want unicode support for "…" in `_W`.
 #[[ "${LANG}" =~ [Uu][Tt][Ff][-_]?8 ]] && {			# FIXME:bashism
-[ -z "${LANG##[Uu][Tt][Ff]8}" ] && {
+[ -z "${LANG##*[Uu][Tt][Ff]8}" ] && {
     {	# If on a vt we need to successfully enable unicode
 	[ "${TERM}" != 'linux' ] || unicode_start
     } && _elip="…"	# then enable utf8 elipsis.
 } || {
     _elip='..'		# replacement string to if no unicode
-    _elip_regex='\.\.'	# define the regex for _sW
 }
 
 ### Short version of \w - attempt to limit PWD to set length.
@@ -72,14 +71,15 @@ _sW () {
     # instead of doin the first, then the second, etc.
     local len=${2:-$((${COLUMNS-80} / 2 - 25))}	# max length of \w; def: ~1/2
     local chs=1		# minimum number of characters to keep from name
-    #local _el="${_elip//./\\.}"					# FIXME:bashism
-    local _el="${_elip_regex-${_elip}}"
+    local _el="${_elip//./\\.}"					# FIXME:bashism
+    #_el="$(echo "${_elip}" | sed 's:\.:\\.:g')"		# FIXME:SLOW!!
     echo "${PWD}" | sed -e "\
 	s:^${HOME}:\~:
+	:chk
+	\:^.\{,${len}\}$: b
 	:sub
 	s:\(\.\?[^/]\{${chs},\}\)[^/\(${_el}\)]\{1,\}\(${_el}\)\?/:\1${_el}/:${1}
-	T
-	\:.\{${len},\}: b sub
+	t chk
 	"
 }
 

@@ -13,6 +13,7 @@ do
 	eval "alias .${t}='. ${RC_DIR}/${_dot}${t}.sh'"
     fi
 done
+unset t
 
 # fs viewing aliases
 alias l='ls'
@@ -30,9 +31,9 @@ alias duh='du -sh'
 alias dfh='df -h'
 
 # vi like stuff aliases
-type 'vimpager' > /dev/null 2>&1 &&
+type "${VIMPAGER}" > /dev/null 2>&1 &&
     alias vp="${VIMPAGER}"
-type 'vimmanpager' > /dev/null 2>&1 &&
+type "${VIMMANPAGER}" > /dev/null 2>&1 &&
     alias vmp="${VIMMANPAGER}"
 type 'dash' > /dev/null 2>&1 &&
     alias dash='dash -V'
@@ -67,7 +68,7 @@ type 'git' > /dev/null 2>&1 && {
 }
 
 # searching aliases
-alias which='{ alias; declare -f; ) | which -i'
+alias which='{ alias; declare -f; } | which -i'
 
 # game aliases
 type 'VisualBoyAdvance' > /dev/null 2>&1 &&
@@ -80,7 +81,7 @@ do
 	    name="$(echo "${f}" | sed -e 's:^.*/\(.*\)\.exe$:\1:; s:\s\+:_:g')"
 	    # Don't want to overwrite a system command.
 	    type "wine.${name}" > /dev/null 2>&1 ||
-		eval "alias wine.${name}='wine ${f}'"
+		eval "alias wine.${name}='wine \"${f}\"'"
 	}
     else
 	break
