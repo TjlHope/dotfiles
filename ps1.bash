@@ -20,6 +20,7 @@ _W () {
 	#local wd="${PWD}" ||		# current working directory
 	#local wd="~${PWD#${HOME}}"	# ... with ~ for $HOME
     local len=${1:-$((${COLUMNS-80} / 2 - 25))}	# max length of \w; def: ~1/2
+    [ ${len} -lt 0 ] && len=0			# can't have a negative length
     local chars=1	# minimum number of characters to keep from name
     local fixdot=1	# set non-zero to have $chars after . in hidden .dirs
     local iter=3	# incrementally decrement $len to $chars...
@@ -70,6 +71,7 @@ _sW () {
     # 'p' flag good for debugging, 'g' flag reduces every dir simultaneously,
     # instead of doin the first, then the second, etc.
     local len=${2:-$((${COLUMNS-80} / 2 - 25))}	# max length of \w; def: ~1/2
+    [ ${len} -lt 0 ] && len=0			# can't have a negative length
     local chs=1		# minimum number of characters to keep from name
     local _el="${_elip//./\\.}"					# FIXME:bashism
     #_el="$(echo "${_elip}" | sed 's:\.:\\.:g')"		# FIXME:SLOW!!

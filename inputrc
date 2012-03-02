@@ -1,0 +1,30 @@
+# ~/.inputrc personal config file for readline
+
+### Completion
+# single tab for completion list
+set show-all-if-ambiguous	on
+set match-hidden-files		off
+# ask whether to display matches if more than this many
+set completion-query-items	60
+# if completeing in middle, don't duplicate matching text after cursor
+set skip-completed-text		on
+
+# vi editing mode
+set editing-mode	vi
+set keymap		vi
+
+### Expansion
+#set expand-tilde	on	# FIXME: Duplicates cd completion in $HOME
+
+# Vi bindings
+$if mode=vi
+    K:		history-search-backward
+    J:		history-search-forward
+    L:		alias-expand-line
+    H:		history-and-alias-expand-line
+    O:		shell-expand-line
+    "gg":	beginning-of-history
+    G:		end-of-history
+    "C-r":	re-read-init-file
+$endif
+

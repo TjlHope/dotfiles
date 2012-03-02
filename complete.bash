@@ -58,13 +58,14 @@ _cdd () {
     _cd $1 ${COMP_WORDS[1]} $2
     return 0
 }
-complete -o nospace -F _cdd cd
+complete -p cd >/dev/null 2>&1 &&
+    complete -o nospace -F _cdd cd
 
 # More complete 'sudo' completion (only works completely with my inputrc and in
 # in a tmux session)
 _sudo () {
     # Start default sudo completion
-    local PATH="${PATH}:/sbin:/usr/sbin:/usr/local/sbin;"
+    local PATH="${PATH}:/sbin:/usr/sbin:/usr/local/sbin"
     local offset i;
     offset=1;
     for ((i=1; i <= COMP_CWORD; i++ ))
@@ -77,14 +78,12 @@ _sudo () {
     _command_offset ${offset}
     # End default sudo completion
     if [ ${#COMPREPLY[@]} -gt 1 ]; then
-	#echo;echo "<${COMPREPLY[*]}>";echo
 	return 0	# If we have several, return now
     elif [ ${#COMPREPLY[@]} -eq 1 ]; then
 	# Need to expand aliases, so sudo can run them...
 	local alias_cmd=( $(alias "${COMPREPLY[0]}" 2> /dev/null | \
 	    sed -ne "s:^alias\s${COMPREPLY[0]}='\(.\+\)'\s*$:\1:p") )
 	if [ -n "${alias_cmd[*]}" ]; then
-	    #echo;echo "/${COMPREPLY[*]}/";echo
 	    # Only try expansion if name is different (ignore ll='ls -l', etc.)
 	    [ ${COMPREPLY[0]} != ${alias_cmd[0]} ] && {
 		[ -n "${TMUX}" ] &&	# Use tmux to send alias expansion keys
@@ -107,11 +106,10 @@ _sudo () {
     fi
     return 0
 }
-alias sudo='sudo '	# needed for alias expansion		# FIXME: HACK!!
-complete -F _sudo sudo
-
-
-
+complete -p cd >/dev/null 2>&1 && {
+    alias sudo='sudo '		# needed for alias expansion	# FIXME: HACK!!
+    complete -F _sudo sudo
+}
 
 ## End completions
 ######################
