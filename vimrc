@@ -26,6 +26,7 @@ call pathogen#runtime_append_all_bundles()
 
 """ Look
 set ruler					" always display cursor position
+set laststatus=0				" don't show status line at bottom
 
 set number					" set numbering rows
 autocmd Filetype info,man setlocal nonumber
@@ -41,20 +42,12 @@ colorscheme TjlH_col
 "colorscheme desert
 "colorscheme elflord
 
-set display=lastline		" show as much of lastline as possible, not '@'s
+set display+=lastline		" show as much of lastline as possible, not '@'s
 
 """ Feel
 let mapleader = ','
 let maplocalleader = '\'
 noremap! jj <Esc>
-
-noremap <Leader>rc :source $MYVIMRC<CR>
-"autocmd BufWritePost **vimrc !source ~/.vimrc	" auto reload vimrc
-"autocmd BufWritePost $MYVIMRC : $MYVIMRC
-
-noremap <Leader>mx :!chmod +x %<CR><CR>
-noremap <Leader>x :!"$(dirname %)/$(basename %)"<CR>
-noremap <Leader>X :!"$(dirname %)/$(basename %)"<Up>
 
 set scrolloff=4					" keep cursor 5 lines from edge
 set sidescrolloff=10
@@ -66,7 +59,48 @@ set ignorecase smartcase 			" ignore case except explicit UC
 
 " remove search highlighting
 "nohlsearch
-nnoremap <Space> :nohlsearch<CR>:<CR>
+nnoremap <silent> <Space> :nohlsearch<CR>
+
+noremap <Leader>rc :source $MYVIMRC<CR>
+"autocmd BufWritePost **vimrc !source ~/.vimrc	" auto reload vimrc
+"autocmd BufWritePost $MYVIMRC : $MYVIMRC
+
+" Map to toggle laststatus
+function! ToggleLS()
+    let &laststatus = (&laststatus + 1) % 3
+    echo "  laststatus = " . &laststatus
+endfunction
+nnoremap <Leader><Leader>l :call ToggleLS()<CR>
+
+" Make executable / compile
+autocmd Filetype perl,python,ruby,sh
+	    \ noremap <buffer> <Leader>mx :update<Bar>!chmod +x %<CR>
+autocmd Filetype c,cpp,make
+	    \ noremap <buffer> <Leader>mx :update<Bar>!make "%:t:r"<CR>
+autocmd Filetype perl,python,ruby,sh
+	    \ noremap <buffer> <Leader>mX :update<CR>:!chmod +x %<Left><Left><Left><Left>
+autocmd Filetype c,cpp,make
+	    \ noremap <buffer> <Leader>mX :update<CR>:!make "%:t:r" <Up>
+autocmd Filetype c,cpp,make
+	    \ noremap <buffer> <Leader>ma :update<Bar>!make all<CR>
+autocmd Filetype c,cpp,make
+	    \ noremap <buffer> <Leader>mM :update<CR>:!make <Up>
+autocmd Filetype c,cpp,make
+	    \ noremap <buffer> <Leader>mc :!make clean<CR>
+" Execute file
+autocmd Filetype perl,python,ruby,sh
+	    \ noremap <buffer> <Leader>x :update<Bar>!"%:h/%:t"<CR>
+autocmd Filetype c,cpp
+	    \ noremap <buffer> <Leader>x :!"%:h/%:t:r"<CR>
+autocmd Filetype make
+	    \ noremap <buffer> <Leader>x :update<Bar>!make<CR>
+" Execute file with args
+autocmd Filetype perl,python,ruby,sh 
+	    \ noremap <buffer> <Leader>X :update<Bar>!"%:h/%:t" <Up>
+autocmd Filetype c,cpp
+	    \ noremap <buffer> <Leader>X :!"%:h/%:t:r" <Up>
+autocmd Filetype make
+	    \ noremap <buffer> <Leader>X :update<Bar>!make <Up>
 
 " add PYTHONPATH to search path for 'gf' TODO: parse line for import, etc.
 "autocmd FileType python let &path = &path . substitute($PYTHONPATH, ':', ',', 'g')
@@ -129,7 +163,19 @@ endfunction
 command! Bwq :write<Bar>call ExitBuf()
 command! Bx :update<Bar>call ExitBuf()
 command! -bang Bq :call ExitBuf('<bang>')
+" Close current buffer
 nnoremap <silent> ZX :Bx<CR>
+" Close all buffers
+nnoremap <silent> ZA :xa<CR>
+" Close other buffer
+nnoremap <silent> Zh <C-W>h:exit<CR>
+nnoremap <silent> ZH <C-W>h:exit<CR>
+nnoremap <silent> Zj <C-W>j:exit<CR>
+nnoremap <silent> ZJ <C-W>j:exit<CR>
+nnoremap <silent> Zk <C-W>k:exit<CR>
+nnoremap <silent> ZK <C-W>k:exit<CR>
+nnoremap <silent> Zl <C-W>l:exit<CR>
+nnoremap <silent> ZL <C-W>l:exit<CR>
 
 
 """"""""""""""""""""""""""""""
@@ -139,8 +185,9 @@ nnoremap <silent> ZX :Bx<CR>
 syntax on					" enable syntax highlighting
 filetype plugin indent on			" enable file type check and indent
 
-" allow syntax refreshing
+" allow syntax (and diff) refreshing
 noremap <Leader>rs :syntax sync fromstart<CR>
+noremap <Leader>rd :diffupdate<CR>
 
 """ Tabs
 set tabstop=8					" spaces per tab
@@ -149,26 +196,25 @@ set softtabstop=8
 set shiftwidth=4				" spaces per indent
 autocmd Filetype markdown,rst setlocal shiftwidth=2
 set noexpandtab					" don't expand tabs to spaces
-autocmd Filetype rst,python setlocal expandtab	" for python 3 compatibility
-set smarttab					" at start shiftwidth, else tabstop
+autocmd Filetype c,cpp*,rst,python setlocal 
+	    \ expandtab		" for xfce and python 3 compatibility
+set smarttab			" use shiftwidth for indent, else softtabstop
 
 """ Wrapping
 set linebreak 					" wraps without <eol>
 " code style: wrap at length, normal navigation
 autocmd Filetype c,cpp,html,make,python,sh,vim setlocal
-	    \ textwidth=79
-	    \ formatoptions-=r			" don't insert comment on <CR>
-	    \ formatoptions-=o			" don't insert comment on o/O
-	    \ formatoptions-=l			" auto format long lines
-	    \ formatoptions+=aw2		" Auto Wrap on textwidth to 2nd line
+	    \ textwidth=79 formatoptions+=aw2
+	    \ formatoptions-=r formatoptions-=o formatoptions-=l
+	    " auto wrap at standard terminal width (80) to 2nd line indent, 
+	    " don't comment on <CR> or o/O, allow auto formating long lines
 " text style: no line wrap, g{j,k} <==> {j,k} for movement
-autocmd Filetype text setlocal textwidth=0	" overide system vimrc
+autocmd Filetype markdown,rst,tex,text setlocal 
 autocmd Filetype markdown,rst,tex,text setlocal
+	    \ textwidth=0
 	    \ formatoptions+=n
-	    "\ wrapmargin=2
-	    "\ formatoptions+=aw
-"autocmd Filetype markdown,rst setlocal
-	    "\ textwidth=79
+	    " overide system vimrc (for text, others standard)
+	    " recognise numbered and bulleted lists
 autocmd Filetype markdown,rst,tex,text noremap gj j
 autocmd Filetype markdown,rst,tex,text noremap gk k
 autocmd Filetype markdown,rst,tex,text noremap j gj
@@ -279,8 +325,8 @@ nnoremap <silent> gb :bnext<CR>
 nnoremap <silent> gB :bprevious<CR>
 
 """ Redifine tag mappings
-nnoremap g] g<C-]>
-nnoremap g} <C-]>
+nnoremap g] <C-]>
+nnoremap g} g<C-]>
 nnoremap g<C-]> g]
 nnoremap g[ <C-T>
 
@@ -293,9 +339,8 @@ noremap <Leader>o <C-o>
 """""""""""""""""""""""""
 
 " set spell						" enable spell check
-" autocmd BufRead *.use,*.conf,*.cfg,*/conf.d/*,*.log,.vimrc set nospell
+noremap <Leader><Leader>s :let &spell = ! &spell<CR>
 
-"autocmd Filetype tex,python,javascript,html,css,php,c,cpp set spell
 autocmd Filetype css,html,javascript,php,tex,text setlocal spell
 autocmd Filetype conf,help,info,man setlocal nospell
 "autocmd StdinReadPost * setlocal nospell		" but not in man
@@ -366,7 +411,7 @@ autocmd Filetype csv autocmd BufLeave * call clearmatches()
 """ ctags
 "autocmd BufWritePost c,cpp,*.h !ctags -R --c++-kinds=+p --fields=+iaS --extra=+q
 "noremap mtl :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
-set tags=./.tags;
+set tags=./.tags,./tags,.tags,tags
 autocmd BufRead,BufNew */msp430/**/*.c setlocal tags+=~/.vim/tags/msp430
 autocmd BufRead,BufNew */avr/**/*.c setlocal tags+=~/.vim/tags/avr
 "set tags+=~/.vim/tags/gl
@@ -378,7 +423,7 @@ autocmd BufRead,BufNew */avr/**/*.c setlocal tags+=~/.vim/tags/avr
 autocmd Filetype c,cpp* let g:easytags_on_cursorhold = 0
 let g:easytags_file = "~/.vim/tags/general"
 let g:easytags_by_filetype = "~/.vim/tags/"
-"let g:easytags_dynamic_files = 1
+let g:easytags_dynamic_files = 2
 let g:easytags_include_members = 0
 let g:easytags_autorecurse = 0
 let g:easytags_resolve_links = 1
@@ -387,13 +432,12 @@ nnoremap <Leader>th :HighlightTags<CR>
 set notagbsearch	" tag file seems to not play nice with binary search
 
 """ fugitive
-nnoremap <Leader>gs :Gstatus<CR>
+nnoremap <Leader>gs :topleft Gstatus<CR>
 nnoremap <Leader>gc :Gcommit<CR>
 nnoremap <Leader>gca :Gcommit -a<CR>
 nnoremap <Leader>gd :Gdiff<CR>
 " get branch info in ruler (statusline)
 set rulerformat=%32(%{fugitive#statusline()}%=%-12.(%c%V,%l%)%)\ %P
-set laststatus=0		" don't show status line at bottom of tab
 
 """ gentoo
 let g:bugsummary_browser = "xdg-open '%s'"	" uses the desktop default
@@ -405,6 +449,7 @@ nnoremap <Leader>j :LustyJuggler<CR>
 nnoremap <Leader>p :LustyJugglePrevious<CR>
 nnoremap <Leader>e :LustyBufferExplorer<CR>
 nnoremap <Leader>f :LustyFilesystemExplorer<CR>
+nnoremap <Leader>F :LustyFilesystemExplorerFromHere<CR>
 
 """ Man
 "runtime ftplugin/man.vim
@@ -456,7 +501,7 @@ noremap <Leader>sv :ScreenShell<CR>
 noremap <Leader>sb :ScreenShell bash<CR>
 noremap <Leader>sd :ScreenShell dash<CR>
 noremap <Leader>sp :ScreenShell python<CR>
-noremap <Leader>si :ScreenShell ipython<CR>
+noremap <Leader>si :IPython<CR>
 noremap <Leader>so :ScreenShell octave<CR>
 noremap <Leader>sa :ScreenShellAttach<CR>
 noremap <Leader>ss :ScreenSend<CR>
@@ -490,7 +535,12 @@ autocmd InsertCharPre <CR> let v:char = pumvisible() ? <C-E><CR>
 noremap <Leader>tl :TlistToggle<CR>
 
 """ txtfmt
-autocmd FileType *.tft.?,*.tft.??,*.tft.???,*.tft.???? setlocal filetype+=.txtfmt
+let g:txtfmtFgcolormask = "11111111"
+let g:txtfmtBgcolormask = "11111111"
+autocmd FileType *.tft setlocal
+	    \ filetype=txtfmt
+autocmd FileType *.tft.?,*.tft.??,*.tft.???,*.tft.???? setlocal
+	    \ filetype+=.txtfmt
 
 """ zencoding
 let g:user_zen_leader_key = '<Leader>z'

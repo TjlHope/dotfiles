@@ -9,9 +9,10 @@ let b:atp_updatetime_normal = 4000	" [2000] play nice with easytags
 let b:atp_updatetime_insert = 0		" [4000] don't compile in insert mode
 
 let g:atp_ProjectScript = 0		" [1] Disable Local Project files
-let g:atp_TempDir = '/dev/shm/'		" Dir for temporary compilation files
+let g:atp_TempDir = $SHM		" Dir for temporary compilation files
 
-let b:atp_Viewer = "xpdf"		" Xpdf for viewer (no vim->mupdf :( ) 
+"let b:atp_Viewer = "xpdf"		" Xpdf for viewer (no vim->mupdf :( ) 
+let b:atp_Viewer = "mupdf"		" Xpdf has become deprecated...
 "let b:atp_OpenViewer = 1		" [1] open viewer after compilation
 let g:atp_LogSync = 1			" [0] sync source file with log
 let g:atp_SyncXpdfLog = 1		" [0] sync Xpdf with log
