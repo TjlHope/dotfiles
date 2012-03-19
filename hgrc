@@ -1,0 +1,5 @@
+
+[ui]
+username = Tom JL Hope <tjlhope@gmail.com>
+verbose = yes
+ignore = ~/.cvsignore

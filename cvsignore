@@ -3,6 +3,9 @@
 # For a project mostly in C, the following would be a good set of
 # exclude patterns (uncomment them if you want to use them):
 
+# Line to make it work as a mercurial ignore file.
+syntax: glob
+
 # vcs merging
 *.orig
 # c
@@ -20,3 +23,9 @@ tags
 *._aux
 *.log
 *.out
+# archives
+*.zip
+*.tar
+*.t[gb]z
+*.tar.gz
+*.tar.bz2
