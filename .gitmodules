@@ -1,9 +1,9 @@
 [submodule "vim/bundle-all/pathogen"]
 	path = vim/bundle-all/pathogen
-	url = http://github.com/tpope/vim-pathogen.git
+	url = https://github.com/tpope/vim-pathogen.git
 [submodule "vim/bundle-all/fugitive"]
 	path = vim/bundle-all/fugitive
-	url = http://github.com/tpope/vim-fugitive.git
+	url = https://github.com/tpope/vim-fugitive.git
 [submodule "vim/bundle-all/surround"]
 	path = vim/bundle-all/surround
 	url = https://github.com/tpope/vim-surround.git
@@ -76,3 +76,6 @@
 [submodule "vim/bundle-all/SudoEdit"]
 	path = vim/bundle-all/SudoEdit
 	url = https://github.com/vim-scripts/SudoEdit.vim.git
+[submodule "vim/bundle-all/OmniCppComplete"]
+	path = vim/bundle-all/OmniCppComplete
+	url = https://github.com/vim-scripts/OmniCppComplete.git

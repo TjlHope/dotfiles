@@ -44,10 +44,53 @@ colorscheme TjlH_col
 
 set display+=lastline		" show as much of lastline as possible, not '@'s
 
+" Set characters to display for non-printing charaters
+if &encoding == "utf-8"
+    let s:_lcs_chars = {"eol": "¶",	"tab": "➤∼",	"trail": "⋯",
+		\	"extends": "⟫",	"precedes": "⟪",
+		\	"conceal": "·",	"nbsp": "∾"}
+else
+    let s:_lcs_chars = {"eol": "$",	"tab": ">-",	"trail": "-",
+		\	"extends": ">",	"precedes": "<",
+		\	"conceal": " ",	"nbsp": "~"}
+endif
+
+let _lcs = deepcopy(s:_lcs_chars)	" Get a control copy
+function _lcs._process() dict		" Add set function to control copy
+    let &l:listchars = ""
+    for key in keys(self)
+	if key[0] != "_" && strlen(self[key])
+	    let &l:listchars .= key . ":" . self[key] . ","
+	endif
+    endfor
+endfunction
+function _lcs._toggle(...) dict		" Add toggle function to control copy
+    for key in a:000
+	if strlen(self[key])
+	    let self[key] = ""
+	else
+	    let self[key] = s:_lcs_chars[key]
+	endif
+    endfor
+    call self._process()
+endfunction
+
+" set list[chars] functions
+nnoremap <Leader><Leader>li	:let &list = ! &list<CR>
+nnoremap <Leader><Leader>lce	:call _lcs._toggle("eol")<CR>
+nnoremap <Leader><Leader>lct	:call _lcs._toggle("tab")<CR>
+nnoremap <Leader><Leader>lcl	:call _lcs._toggle("trail")<CR>
+nnoremap <Leader><Leader>lcx	:call _lcs._toggle("extends")<CR>
+nnoremap <Leader><Leader>lcp	:call _lcs._toggle("precedes")<CR>
+nnoremap <Leader><Leader>lcc	:call _lcs._toggle("conceal")<CR>
+nnoremap <Leader><Leader>lcn	:call _lcs._toggle("nbsp")<CR>
+" Disable some characters initially
+call _lcs._toggle("eol", "conceal")
+
 """ Feel
 let mapleader = ','
 let maplocalleader = '\'
-noremap! jj <Esc>
+noremap! jj	<Esc>
 
 set scrolloff=4					" keep cursor 5 lines from edge
 set sidescrolloff=10
@@ -59,51 +102,51 @@ set ignorecase smartcase 			" ignore case except explicit UC
 
 " remove search highlighting
 "nohlsearch
-nnoremap <silent> <Space> :nohlsearch<CR>
+nnoremap <silent> <Space>	:nohlsearch<CR>
 
-noremap <Leader>rc :source $MYVIMRC<CR>
-"autocmd BufWritePost **vimrc !source ~/.vimrc	" auto reload vimrc
+noremap <Leader>rc		:source $MYVIMRC<CR>
+"autocmd BufWritePost **vimrc !source $MYVIMRC	" auto reload vimrc
 "autocmd BufWritePost $MYVIMRC : $MYVIMRC
 
 " Map to toggle laststatus
-function! ToggleLS()
-    let &laststatus = (&laststatus + 1) % 3
-    echo "  laststatus = " . &laststatus
+function! CycleSetting(name, max)
+    let current = eval('&' . a:name)
+    let new = (current + 1) % (a:max + 1)
+    exec "let &" . a:name . " = new"
+    echo "  " . a:name . " = " . &laststatus
 endfunction
-nnoremap <Leader><Leader>l :call ToggleLS()<CR>
-
-" Make executable / compile
-autocmd Filetype perl,python,ruby,sh
-	    \ noremap <buffer> <Leader>mx :update<Bar>!chmod +x %<CR>
-autocmd Filetype c,cpp,make
-	    \ noremap <buffer> <Leader>mx :update<Bar>!make "%:t:r"<CR>
-autocmd Filetype perl,python,ruby,sh
-	    \ noremap <buffer> <Leader>mX :update<CR>:!chmod +x %<Left><Left><Left><Left>
-autocmd Filetype c,cpp,make
-	    \ noremap <buffer> <Leader>mX :update<CR>:!make "%:t:r" <Up>
-autocmd Filetype c,cpp,make
-	    \ noremap <buffer> <Leader>ma :update<Bar>!make all<CR>
-autocmd Filetype c,cpp,make
-	    \ noremap <buffer> <Leader>mM :update<CR>:!make <Up>
-autocmd Filetype c,cpp,make
-	    \ noremap <buffer> <Leader>mc :!make clean<CR>
-" Execute file
-autocmd Filetype perl,python,ruby,sh
-	    \ noremap <buffer> <Leader>x :update<Bar>!"%:h/%:t"<CR>
-autocmd Filetype c,cpp
-	    \ noremap <buffer> <Leader>x :!"%:h/%:t:r"<CR>
-autocmd Filetype make
-	    \ noremap <buffer> <Leader>x :update<Bar>!make<CR>
-" Execute file with args
-autocmd Filetype perl,python,ruby,sh 
-	    \ noremap <buffer> <Leader>X :update<Bar>!"%:h/%:t" <Up>
-autocmd Filetype c,cpp
-	    \ noremap <buffer> <Leader>X :!"%:h/%:t:r" <Up>
-autocmd Filetype make
-	    \ noremap <buffer> <Leader>X :update<Bar>!make <Up>
+noremap <Leader><Leader>ls	:call CycleSetting("laststatus", 2)<CR>
 
 " add PYTHONPATH to search path for 'gf' TODO: parse line for import, etc.
 "autocmd FileType python let &path = &path . substitute($PYTHONPATH, ':', ',', 'g')
+
+""" Program Execution
+" TODO: set makeprog rather than calling chmod, use writepre, etc.
+" Make executable / compile
+map <buffer> <Leader>mx		:update<Bar>make "%:t:r"<CR>
+map <buffer> <Leader>mX		:update<CR>:make "%:t:r" <Up>
+autocmd Filetype javascript,perl,php,python,ruby,sh
+	    \ map <buffer> <Leader>mx	:update<Bar>!chmod +x %<CR>
+autocmd Filetype javascript,perl,php,python,ruby,sh
+	    \ map <buffer> <Leader>mX	:update<CR>:!chmod +x %<Left><Left><Left><Left>
+map <buffer> <Leader>mm		:update<Bar>make<CR>
+map <buffer> <Leader>ma		:update<Bar>make all<CR>
+map <buffer> <Leader>M		:update<CR>:make <Up>
+map <buffer> <Leader>mc		:make clean<CR>
+" Execute file
+autocmd Filetype javascript,perl,php,python,ruby,sh
+	    \ map <buffer> <Leader>x	:update<Bar>!"%:h/%:t"<CR>
+autocmd Filetype c,cpp
+	    \ map <buffer> <Leader>x	:!"%:h/%:t:r"<CR>
+autocmd Filetype make
+	    \ map <buffer> <Leader>x	:update<Bar>make<CR>
+" Execute file with args
+autocmd Filetype javascript,perl,php,python,ruby,sh 
+	    \ map <buffer> <Leader>X	:update<CR>:!"%:h/%:t" <Up>
+autocmd Filetype c,cpp
+	    \ map <buffer> <Leader>X	:!"%:h/%:t:r" <Up>
+autocmd Filetype make
+	    \ map <buffer> <Leader>X	:update<CR>:make <Up>
 
 """ quit for buffers
 function! ExitBuf(...)
@@ -118,7 +161,7 @@ function! ExitBuf(...)
     elseif &previewwindow == 1
 	execute 'pclose' . bang
 	return
-    elseif exists('b:fugitive_type')
+    elseif exists('b:fugitive_type') || exists('b:fugitive_commit_arguments')
 	" also check if its from fugitive (e.g. Gdiff window)
 	execute 'close' . bang
 	return
@@ -160,22 +203,24 @@ function! ExitBuf(...)
     execute x_com
 endfunction
 
-command! Bwq :write<Bar>call ExitBuf()
-command! Bx :update<Bar>call ExitBuf()
-command! -bang Bq :call ExitBuf('<bang>')
+command! Bwq		write<Bar>call ExitBuf()
+command! Bx		update<Bar>call ExitBuf()
+command! -bang Bq	call ExitBuf('<bang>')
 " Close current buffer
-nnoremap <silent> ZX :Bx<CR>
+nnoremap <silent> ZX	:Bx<CR>
+nnoremap <silent> ZQ	:Bq<CR>
+nnoremap <silent> Z!Q	:Bq!<CR>
 " Close all buffers
-nnoremap <silent> ZA :xa<CR>
-" Close other buffer
-nnoremap <silent> Zh <C-W>h:exit<CR>
-nnoremap <silent> ZH <C-W>h:exit<CR>
-nnoremap <silent> Zj <C-W>j:exit<CR>
-nnoremap <silent> ZJ <C-W>j:exit<CR>
-nnoremap <silent> Zk <C-W>k:exit<CR>
-nnoremap <silent> ZK <C-W>k:exit<CR>
-nnoremap <silent> Zl <C-W>l:exit<CR>
-nnoremap <silent> ZL <C-W>l:exit<CR>
+nnoremap <silent> ZA	:xall<CR>
+" Close other buffer and window
+nnoremap <silent> Zh	<C-W>hZZ
+nnoremap <silent> ZH	<C-W>hZZ
+nnoremap <silent> Zj	<C-W>jZZ
+nnoremap <silent> ZJ	<C-W>jZZ
+nnoremap <silent> Zk	<C-W>kZZ
+nnoremap <silent> ZK	<C-W>kZZ
+nnoremap <silent> Zl	<C-W>lZZ
+nnoremap <silent> ZL	<C-W>lZZ
 
 
 """"""""""""""""""""""""""""""
@@ -186,17 +231,17 @@ syntax on					" enable syntax highlighting
 filetype plugin indent on			" enable file type check and indent
 
 " allow syntax (and diff) refreshing
-noremap <Leader>rs :syntax sync fromstart<CR>
-noremap <Leader>rd :diffupdate<CR>
+noremap <Leader>rs	:syntax sync fromstart<CR>
+noremap <Leader>rd	:diffupdate<CR>
 
 """ Tabs
 set tabstop=8					" spaces per tab
-autocmd Filetype c,cpp* setlocal tabstop=4
+"autocmd Filetype c,cpp setlocal tabstop=4
 set softtabstop=8
 set shiftwidth=4				" spaces per indent
 autocmd Filetype markdown,rst setlocal shiftwidth=2
 set noexpandtab					" don't expand tabs to spaces
-autocmd Filetype c,cpp*,rst,python setlocal 
+autocmd Filetype c,cpp,rst,python setlocal 
 	    \ expandtab		" for xfce and python 3 compatibility
 set smarttab			" use shiftwidth for indent, else softtabstop
 
@@ -248,19 +293,19 @@ autocmd BufNewFile * silent! 0r ~/Templates/%:e.%:e
 " Folding
 """""""""""""""""""""""""
 
-" let $code_types = "c,cpp,css,gentoo-init-d,html,js,php,prolog,python,sh,verilog,vhdl,xml"
+" let $code = "c,cpp,css,gentoo-init-d,html,javascript,php,prolog,python,sh,verilog,vhdl,xml"
 "set foldcolumn=5
-autocmd Filetype c,cpp,css,gentoo-init-d,html,js,php,prolog,python,sh,verilog,vhdl,vim,xml setlocal
+autocmd Filetype c,cpp,css,gentoo-init-d,html,javascript,php,prolog,python,sh,verilog,vhdl,vim,xml setlocal
 	    \ foldcolumn=5
 	    \ foldmethod=indent
 	    \ foldlevel=0
 	    \ foldlevelstart=2
 	    \ foldminlines=1
 	    \ foldnestmax=10
-autocmd Filetype c,cpp* setlocal foldignore="#"
+autocmd Filetype c,cpp setlocal foldignore="#"
 "setlocal foldignore=""
 autocmd Filetype prolog,vim setlocal foldcolumn=3
-"autocmd Filetype python,sh,js,css,html,xml,php,vhdl,verilog set foldignore="#"
+"autocmd Filetype python,sh,javascript,css,html,xml,php,vhdl,verilog set foldignore="#"
 "autocmd Filetype python autocmd BufWritePre python mkview
 "autocmd Filetype python autocmd BufReadPost python silent loadview
 
@@ -333,13 +378,20 @@ nnoremap g[ <C-T>
 noremap <Leader>i <C-i>
 noremap <Leader>o <C-o>
 
+""" Redifine goto mark mappings
+" Think the default should be the position in the previous line, rather than 
+" the start of it. Alse have ` set as tmux prefix, so using <Leader>' as start 
+" of previous line (although send-prefix allows ` to work, wil become confusing 
+" in nested sessions).
+noremap <Leader>' '
+noremap ' `
 
 """"""""""""""""""""""""""""""
 " Spelling
 """""""""""""""""""""""""
 
 " set spell						" enable spell check
-noremap <Leader><Leader>s :let &spell = ! &spell<CR>
+nnoremap <Leader><Leader>sp :let &spell = ! &spell<CR>
 
 autocmd Filetype css,html,javascript,php,tex,text setlocal spell
 autocmd Filetype conf,help,info,man setlocal nospell
@@ -420,7 +472,7 @@ autocmd BufRead,BufNew */avr/**/*.c setlocal tags+=~/.vim/tags/avr
 "set tags+=~/.vim/tags/gtk-2 
 
 """ easytags
-autocmd Filetype c,cpp* let g:easytags_on_cursorhold = 0
+autocmd Filetype c,cpp let g:easytags_on_cursorhold = 0
 let g:easytags_file = "~/.vim/tags/general"
 let g:easytags_by_filetype = "~/.vim/tags/"
 let g:easytags_dynamic_files = 2
@@ -529,7 +581,9 @@ let g:SuperTabNoCompleteAfter = ['\s', ',', ';', '|', '&', '+', '-', '=', '#']
 let g:SuperTabLongestEnhanced = 1
 let g:SuperTabLongestHighlight = 0
 let g:SuperTabCrMapping = 0
-autocmd InsertCharPre <CR> let v:char = pumvisible() ? <C-E><CR>
+if version >= 703
+    autocmd InsertCharPre <CR> let v:char = pumvisible() ? <C-E><CR>
+endif
 
 """ TagList
 noremap <Leader>tl :TlistToggle<CR>
@@ -558,8 +612,33 @@ set printfont=:h9
 " Misc
 """""""""""""""""""""""""
 
-" use stronger encryption
-set cryptmethod="blowfish"
+if version >= 703
+    " use stronger encryption
+    set cryptmethod="blowfish"
+endif
+
+function! Error(...)
+    echohl ErrorMsg
+    echo "Error: " . join(a:000)
+    echohl None
+    return 0
+endfunction
+
+function! Warn(...)
+    if &verbose >= 1
+	echohl WarningMsg
+	echo "Waring: " . join(a:000)
+	echohl None
+    endif
+    return 0
+endfunction
+
+function! Info(...)
+    if &verbose >= 2
+	echo "Info: " . join(a:000)
+    endif
+    return 1
+endfunction
 
 function! SetLastModified()
     " Function to set the modified time in a file
@@ -572,26 +651,125 @@ function! SetLastModified()
     call setpos('.', cursor_pos)
 endfunction
 
-function! ResolveIP(input)
-    let strs = split(system("resolveip " . shellescape(a:input)), "\n")
-    let matches = []
-    for str in strs
-	let match = matchlist(str, escape(a:input, '.') . '.[i:]s\? \(.*\)')
-	if len(match) > 1
-	    call add(matches, match[1])
-	else
-	    return resolved_str
+" bool s:replace(string rep, int line='.', int start=0, int length=strlen)
+" Performs the replacement (a:rep) supplied on the a:line using boundaries
+" a:start and a:end.
+function! s:replace(rep, ...)
+    if a:0 >= 1		" Given line?
+	let c_line = a:1	| else	| let c_line = line(".")
+    endif			" ... otherwise use current line.
+    let old_line = getline(c_line)	" Get old (current) line
+    if a:0 >= 2		" Given start?
+	let c_start = a:2	| else	| let c_start = 0
+    endif			" ... otherwise use begining (0)
+    if a:0 >= 3		" Given finish?
+	let c_length = a:3	| else	| let c_length = strlen(old_line)
+    endif			" ... otherwise use end (-1)
+    if exists("*" . a:rep)	" Replacement given is a function?
+	call Info("strpart(".old_line.", ".c_start.", ".c_length.")")
+	let text = strpart(old_line, c_start, c_length)	" get current text
+	call Info("\t=", text)
+	let rep = function(a:rep)(text)		" call function with text
+    else
+	let rep = a:rep			" otherwise treat as a string.
+    endif
+    if ! rep	| return Warn("No replacement string.")		| endif
+    let new_line =
+		\ strpart(old_line, 0, c_start) . 
+		\ rep .
+		\ strpart(old_line, c_length)
+    if setline(c_line, new_line)
+	return Error("Failed setting new line (".c_line.") text")
+    endif
+    return 1
+endfunction	" s:replace()
+
+" bool ReplaceSelection(string rep, string expansion=NONE)
+" Determines the current form of selection and then perform the replacement
+" (a:rep) suplied on the correct range.
+function! ReplaceSelection(rep, ...) range
+    " Get position variables
+    let v_start = getpos("'<")
+    let v_end = getpos("'>")
+    let pos = getpos(".")
+    " Find if we have (and need) a valid buffer global cursor position
+    if exists("b:cursor_pos") && pos[0:1] == b:cursor_pos[0:1]
+		\ && pos != b:cursor_pos
+	let pos = b:cursor_pos		" use buffer global cursor position
+    else
+	let pos = getpos(".")		" or get current cursor position
+    endif
+    call Info("position:", pos)
+    if v_start[1] == a:firstline && v_end[1] == a:lastline
+		\ && c_pos == v_start	" Is it a valid visual selection?
+	let v_mode = visualmode()		" get visual mode
+	if v_mode ==# "v"		" Have a character visual selection
+	    " TODO: partial line for a:(first|last)line, else complete line
+	    if ! s:replace(a:rep, v_start[1], v_start[2])
+		return Error("VISUAL replace failed")		| endif
+	    for c_line in range(v_start[1] + 1, v_end[1] - 1)
+		if ! s:replace(a:rep, c_line)
+		    return Error("VISUAL replace failed")	| endif
+	    endfor
+	    if ! s:replace(a:rep, v_end[1], 0, v_end[2])
+		return Error("VISUAL replace failed")		| endif
+	elseif v_mode ==# "V"		" Have a line visual selection
+	    " TODO: complete line for all
+	    for c_line in range(v_start[1], v_end[1])
+		if ! s:replace(a:rep, c_line)
+		    return Error("VISUAL LINE replace failed")	| endif
+	    endfor
+	elseif v_mode ==# ""		" Have a block visual selection
+	    " TODO: partial line for all
+	    for c_line in range(v_start[1], v_end[1])
+		if ! s:replace(a:rep, c_line, v_start[2], v_end[2])
+		    return Error("VISUAL BLOCK replace failed")	| endif
+	    endfor
 	endif
-    endfor
-    return join(matches)
+    elseif a:0			" Supplied an expansion?
+	call setpos(".", pos)		" Fix [range]call messing up '.'
+	let text = expand(a:1)		" text to replace
+	let c_line = getline(pos[1])
+	call Info("finding '".text."' in line\n\t".c_line)
+	let idx = strridx(c_line, text, pos[2])	" get str idx to the left of '.'
+	if idx < 0				" nothing to the left?
+	    let idx = stridx(c_line, text)		" get first str
+	endif
+	call Info("found '".text."' at index ".idx)
+	if idx < 0				" still not found?
+	    return Error("Expansion '".a:1."' not found in line ".pos[1].".")
+	endif
+	" TODO: partial line replacement
+	if ! s:replace(a:rep, pos[1], idx, strlen(text))
+	    return Warn(a:1, "replace failed.")
+	endif
+    else
+	return Error("No visual selection, and no default expansion.")
+    endif
+endfunction	" ReplaceSelection()
+
+" bool s:dig(string input)
+" Uses command line utility 'dig' to resolve IPs and FQDNs from a:input.
+function! s:dig(input)
+    let syscall = "dig +short +time=1 +tries=1 "
+    if a:input =~ "^[0-9\.:]*$"
+	let syscall = syscall . "-x "
+	call Info("Resolve IP to FQDN")
+    else
+	call Info("Resolve FQDN to IP")
+    endif
+    call Info("call:", syscall, a:input)
+    let res = system(syscall . shellescape(a:input))
+    if v:shell_error
+	return Error("dig returned " . v:shell_error)
+    endif
+    return substitute(res, "\n", " ", "g")
 endfunction
-function! LineResolveIP()
-    let input = substitute(getline('.'), '^\s*', '', '')
-    let output = ResolveIP(input)
-    call setline('.', output)
-endfunction
-map <Leader>rip WBEa<CR><Esc>Bi<CR><Esc>:call LineResolveIP()<CR>kJJ
-vmap <Leader>rip <Esc>`>a<CR><Esc>`<i<CR><Esc>:call LineResolveIP()<CR>kJJ
+command! -range -bar DIG
+	    \ let b:cursor_pos = getpos(".")
+	    \ | <line1>,<line2>call ReplaceSelection("s:dig", "<cWORD>")
+	    \ | call setpos(".", b:cursor_pos)
+map <Leader>dig :DIG<CR>
 
 """ Nagios
 autocmd BufNewFile */[Nn][Aa][Gg]**/host**/*.cfg silent! 0r ~/Templates/nag-host.cfg
