@@ -4,17 +4,25 @@
 ## Definition of bash completions
 
 # Use drop in scripts
-[ -f "/etc/profile.d/bash-completion.sh" ] && # gentoo style
-    . "/etc/profile.d/bash-completion.sh"
-[ -f "/etc/profile.d/bash_completion.sh" ] && # ubuntu style
-    . "/etc/profile.d/bash_completion.sh"
+[ -f "/etc/profile.d/bash-completion.sh" ]	&&	# gentoo style
+    . "/etc/profile.d/bash-completion.sh"	||
+[ -f "/etc/profile.d/bash_completion.sh" ]	&&	# ubuntu style
+    . "/etc/profile.d/bash_completion.sh"	||
+[ -f "/etc/bash_completion" ]			&&	# DoC ubuntu style
+    . "/etc/bash_completion"
 
-# And indiviual programs without thier own completion
-complete -o dirnames -fX '!*.[Pp][Dd][Ff]' apvlv mupdf
+# And extension completion for programs without their own defined.
+# TODO: Generate from mime database?
+type 'apvlv' > /dev/null 2>&1 &&
+    complete -o plusdirs -fX '!*.@(pdf|PDF)' apvlv
+type 'mupdf' > /dev/null 2>&1 &&
+    complete -o plusdirs -fX '!*.@(pdf|PDF)' mupdf
+type 'zathura' > /dev/null 2>&1 &&
+    complete -o plusdirs -fX '!*.@(pdf|PDF|djv?(u)|DJV?(U)|ps|PS)' zathura
 type 'VisualBoyAdvance' > /dev/null 2>&1 &&
-    complete -o dirnames -fX '!*.[Gg][Bb]*' VisualBoyAdvance 
+    complete -o plusdirs -fX '!*.@(gb?(a)|GB?(A))' VisualBoyAdvance
 type 'desmume' > /dev/null 2>&1 &&
-    complete -o dirnames -fX '!*.[Nn][Dd][Ss]' desmume desmume-glade desmume-cli
+    complete -o plusdirs -fX '!*.@(nds|NDS)' desmume desmume-glade desmume-cli
 
 # Completion function allowing 'cd' to interpret N '.'s to mean the (N-1)th
 # parent directory; i.e. '..' is up to parent, '...' is parent's parent,
@@ -28,9 +36,9 @@ _cdd () {
     return 0
 }
 complete -p cd >/dev/null 2>&1 && {
-    complete -o nospace -F _cdd cd
-    complete -o nospace -F _cdd pushd		# give 'pushd' 'cd' completion
-    complete -o nospace -F _cdd pd		# ... and my 'pd' function
+    complete -o nospace -F _cdd cd		# ./..../file 'cd' completion
+    complete -o nospace -F _cdd pushd		# ... and for 'pushd'
+    complete -o nospace -F _cdd pushpopd	# ... and my 'pd' function
 }
 
 # More complete 'sudo' completion (only works completely with my inputrc and in
@@ -59,7 +67,7 @@ _sudo () {
 	    # Only try expansion if name is different (ignore ll='ls -l', etc.)
 	    [ ${COMPREPLY[0]} != ${alias_cmd[0]} ] && {
 		[ -n "${TMUX}" ] &&	# Use tmux to send alias expansion keys
-		    tmux send-keys "Escape" "L" "A" "Space" &&	# FIXME: HACK!!
+		    tmux send-keys "Escape" ",xlA" "Space" &&	# FIXME: HACK!!
 		    COMPREPLY=()
 		return 0	# Have one valid [expanded] alias, we're done
 	    }
@@ -83,10 +91,20 @@ complete -p cd >/dev/null 2>&1 && {
     complete -F _sudo sudo
 }
 
+# Make everything with -o default have -o bashdefault
+# FIXME: doesn't work as 'bashdefault' doesn't do files, and 'default' doesn't 
+# understand $VAR etc. so it completes with filename \$VAR/file
+#$(complete -p | sed -ne \
+    #'\:\s-o\s\<default\>: {
+	#\:\s-o\s\<bashdefault\>: !{
+	    #s:\s-o\s\<default\>: -o bashdefault&:p
+	#}
+    #}')
+
 # Wrap all alias definitions to allow completion when using them, generating 
 # individual completion wrapper for each alias (more environment polution but 
 # each individual completion is faster), a 'namespace' is used to make 
-# pollution less obvious.
+# pollution less obvious. TODO: get working for non function completion
 _wrap_alias () {
     # Function to generate wrapper
     local name="${1}"	; shift

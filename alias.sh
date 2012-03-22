@@ -15,6 +15,10 @@ do
 done
 unset t
 
+# fs navigation aliases
+alias d='dirs'
+alias pd='pushpopd'
+
 # fs viewing aliases
 alias l='ls'
 alias lpg='ls_pager'
@@ -67,12 +71,22 @@ type 'git' > /dev/null 2>&1 && {
     alias gca='git commit -a'
 }
 
+# mercurial aliases
+type 'hg' > /dev/null 2>&1 && {
+    alias hs='hg status'
+    alias hl='hg log'
+    alias hc='hg commit'
+}
+
 # searching aliases
-alias which='{ alias; declare -f; } | which -i'
+which -i which </dev/null >/dev/null 2>&1 &&
+    alias which='{ alias; declare -f; } | which -i'
 
 # game aliases
-type 'VisualBoyAdvance' > /dev/null 2>&1 &&
+type 'VisualBoyAdvance' > /dev/null 2>&1 && {
     alias VisualBoyAdvance='VisualBoyAdvance --config="${HOME}/.VBArc"'
+    alias VBA='VisualBoyAdvance'
+}
 for f in "${HOME}/Games/"*/*.exe
 do
     if [ "${f}" != "${HOME}/Games/*/*.exe" ]

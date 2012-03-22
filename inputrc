@@ -1,30 +1,42 @@
 # ~/.inputrc personal config file for readline
 
 ### Completion
+# shrink completion prefixes	>	number
+set completion-prefix-display-length	15
+# ask whether to display if	>=	matches
+set completion-query-items		60
+# if 'off' require explicit '.' to complete hidden files
+set match-hidden-files			off
+# want it alphabetical if in a pager
+set print-completions-horizontally	on
 # single tab for completion list
-set show-all-if-ambiguous	on
-set match-hidden-files		off
-# ask whether to display matches if more than this many
-set completion-query-items	60
+set show-all-if-ambiguous		on
 # if completeing in middle, don't duplicate matching text after cursor
-set skip-completed-text		on
-
-# vi editing mode
-set editing-mode	vi
-set keymap		vi
+set skip-completed-text			on
 
 ### Expansion
-#set expand-tilde	on	# FIXME: Duplicates cd completion in $HOME
+# FIXME: if 'on' duplicates cd completion in ${HOME}
+#set expand-tilde		off
+
+### Movement / Editing
+# attempt to preserve cursor position when navigating history
+set history-preserve-point	on
+# vi editing mode
+set editing-mode		vi
+set keymap			vi
 
 # Vi bindings
 $if mode=vi
-    K:		history-search-backward
-    J:		history-search-forward
-    L:		alias-expand-line
-    H:		history-and-alias-expand-line
-    O:		shell-expand-line
+    "\C-r":	re-read-init-file
+    ",rc":	re-read-init-file
     "gg":	beginning-of-history
     G:		end-of-history
-    "C-r":	re-read-init-file
+    K:		history-search-backward
+    J:		history-search-forward
+    ",xl":	alias-expand-line
+    ",xh":	history-expand-line
+    ",xs":	shell-expand-line
+    # ",xb":	brace-expand-line	# doesn't exist?
+    # ",xa":	all-expand-line		# doesn't exist?
 $endif
 
