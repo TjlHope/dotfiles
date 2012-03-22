@@ -486,9 +486,9 @@ autocmd BufRead,BufNew */avr/**/*.c setlocal tags+=~/.vim/tags/avr
 """ easytags
 " DoC ubuntu machines default to ctags.emacs23, so do this manually.
 for cmd in ["exuberant-ctags", "ctags-exuberant"]	" [gentoo, DoC-ubuntu]
-    let full_cmd = system("which " . cmd . " 2>/dev/null")
-    if full_cmd != ""
-	let g:easytags_cmd = full_cmd
+    let full_cmd = system("which " . cmd)
+    if full_cmd[0:-2] =~ cmd . "$"	" has newline on the end
+	let g:easytags_cmd = full_cmd[0:-2]
 	break
     endif
 endfor
@@ -600,7 +600,7 @@ let g:SuperTabNoCompleteAfter = ['\s', ',', ';', '|', '&', '+', '-', '=', '#']
 let g:SuperTabLongestEnhanced = 1
 let g:SuperTabLongestHighlight = 0
 let g:SuperTabCrMapping = 0
-if version >= 703
+if exists("##InsertCharPre")	" A lot of boxes don't have this.
     autocmd InsertCharPre <CR> let v:char = pumvisible() ? <C-E><CR>
 endif
 
