@@ -25,16 +25,28 @@ call pathogen#runtime_append_all_bundles()
 """""""""""""""""""""""""
 
 """ Look
-set ruler					" always display cursor position
-set laststatus=0				" don't show status line at bottom
+set ruler					" always show ruler (position)
+" Customise ruler
+let s:_ruler_head = "%=%.24(%<%f%)%m\ %h%w%r"		" file name and status
+if exists("*fugitive#statusline")			" fugitive branch info
+    let s:_ruler_mid = " %.24(%{fugitive#statusline()}%)"
+else | let s:_ruler_mid = ""
+endif
+let s:_ruler_tail = "%=%7(%c%V%)%=,%-6(%l%)\ %P"	" current position
+" set rulerformat and statusline so they look identical.
+let &rulerformat = "%50(" . s:_ruler_head . s:_ruler_mid . s:_ruler_tail . "%)"
+let &statusline = "%=" . &rulerformat . " "
+set laststatus=0				" don't show status line at end
 
 set number					" set numbering rows
 autocmd Filetype info,man setlocal nonumber
 "autocmd StdinReadPost * setlocal nonumber	" but not in man
+nnoremap <Leader><Leader>nu	:let &number = ! &number<CR>
+nnoremap <Leader><Leader>rn	:let &relativenumber = ! &relativenumber<CR>
 
 set showtabline=1				" 0:never 1:>1page 2:always
 "autocmd Filetype info,man setlocal showtabline=1
-autocmd StdinReadPost * set showtabline=1
+"autocmd StdinReadPost * set showtabline=1
 
 set tabpagemax=40				" max number opening tabs = ?
 
@@ -213,14 +225,14 @@ nnoremap <silent> Z!Q	:Bq!<CR>
 " Close all buffers
 nnoremap <silent> ZA	:xall<CR>
 " Close other buffer and window
-nnoremap <silent> Zh	<C-W>hZZ
-nnoremap <silent> ZH	<C-W>hZZ
-nnoremap <silent> Zj	<C-W>jZZ
-nnoremap <silent> ZJ	<C-W>jZZ
-nnoremap <silent> Zk	<C-W>kZZ
-nnoremap <silent> ZK	<C-W>kZZ
-nnoremap <silent> Zl	<C-W>lZZ
-nnoremap <silent> ZL	<C-W>lZZ
+nnoremap <silent> Zh	:wincmd h<Bar>exit<CR>
+nnoremap <silent> ZH	:wincmd h<Bar>exit<CR>
+nnoremap <silent> Zj	:wincmd j<Bar>exit<CR>
+nnoremap <silent> ZJ	:wincmd j<Bar>exit<CR>
+nnoremap <silent> Zk	:wincmd k<Bar>exit<CR>
+nnoremap <silent> ZK	:wincmd k<Bar>exit<CR>
+nnoremap <silent> Zl	:wincmd l<Bar>exit<CR>
+nnoremap <silent> ZL	:wincmd l<Bar>exit<CR>
 
 
 """"""""""""""""""""""""""""""
@@ -472,7 +484,16 @@ autocmd BufRead,BufNew */avr/**/*.c setlocal tags+=~/.vim/tags/avr
 "set tags+=~/.vim/tags/gtk-2 
 
 """ easytags
-autocmd Filetype c,cpp let g:easytags_on_cursorhold = 0
+" DoC ubuntu machines default to ctags.emacs23, so do this manually.
+for cmd in ["exuberant-ctags", "ctags-exuberant"]	" [gentoo, DoC-ubuntu]
+    let full_cmd = system("which " . cmd . " 2>/dev/null")
+    if full_cmd != ""
+	let g:easytags_cmd = full_cmd
+	break
+    endif
+endfor
+unlet cmd full_cmd
+"autocmd Filetype c,cpp let g:easytags_on_cursorhold = 0
 let g:easytags_file = "~/.vim/tags/general"
 let g:easytags_by_filetype = "~/.vim/tags/"
 let g:easytags_dynamic_files = 2
@@ -484,12 +505,10 @@ nnoremap <Leader>th :HighlightTags<CR>
 set notagbsearch	" tag file seems to not play nice with binary search
 
 """ fugitive
-nnoremap <Leader>gs :topleft Gstatus<CR>
+nnoremap <Leader>gs :Gstatus<CR>
 nnoremap <Leader>gc :Gcommit<CR>
 nnoremap <Leader>gca :Gcommit -a<CR>
 nnoremap <Leader>gd :Gdiff<CR>
-" get branch info in ruler (statusline)
-set rulerformat=%32(%{fugitive#statusline()}%=%-12.(%c%V,%l%)%)\ %P
 
 """ gentoo
 let g:bugsummary_browser = "xdg-open '%s'"	" uses the desktop default
