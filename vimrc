@@ -3,10 +3,7 @@
 """""""""""""""""""""""""
 
 set nocompatible				" not VI compatible
-set vb t_vb=					" disable bell
-set listchars=trail:-,nbsp:% 			" characters to display specials
 set history=50 					" lines of history to remember
-set mouse=a					" always enable mouse input
 set timeoutlen=700				" shorter timeout for mappings
 set ttimeoutlen=100				" shorter timeout for key codes
 
@@ -15,9 +12,51 @@ set viminfo='100 				" save marks and jumps in viminfo
 "let &cdpath=substitute($CDPATH, ':', ',', 'g')
 
 """ Pathogen
+
+" plugins to disable
+let g:pathogen_disabled = ["zencoding"]
+
+" these require ruby
+if ! has("ruby")
+    call add(g:pathogen_disabled, "lusty")
+endif
+
+" source and call pathogen
 runtime bundle/pathogen/autoload/pathogen.vim
 "call pathogen#infect()
 call pathogen#runtime_append_all_bundles()
+
+
+""" helper functions
+
+function! AddUnique(lst, val)
+    if index(a:lst, a:val) == -1
+	return add(a:lst, a:val)
+    endif
+endfunction
+
+function! Error(...)
+    echohl ErrorMsg
+    echo "Error: " . join(a:000)
+    echohl None
+    return 0
+endfunction
+
+function! Warn(...)
+    if &verbose >= 1
+	echohl WarningMsg
+	echo "Waring: " . join(a:000)
+	echohl None
+    endif
+    return 0
+endfunction
+
+function! Info(...)
+    if &verbose >= 2
+	echo "Info: " . join(a:000)
+    endif
+    return 1
+endfunction
 
 
 """"""""""""""""""""""""""""""
@@ -25,6 +64,9 @@ call pathogen#runtime_append_all_bundles()
 """""""""""""""""""""""""
 
 """ Look
+
+set vb t_vb=					" disable bell
+
 set ruler					" always show ruler (position)
 " Customise ruler
 let s:_ruler_head = "%=%.24(%<%f%)%m\ %h%w%r"		" file name and status
@@ -40,13 +82,9 @@ set laststatus=0				" don't show status line at end
 
 set number					" set numbering rows
 autocmd Filetype info,man setlocal nonumber
-"autocmd StdinReadPost * setlocal nonumber	" but not in man
-nnoremap <Leader><Leader>nu	:let &number = ! &number<CR>
-nnoremap <Leader><Leader>rn	:let &relativenumber = ! &relativenumber<CR>
 
 set showtabline=1				" 0:never 1:>1page 2:always
 "autocmd Filetype info,man setlocal showtabline=1
-"autocmd StdinReadPost * set showtabline=1
 
 set tabpagemax=40				" max number opening tabs = ?
 
@@ -86,23 +124,17 @@ function _lcs._toggle(...) dict		" Add toggle function to control copy
     endfor
     call self._process()
 endfunction
-
-" set list[chars] functions
-nnoremap <Leader><Leader>li	:let &list = ! &list<CR>
-nnoremap <Leader><Leader>lce	:call _lcs._toggle("eol")<CR>
-nnoremap <Leader><Leader>lct	:call _lcs._toggle("tab")<CR>
-nnoremap <Leader><Leader>lcl	:call _lcs._toggle("trail")<CR>
-nnoremap <Leader><Leader>lcx	:call _lcs._toggle("extends")<CR>
-nnoremap <Leader><Leader>lcp	:call _lcs._toggle("precedes")<CR>
-nnoremap <Leader><Leader>lcc	:call _lcs._toggle("conceal")<CR>
-nnoremap <Leader><Leader>lcn	:call _lcs._toggle("nbsp")<CR>
 " Disable some characters initially
 call _lcs._toggle("eol", "conceal")
 
+
 """ Feel
+
+set mouse=a					" always enable mouse input
+
 let mapleader = ','
 let maplocalleader = '\'
-noremap! jj	<Esc>
+noremap!	jj			<Esc>
 
 set scrolloff=4					" keep cursor 5 lines from edge
 set sidescrolloff=10
@@ -113,69 +145,94 @@ set incsearch					" search as type
 set ignorecase smartcase 			" ignore case except explicit UC
 
 " remove search highlighting
-"nohlsearch
-nnoremap <silent> <Space>	:nohlsearch<CR>
+nnoremap <silent>	<Space>		:nohlsearch<CR>
 
-noremap <Leader>rc		:source $MYVIMRC<CR>
+" 'r'eload (source) 'c'onfiguration file
+nnoremap	<Leader>rc		:source $MYVIMRC<CR>
 "autocmd BufWritePost **vimrc !source $MYVIMRC	" auto reload vimrc
 "autocmd BufWritePost $MYVIMRC : $MYVIMRC
 
-" Map to toggle laststatus
-function! CycleSetting(name, max)
-    let current = eval('&' . a:name)
+" function to cycle a numeric variable
+function! CycleNumber(name, max)
+    let current = eval(a:name)
     let new = (current + 1) % (a:max + 1)
-    exec "let &" . a:name . " = new"
-    echo "  " . a:name . " = " . &laststatus
+    exec "let " . a:name . " = new"
+    if a:name[0:0]== '&'
+	echo "  " . a:name[1:] . " = " . new
+    else
+	echo "  " . a:name . " = " . new
+    endif
 endfunction
-noremap <Leader><Leader>ls	:call CycleSetting("laststatus", 2)<CR>
+
+" set *number toggle mappings
+nnoremap	<Leader><Leader>nu	:let &number = ! &nu<CR>
+nnoremap	<Leader><Leader>rn	:let &relativenumber = ! &rnu<CR>
+
+" set laststatus toggle mappings
+nnoremap <Leader><Leader>ls	:call CycleNumber("&laststatus", 2)<CR>
+
+" set list[chars] mappings
+nnoremap	<Leader><Leader>li	:let &list = ! &list<CR>
+nnoremap	<Leader><Leader>lce	:call _lcs._toggle("eol")<CR>
+nnoremap	<Leader><Leader>lct	:call _lcs._toggle("tab")<CR>
+nnoremap	<Leader><Leader>lcl	:call _lcs._toggle("trail")<CR>
+nnoremap	<Leader><Leader>lcx	:call _lcs._toggle("extends")<CR>
+nnoremap	<Leader><Leader>lcp	:call _lcs._toggle("precedes")<CR>
+nnoremap	<Leader><Leader>lcc	:call _lcs._toggle("conceal")<CR>
+nnoremap	<Leader><Leader>lcn	:call _lcs._toggle("nbsp")<CR>
 
 " add PYTHONPATH to search path for 'gf' TODO: parse line for import, etc.
-"autocmd FileType python let &path = &path . substitute($PYTHONPATH, ':', ',', 'g')
+"autocmd FileType python let &path=&path.substitute($PYTHONPATH, ':', ',', 'g')
 
 """ Program Execution
-" TODO: set makeprog rather than calling chmod, use writepre, etc.
+
 " Make executable / compile
-map <buffer> <Leader>mx		:update<Bar>make "%:t:r"<CR>
-map <buffer> <Leader>mX		:update<CR>:make "%:t:r" <Up>
+" TODO: set makeprog rather than calling chmod, use writepre, etc.
+map <buffer>	<Leader>mx		:update<Bar>make "%:t:r"<CR>
+map <buffer>	<Leader>mX		:update<CR>:make "%:t:r" <Up>
 autocmd Filetype javascript,perl,php,python,ruby,sh
-	    \ map <buffer> <Leader>mx	:update<Bar>!chmod +x %<CR>
+	    \ map <buffer>	<Leader>mx	:update<Bar>!chmod +x %<CR>
 autocmd Filetype javascript,perl,php,python,ruby,sh
-	    \ map <buffer> <Leader>mX	:update<CR>:!chmod +x %<Left><Left><Left><Left>
-map <buffer> <Leader>mm		:update<Bar>make<CR>
-map <buffer> <Leader>ma		:update<Bar>make all<CR>
-map <buffer> <Leader>M		:update<CR>:make <Up>
-map <buffer> <Leader>mc		:make clean<CR>
+	    \ map <buffer>	<Leader>mX	:update<CR>:!chmod <Up>
+map <buffer>	<Leader>mm		:update<Bar>make<CR>
+map <buffer>	<Leader>ma		:update<Bar>make all<CR>
+map <buffer>	<Leader>M		:update<CR>:make <Up>
+map <buffer>	<Leader>mc		:make clean<CR>
+
 " Execute file
 autocmd Filetype javascript,perl,php,python,ruby,sh
-	    \ map <buffer> <Leader>x	:update<Bar>!"%:h/%:t"<CR>
+	    \ map <buffer>	<Leader>x	:update<Bar>!"%:h/%:t"<CR>
 autocmd Filetype c,cpp
-	    \ map <buffer> <Leader>x	:!"%:h/%:t:r"<CR>
+	    \ map <buffer>	<Leader>x	:!"%:h/%:t:r"<CR>
 autocmd Filetype make
-	    \ map <buffer> <Leader>x	:update<Bar>make<CR>
+	    \ map <buffer>	<Leader>x	:update<Bar>make<CR>
+
 " Execute file with args
 autocmd Filetype javascript,perl,php,python,ruby,sh 
-	    \ map <buffer> <Leader>X	:update<CR>:!"%:h/%:t" <Up>
+	    \ map <buffer>	<Leader>X	:update<CR>:!"%:h/%:t" <Up>
 autocmd Filetype c,cpp
-	    \ map <buffer> <Leader>X	:!"%:h/%:t:r" <Up>
+	    \ map <buffer>	<Leader>X	:!"%:h/%:t:r" <Up>
 autocmd Filetype make
-	    \ map <buffer> <Leader>X	:update<CR>:make <Up>
+	    \ map <buffer>	<Leader>X	:update<CR>:make <Up>
+
 
 """ quit for buffers
-function! ExitBuf(...)
+
+function! QuitBuf(...)
     " function to inteligently close windows and buffers
     if a:0	| let bang = a:1
     else	| let bang = ''
     endif
     " first check if it's a help/quickfix/preview windoe 
     if &filetype =~ '\(help\|man\|info\|qf\)'
-	execute 'close' . bang
+	execute 'quit' . bang
 	return
     elseif &previewwindow == 1
 	execute 'pclose' . bang
 	return
     elseif exists('b:fugitive_type') || exists('b:fugitive_commit_arguments')
 	" also check if its from fugitive (e.g. Gdiff window)
-	execute 'close' . bang
+	execute 'quit' . bang
 	return
     endif
     " current vars
@@ -214,25 +271,27 @@ function! ExitBuf(...)
     endif
     execute x_com
 endfunction
+command! Bwq		write<Bar>call QuitBuf()
+command! Bx		update<Bar>call QuitBuf()
+command! -bang Bq	call QuitBuf('<bang>')
 
-command! Bwq		write<Bar>call ExitBuf()
-command! Bx		update<Bar>call ExitBuf()
-command! -bang Bq	call ExitBuf('<bang>')
 " Close current buffer
-nnoremap <silent> ZX	:Bx<CR>
-nnoremap <silent> ZQ	:Bq<CR>
-nnoremap <silent> Z!Q	:Bq!<CR>
+nnoremap <silent>	ZX		:Bx<CR>
+nnoremap <silent>	ZQ		:Bq<CR>
+nnoremap <silent>	Z!Q		:Bq!<CR>
 " Close all buffers
-nnoremap <silent> ZA	:xall<CR>
+nnoremap <silent>	ZA		:xall<CR>
 " Close other buffer and window
-nnoremap <silent> Zh	:wincmd h<Bar>exit<CR>
-nnoremap <silent> ZH	:wincmd h<Bar>exit<CR>
-nnoremap <silent> Zj	:wincmd j<Bar>exit<CR>
-nnoremap <silent> ZJ	:wincmd j<Bar>exit<CR>
-nnoremap <silent> Zk	:wincmd k<Bar>exit<CR>
-nnoremap <silent> ZK	:wincmd k<Bar>exit<CR>
-nnoremap <silent> Zl	:wincmd l<Bar>exit<CR>
-nnoremap <silent> ZL	:wincmd l<Bar>exit<CR>
+nnoremap <silent>	Zw		:wincmd w<Bar>exit<CR>
+nnoremap <silent>	ZW		:wincmd w<Bar>exit<CR>
+nnoremap <silent>	Zh		:wincmd h<Bar>exit<CR>
+nnoremap <silent>	ZH		:wincmd h<Bar>exit<CR>
+nnoremap <silent>	Zj		:wincmd j<Bar>exit<CR>
+nnoremap <silent>	ZJ		:wincmd j<Bar>exit<CR>
+nnoremap <silent>	Zk		:wincmd k<Bar>exit<CR>
+nnoremap <silent>	ZK		:wincmd k<Bar>exit<CR>
+nnoremap <silent>	Zl		:wincmd l<Bar>exit<CR>
+nnoremap <silent>	ZL		:wincmd l<Bar>exit<CR>
 
 
 """"""""""""""""""""""""""""""
@@ -243,15 +302,16 @@ syntax on					" enable syntax highlighting
 filetype plugin indent on			" enable file type check and indent
 
 " allow syntax (and diff) refreshing
-noremap <Leader>rs	:syntax sync fromstart<CR>
-noremap <Leader>rd	:diffupdate<CR>
+noremap		<Leader>rs		:syntax sync fromstart<CR>
+noremap		<Leader>rd		:diffupdate<CR>
 
 """ Tabs
-set tabstop=8					" spaces per tab
+set tabstop=8					" literal tab width
 "autocmd Filetype c,cpp setlocal tabstop=4
-set softtabstop=8
+set softtabstop=8				" spaces per tab (pressed)
 set shiftwidth=4				" spaces per indent
-autocmd Filetype markdown,rst setlocal shiftwidth=2
+autocmd Filetype markdown,rst setlocal
+	    \ shiftwidth=2
 set noexpandtab					" don't expand tabs to spaces
 autocmd Filetype c,cpp,rst,python setlocal 
 	    \ expandtab		" for xfce and python 3 compatibility
@@ -259,14 +319,15 @@ set smarttab			" use shiftwidth for indent, else softtabstop
 
 """ Wrapping
 set linebreak 					" wraps without <eol>
+" don't insert comment leader on <CR> or o/O
+set formatoptions-=r formatoptions-=o
 " code style: wrap at length, normal navigation
-autocmd Filetype c,cpp,html,make,python,sh,vim setlocal
+autocmd Filetype c,cpp,css,html,javascript,make,python,sh,vim,xml setlocal
 	    \ textwidth=79 formatoptions+=aw2
-	    \ formatoptions-=r formatoptions-=o formatoptions-=l
+	    \ formatoptions-=l
 	    " auto wrap at standard terminal width (80) to 2nd line indent, 
-	    " don't comment on <CR> or o/O, allow auto formating long lines
+	    " allow auto formating long lines
 " text style: no line wrap, g{j,k} <==> {j,k} for movement
-autocmd Filetype markdown,rst,tex,text setlocal 
 autocmd Filetype markdown,rst,tex,text setlocal
 	    \ textwidth=0
 	    \ formatoptions+=n
@@ -284,7 +345,7 @@ autocmd Filetype gif,png,xpm,xbm setlocal nowrap
 " File Formats
 """""""""""""""""""""""""
 
-set fileformats=unix					" always use Unix file format
+set fileformats=unix			" always use Unix file format
 
 autocmd BufRead,BufNewFile *.txt setfiletype text
 autocmd BufRead,BufNewFile *.prb setfiletype tex
@@ -292,10 +353,10 @@ autocmd BufRead,BufNewFile *.prb setfiletype tex
 autocmd BufRead,BufNewFile */AI/**/*.pl,*/prolog/**/*.pl setfiletype prolog
 autocmd BufRead,BufNewFile *.pde setfiletype cpp
 
-"autocmd FileType python set bomb			" enable BOM for listend filetypes
-							" messes up *n?x #!s
+"autocmd FileType python set bomb	" enable BOM for listend filetypes
+					" breaks *n?x shebangs (#!/path/2/prog)
 
-let g:tex_flavor='latex'				" use latex styles
+let g:tex_flavor = 'latex'		" use latex styles
 
 """ use skeleton files
 autocmd BufNewFile * silent! 0r ~/Templates/%:e.%:e
@@ -305,39 +366,38 @@ autocmd BufNewFile * silent! 0r ~/Templates/%:e.%:e
 " Folding
 """""""""""""""""""""""""
 
+set foldminlines=1 foldnestmax=10 foldignore=""
 " let $code = "c,cpp,css,gentoo-init-d,html,javascript,php,prolog,python,sh,verilog,vhdl,xml"
-"set foldcolumn=5
-autocmd Filetype c,cpp,css,gentoo-init-d,html,javascript,php,prolog,python,sh,verilog,vhdl,vim,xml setlocal
+autocmd Filetype c,cpp,css,gentoo-init-d,html,javascript,php,prolog,python,sh,verilog,vhdl,xml setlocal
 	    \ foldcolumn=5
 	    \ foldmethod=indent
-	    \ foldlevel=0
-	    \ foldlevelstart=2
-	    \ foldminlines=1
-	    \ foldnestmax=10
+	    \ foldlevel=1
+autocmd Filetype tex,vim setlocal
+	    \ foldcolumn=3
+	    \ foldlevel=1
 autocmd Filetype c,cpp setlocal foldignore="#"
-"setlocal foldignore=""
-autocmd Filetype prolog,vim setlocal foldcolumn=3
-"autocmd Filetype python,sh,javascript,css,html,xml,php,vhdl,verilog set foldignore="#"
 "autocmd Filetype python autocmd BufWritePre python mkview
 "autocmd Filetype python autocmd BufReadPost python silent loadview
 
-""" fold vimrc
-function! Fold_vimrc(l)
+""" folding vim
+function! FoldVim(l)
     let line = getline(a:l)
     let p_line = getline(a:l - 1)
-    if line =~ '^\"\{30\}' || line =~ '\svi?:\s'
+    if line =~# '^\"\{30\}' || line =~ '\svim\?:\s'
 	return 0
-    elseif line =~ '^\"\{25\}' || p_line =~ '^\"\{30\}'
+    elseif p_line =~# '^\"\{30\}'
+	return '>1'
+    elseif line =~# '^\"\{25\}'
 	return 1
-    elseif line =~ '^\"\{3\} '
-	return 1
-    "elseif p_line =~ '^\"\{3\}'
+    elseif line =~# '^\"\{3\} '
+	return '>2'
+    "elseif p_line =~# '^\"\{3\}'
 	"return 2
     else
-	if line =~ '^end'
-	    return 3 + float2nr(indent(a:l) / &shiftwidth)
-	else
+	if line !~# '^\s*end'
 	    return 2 + float2nr(indent(a:l) / &shiftwidth)
+	else
+	    return 3 + float2nr(indent(a:l) / &shiftwidth)
 	endif
 	"let i_diff = float2nr((indent(a:l) - indent(a:l - 1)) / &shiftwidth)
 	"if line =~ '^end' | let i_diff += 1 | endif
@@ -351,23 +411,9 @@ function! Fold_vimrc(l)
 	"endif
     endif
 endfunction
-autocmd BufRead **vimrc setlocal foldmethod=expr foldexpr=Fold_vimrc(v:lnum) 
+autocmd Filetype vim setlocal foldmethod=expr foldexpr=FoldVim(v:lnum)
+"autocmd BufRead **vimrc setlocal foldmethod=expr foldexpr=Fold_vimrc(v:lnum) 
 "autocmd Filetype vim setlocal foldlevel=1
-
-""" fold python
-function! Fold_python(l)
-    let line = getline(a:l)
-    if line =~ "^\\s*[\"']\\{3\\}"
-	return 1 + float2nr(indent(a:l) / &shiftwidth)
-    elseif line == ''
-	return -1
-    else
-	return float2nr(indent(a:l) / &shiftwidth)
-    endif
-endfunction
-autocmd Filetype python setlocal foldmethod=expr foldexpr=Fold_python(v:lnum) 
-"autocmd Filetype vim setlocal foldlevel=1
-
 
 """"""""""""""""""""""""""""""
 " Navigation
@@ -422,12 +468,12 @@ autocmd BufRead **/Imperial/**/*.* setlocal spellfile+=/home/tom/.vim/spell/elec
 """""""""""""""""""""""""
 
 "set wildmenu
-set wildmode=longest:list				" shell style file completion
+set wildmode=longest:list			" shell style file completion
 
 set completeopt=longest,menuone,menu,preview
-set complete=.,k,w,b,u,t,i				" add dictionary completion
+set complete=.,k,w,b,u,t,i			" add dictionary completion
 
-"set autoindent					" indent new line to same as previous
+"set autoindent				" indent new line to same as previous
 "set smartindent				" indent on code type
 
 " automatically open and close the popup menu / preview window
@@ -447,30 +493,11 @@ autocmd InsertLeave * if pumvisible() == 0|silent! pclose|endif
 " Plugin configuration
 """""""""""""""""""""""""
 
-""" AutomaticLaTexPlugin
-
 """ csv
 
-autocmd BufNewFile *.csv let g:csv_delim = ','	" set the ?sv delimiter for new files
-autocmd BufNewFile *.tsv let g:csv_delim = '	'	" - - '' - -
-"autocmd BufNewFile *.csv let g:csv_delim=','
-"autocmd BufNewFile *.tsv let g:csv_delim='	'
 autocmd BufRead,BufNewFile *.?sv setfiletype csv	" Allow for ?sv file editing
-" some nice mappings
-autocmd Filetype csv nnoremap <Leader>h :Header<CR>
-autocmd Filetype csv nnoremap <Leader>H :Header!<CR>
-autocmd Filetype csv nnoremap <Leader>ch :HiColumn<CR>
-autocmd Filetype csv nnoremap <Leader>cH :HiColumn!<CR>
-autocmd Filetype csv nnoremap <Leader>dc :DeleteColumn<CR>
-autocmd Filetype csv nnoremap <Leader>rc :InitCSV<CR>
-let g:csv_highlight_column = 'y'
-let g:csv_hiGroup = "CSVColumnHilight"
-let g:csv_hiHeader = "CSVHeaderHilight"
-let g:csv_no_conceal = 1
-" fix highlighting problems
-"autocmd Filetype csv nmap <silent><buffer> gb :call clearmatches()<Bar>bnext<CR>
-"autocmd Filetype csv nmap <silent><buffer> gB :call clearmatches()<Bar>bprevious<CR>
-autocmd Filetype csv autocmd BufLeave * call clearmatches()
+autocmd BufNewFile *.csv let g:csv_delim = ','	" set the csv delimiter for new files
+autocmd BufNewFile *.tsv let g:csv_delim = '	'	" tsv delimiter ''
 
 """ ctags
 "autocmd BufWritePost c,cpp,*.h !ctags -R --c++-kinds=+p --fields=+iaS --extra=+q
@@ -500,15 +527,15 @@ let g:easytags_dynamic_files = 2
 let g:easytags_include_members = 0
 let g:easytags_autorecurse = 0
 let g:easytags_resolve_links = 1
-nnoremap <Leader>tu :UpdateTags<CR>
-nnoremap <Leader>th :HighlightTags<CR>
+nnoremap <Leader>tu	:UpdateTags<CR>
+nnoremap <Leader>th	:HighlightTags<CR>
 set notagbsearch	" tag file seems to not play nice with binary search
 
 """ fugitive
-nnoremap <Leader>gs :Gstatus<CR>
-nnoremap <Leader>gc :Gcommit<CR>
-nnoremap <Leader>gca :Gcommit -a<CR>
-nnoremap <Leader>gd :Gdiff<CR>
+nnoremap <Leader>gs	:Gstatus<CR>
+nnoremap <Leader>gc	:Gcommit<CR>
+nnoremap <Leader>gca	:Gcommit -a<CR>
+nnoremap <Leader>gd	:Gdiff<CR>
 
 """ gentoo
 let g:bugsummary_browser = "xdg-open '%s'"	" uses the desktop default
@@ -516,11 +543,11 @@ let g:bugsummary_browser = "xdg-open '%s'"	" uses the desktop default
 """ lusty
 set hidden		" just hide abandoned buffers, don't unload
 let g:LustyExplorerSuppressHiddenWarning = 1
-nnoremap <Leader>j :LustyJuggler<CR>
-nnoremap <Leader>p :LustyJugglePrevious<CR>
-nnoremap <Leader>e :LustyBufferExplorer<CR>
-nnoremap <Leader>f :LustyFilesystemExplorer<CR>
-nnoremap <Leader>F :LustyFilesystemExplorerFromHere<CR>
+nnoremap <Leader>j	:LustyJuggler<CR>
+nnoremap <Leader>p	:LustyJugglePrevious<CR>
+nnoremap <Leader>e	:LustyBufferExplorer<CR>
+nnoremap <Leader>f	:LustyFilesystemExplorer<CR>
+nnoremap <Leader>F	:LustyFilesystemExplorerFromHere<CR>
 
 """ Man
 "runtime ftplugin/man.vim
@@ -529,7 +556,7 @@ nnoremap <Leader>F :LustyFilesystemExplorerFromHere<CR>
 let NERDTreeChDirMode = 2
 let NERDTreeHijackNetrw = 1
 let NERDTreeShowBookmarks = 1
-noremap <Leader>nt :NERDTreeToggle<CR>
+noremap <Leader>nt	:NERDTreeToggle<CR>
 
 """ OmniCppComplete
 let OmniCpp_NamespaceSearch = 1
@@ -542,16 +569,7 @@ let OmniCpp_MayCompleteScope = 1 			" autocomplete after ::
 let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
 
 """ PDF
-runtime ftplugin/pdf.vim
-
-""" Pydiction
-"let g:pydiction_location = '~/.vim/after/pydiction/complete-dict'
-
-""" pyflakes
-let g:pyflakes_use_quickfix = 0
-
-""" pep8
-let g:pep8_map='<Leader>8'
+runtime ftplugin/pdf.vim		" doesn't seem to do it automatically
 
 """ ros
 " Enable ros specific scripts if we're in a ROS environment.
@@ -567,42 +585,55 @@ endif
 let g:ScreenImpl = 'Tmux'
 let g:ScreenShellHeight = 10
 let g:ScreenShellExpandTabs = 1
-noremap <Leader>sh :ScreenShell<CR>
-noremap <Leader>sv :ScreenShell<CR>
-noremap <Leader>sb :ScreenShell bash<CR>
-noremap <Leader>sd :ScreenShell dash<CR>
-noremap <Leader>sp :ScreenShell python<CR>
-noremap <Leader>si :IPython<CR>
-noremap <Leader>so :ScreenShell octave<CR>
-noremap <Leader>sa :ScreenShellAttach<CR>
-noremap <Leader>ss :ScreenSend<CR>
-noremap <Leader>sq :ScreenQuit<CR>
+noremap <Leader>sh	:ScreenShell<CR>
+noremap <Leader>sv	:ScreenShell<CR>
+noremap <Leader>sb	:ScreenShell bash<CR>
+noremap <Leader>sd	:ScreenShell dash<CR>
+noremap <Leader>sp	:ScreenShell python<CR>
+noremap <Leader>si	:IPython<CR>
+noremap <Leader>so	:ScreenShell octave<CR>
+noremap <Leader>sa	:ScreenShellAttach<CR>
+noremap <Leader>ss	:ScreenSend<CR>
+noremap <Leader>sq	:ScreenQuit<CR>
 
 """ securemodelines
 set nomodeline
-if exists("g:secure_modelines_allowed_items")
-    let g:secure_modelines_allowed_items += [
-		\ 'foldenable', 'fen',
-		\ 'foldmethod', 'fdm',
-		\ 'formatoptions', 'fo',
-		\]
-		"\ 'foldexpr', 'fde',
+if ! exists("g:secure_modelines_allowed_items")
+    let g:secure_modelines_allowed_items = []
 endif
+for _opt in [
+	    \	'ft',	'filetype',
+	    \	'ff',	'fileformat',
+	    \	'tw',	'textwidth',
+	    \	'ts',	'tabstop',
+	    \	'sts',	'softtabstop',
+	    \	'sw',	'shiftwidth',
+	    \	'et',	'noet',	'expandtab',	'noexpandtab',
+	    \	'fo',	'formatoptions',
+	    \	'rl',	'norl',	'rightleft',	'norightleft',
+	    \	'fen',	'foldenable',
+	    \	'fdc',	'foldcolumn',
+	    \	'fdm',	'foldmethod',
+	    \	'fmr',	'foldmarker',
+	    \]
+	    "\	'fde',	'foldexpr',
+    call AddUnique(g:secure_modelines_allowed_items, _opt)
+endfor
+unlet _opt
 let g:secure_modelines_verbose = 1
 
 """ SuperTab
 let g:SuperTabDefaultCompletionType = 'context'
-"autocmd Filetype python
-	    "\ let g:SuperTabContextDefaultCompletionType = '<c-x><c-o>'
 let g:SuperTabMidWordCompletion = 1
 let g:SuperTabRetainCompletionDuration = 'completion'
 let g:SuperTabNoCompleteAfter = ['\s', ',', ';', '|', '&', '+', '-', '=', '#']
 let g:SuperTabLongestEnhanced = 1
 let g:SuperTabLongestHighlight = 0
 let g:SuperTabCrMapping = 0
-if exists("##InsertCharPre")	" A lot of boxes don't have this.
-    autocmd InsertCharPre <CR> let v:char = pumvisible() ? <C-E><CR>
-endif
+" TODO: Check if above g:STCM=0 removes the need (not working anyway?).
+"if exists("##InsertCharPre")	" A lot of boxes don't have this.
+    "autocmd InsertCharPre * if v:char=="<CR>" && pumvisible()|let    v:char="<C-E>".v:char|endif
+"endif
 
 """ TagList
 noremap <Leader>tl :TlistToggle<CR>
@@ -616,7 +647,7 @@ autocmd FileType *.tft.?,*.tft.??,*.tft.???,*.tft.???? setlocal
 	    \ filetype+=.txtfmt
 
 """ zencoding
-let g:user_zen_leader_key = '<Leader>z'
+let g:user_zen_leader_key = '<LocalLeader>z'
 let g:use_zen_complete_tag = 1
 
 
@@ -635,29 +666,6 @@ if version >= 703
     " use stronger encryption
     set cryptmethod="blowfish"
 endif
-
-function! Error(...)
-    echohl ErrorMsg
-    echo "Error: " . join(a:000)
-    echohl None
-    return 0
-endfunction
-
-function! Warn(...)
-    if &verbose >= 1
-	echohl WarningMsg
-	echo "Waring: " . join(a:000)
-	echohl None
-    endif
-    return 0
-endfunction
-
-function! Info(...)
-    if &verbose >= 2
-	echo "Info: " . join(a:000)
-    endif
-    return 1
-endfunction
 
 function! SetLastModified()
     " Function to set the modified time in a file

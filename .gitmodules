@@ -79,3 +79,6 @@
 [submodule "vim/bundle-all/OmniCppComplete"]
 	path = vim/bundle-all/OmniCppComplete
 	url = https://github.com/vim-scripts/OmniCppComplete.git
+[submodule "vim/bundle-all/LaTeX-Box"]
+	path = vim/bundle-all/LaTeX-Box
+	url = https://github.com/LaTeX-Box-Team/LaTeX-Box.git
