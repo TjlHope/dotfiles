@@ -4,12 +4,13 @@
 ## Definition of bash completions
 
 # Use drop in scripts
-[ -f "/etc/profile.d/bash-completion.sh" ]	&&	# gentoo style
-    . "/etc/profile.d/bash-completion.sh"	||
-[ -f "/etc/profile.d/bash_completion.sh" ]	&&	# ubuntu style
-    . "/etc/profile.d/bash_completion.sh"	||
-[ -f "/etc/bash_completion" ]			&&	# DoC ubuntu style
+if [ -f "/etc/profile.d/bash-completion.sh" ]; then	# gentoo style
+    . "/etc/profile.d/bash-completion.sh"
+elif [ -f "/etc/profile.d/bash_completion.sh" ]; then	# ubuntu style
+    . "/etc/profile.d/bash_completion.sh"
+elif [ -f "/etc/bash_completion" ]; then		# DoC ubuntu style
     . "/etc/bash_completion"
+fi
 
 # And extension completion for programs without their own defined.
 # TODO: Generate from mime database?
