@@ -14,7 +14,8 @@ type 'keychain' > /dev/null 2>&1 &&
     eval $(keychain --eval --quiet --noask)
 
 ### export SHM variable pointing to personal tempory storage
-shm_dir="$(/bin/sed -ne 's:^shm\s\+\(\S\+\)\s\+tmpfs\s\+.*$:\1:p' /proc/mounts)"
+shm_dir="$(/bin/sed -ne \
+    's:^\s*\(\S\+\)\s\+\(/dev/shm\)\s\+tmpfs\s\+.*$:\2:p' /proc/mounts)"
 export SHM="${shm_dir:-/tmp}/${USER}"	# default to /tmp if no shared memory
 unset shm_dir				# stop environment pollution
 [ -d "${SHM}" ] || mkdir "${SHM}"	# no -p as ${shm_dir:-/tmp} must exist
@@ -46,7 +47,11 @@ export INTEL_BATCH=1
 # bashrc would play havoc. This is also why just testing the ${SHELL} variable
 # is insufficient, as that reports the ${USER}s default login shell, not the
 # current one.
-read _SH < "/proc/$$/comm"	# Get the name of the current shell.
+[ -f "/proc/$$/comm" ] && {	# only available in later kernels.
+    read _SH < "/proc/$$/comm"
+} || {
+    _SH="$(sed -ne "s:^-\?\([^\x00]\+\)\x00.*:\1:p" "/proc/$$/cmdline")"
+    _SH="${_SH##*/}"
+}
 [ -f "${HOME}/.${_SH}rc" ] &&	# Source the rc file if it exists.
     . "${HOME}/.${_SH}rc"
-
