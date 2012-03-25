@@ -42,6 +42,7 @@ type "${VIMMANPAGER}" > /dev/null 2>&1 &&
 type 'dash' > /dev/null 2>&1 &&
     alias dash='dash -V'
 alias :q='exit'
+alias vim='vim --servername VIM'	# Needed for LaTeX-Box latexmk
 
 # program aliases
 type 'bc' > /dev/null 2>&1 &&
