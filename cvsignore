@@ -8,24 +8,27 @@ syntax: glob
 
 # vcs merging
 *.orig
-# c
-*.[oa]
-tags
-.tags
 # backup
 *~
-# vim
 .*.swp
+# exuberant ctags
+tags
+.tags
+# c
+*.[oa]
+*.out
 # python
 *.pyc
 # tex
 *.aux
-*._aux
 *.log
-*.out
+# latexmk
+*._aux
+*.fdb_latexmk
 # archives
 *.zip
 *.tar
 *.t[gb]z
 *.tar.gz
 *.tar.bz2
+
