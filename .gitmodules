@@ -82,3 +82,9 @@
 [submodule "vim/bundle-all/LaTeX-Box"]
 	path = vim/bundle-all/LaTeX-Box
 	url = https://github.com/LaTeX-Box-Team/LaTeX-Box.git
+[submodule "vim/bundle-all/EasyColour"]
+	path = vim/bundle-all/EasyColour
+	url = https://github.com/abudden/EasyColour.git
+[submodule "vim/bundle-all/repeat"]
+	path = vim/bundle-all/repeat
+	url = https://github.com/tpope/vim-repeat.git
