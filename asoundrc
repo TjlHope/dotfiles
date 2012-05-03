@@ -1,6 +1,6 @@
 # My alsa conf 
 
-# allow dmix
+# allow dmix	my ALSA enables by default (though not with OSS emulation)
 
 #pcm.!default {
 #    type plug
@@ -33,27 +33,22 @@
 
 # improve mic in
 
-pcm.record_mono {
-    type dsnoop
-    ipc_key 4096
-    ipc_perm 0666
-    slave {
-    	pcm "hw:0,0"
-    	channels 2
-    }
-    bindings.0 0
+pcm.mic_in {
+    type plug
+    slave.pcm "dsnoop"
 }
-pcm.mic_filter {
+
+pcm.mic_speex {
     type speex
-    slave.pcm "record_mono"
+    slave.pcm "mic_in"
     frames 512
     denoise 1
-#   agc 1
-#   agc_level 8000
-#   noise_suppress 100
-#   echo 1
+    #agc 1
+    #agc_level 8000
+    #echo 1
     filter_length 8192
     dereverb 1
-#   dereverb_decay 0
-#   dereverb_level 0
+    #dereverb_decay 0
+    #dereverb_level 0
 }
+

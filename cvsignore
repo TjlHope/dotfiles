@@ -10,7 +10,7 @@ syntax: glob
 *.orig
 # backup
 *~
-.*.swp
+.*.sw[po]
 # exuberant ctags
 tags
 .tags
