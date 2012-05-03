@@ -20,6 +20,10 @@ alias d='dirs'
 alias pd='pushpopd'
 
 # fs viewing aliases
+_ls="$(alias ls 2>/dev/null)" && {	# incase prior alias ls='ls --colour=?'
+    _ls="${_ls#alias ls=\'ls}"; _ls="${_ls%\'}"
+    alias ls="ls -x${_ls# -x}"
+}; unset _ls
 alias l='ls'
 alias lpg='ls_pager'
 alias ll='ls -l'
@@ -43,6 +47,8 @@ type 'dash' > /dev/null 2>&1 &&
     alias dash='dash -V'
 alias :q='exit'
 alias vim='vim --servername VIM'	# Needed for LaTeX-Box latexmk
+alias svim='SUDO_EDITOR=vim sudoedit'	# Need to stop using 'sudo vim'!!!
+alias sudovim='SUDO_EDITOR=vim sudoedit'
 
 # program aliases
 type 'bc' > /dev/null 2>&1 &&

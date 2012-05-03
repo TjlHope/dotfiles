@@ -13,7 +13,7 @@
     _elip='..'		# replacement string to if no unicode
 }
 
-### Short version of \w - attempt to limit PWD to set length.
+## Short version of \w - attempt to limit PWD to set length.
 _W () {
     local wd="${PWD/#${HOME}/~}"	# CWD with ~ for $HOME	# FIXME:bashism
     #[ "${PWD#${HOME}}" = "${PWD}" ] &&
@@ -61,7 +61,7 @@ _W () {
     echo "${wd}"
 }
 
-### Short version of \w - uses sed instead of shell loops, expansion and globs.
+## Short version of \w - uses sed instead of shell loops, expansion and globs.
 # Executes an order of magnitude faster, but is less customisable and elegant.
 # It will either strip all chars from first dir, then all chars from second
 # dir, etc.  or strip every directory by 1 char for each iteration, regardless
@@ -85,7 +85,7 @@ _sW () {
 	"
 }
 
-### Include repositary information, e.g. branch, etc.
+## Provide repositary information, e.g. branch, etc.
 _R () {
     local d="${PWD}"	# current dir
     local b=""		# branch name
@@ -141,6 +141,23 @@ _R () {
 	break
     done
 }
+
+## Displays non-zero exit status at end of previous line
+# cannot use function as bash only processes PS1 once.
+# CSI:	\033[
+#	CNL:	nE	CPL:	nF
+#	CHA:	nG	CUP:	n;mH
+#	SCP:	s	RCP:	u
+_x="\[\033[s\033[F\033[\$((\${COLUMNS}-\${#?}))G\]\$(_xf \\#)\[\033[u\]"
+_xf () {
+    local x="${?}" px
+    [ -f "${SHM}/cmd/$$" ] && read px < "${SHM}/cmd/$$"
+    [ ${x} -gt 0 ] && [ "${px}" != "${1}" ] && {
+	echo "${1}" > "${SHM}/cmd/$$"
+	echo "${x}"
+    }
+}
+[ -d "${SHM}/cmd" ] || mkdir "${SHM}/cmd"	# make the dir for _xf
 
 # If run as a program, output a representation of PS1
 [ "${0##*/}" = "ps1.bash" ] && {
