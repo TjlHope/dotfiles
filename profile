@@ -13,14 +13,12 @@ export EDITOR="vim"
 type 'keychain' > /dev/null 2>&1 &&
     eval $(keychain --eval --quiet --noask)
 
-### export SHM variable pointing to personal tempory storage
-shm_dir="$(/bin/sed -ne \
-    's:^\s*\(\S\+\)\s\+\(/dev/shm\)\s\+tmpfs\s\+.*$:\2:p' /proc/mounts)"
-export SHM="${shm_dir:-/tmp}/${USER}"	# default to /tmp if no shared memory
-unset shm_dir				# stop environment pollution
-[ -d "${SHM}" ] || mkdir "${SHM}"	# no -p as ${shm_dir:-/tmp} must exist
-[ -d "${SHM}" ] && chmod 700 "${SHM}"	# only we want to be able to read it
-[ -f "${SHM}/.keep" ] || > "${SHM}/.keep" # help persist over suspend/hibernate?
+### export SHM_D variable pointing to personal tempory storage
+! sed -ne '\:^\s*\S\+\s\+/dev/shm\s\+tmpfs\s\+.*$: q1' /proc/mounts &&
+    export SHM_D="/dev/shm/${USER}" ||
+    export SHM_D="/tmp/${USER}"	# default to /tmp if no shared memory
+[ -d "${SHM_D}" ] || mkdir "${SHM_D}"	# no -p as ${shm_dir:-/tmp} must exist
+[ -d "${SHM_D}" ] && chmod 700 "${SHM_D}"	# user read only
 
 ### python variables
 pypath="${HOME}/Documents/Code/python:"

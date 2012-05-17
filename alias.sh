@@ -4,13 +4,13 @@
 ## Definition of shell aliases
 
 # source aliases
-alias .rc=". ${RC_DIR}/${_dot}${_SH}rc"
+alias .rc=". ${RC_D}/${_DOT}${_SH}rc"
 for t in "ps1" "function" "alias" "complete"
 do
-    if [ -f "${RC_DIR}/${_dot}${t}.${_SH}" ]; then
-	eval "alias .${t}='. ${RC_DIR}/${_dot}${t}.${_SH}'"
-    elif [ -f "${RC_DIR}/${_dot}${t}.sh" ]; then
-	eval "alias .${t}='. ${RC_DIR}/${_dot}${t}.sh'"
+    if [ -f "${RC_D}/${_DOT}${t}.${_SH}" ]; then
+	eval "alias .${t}='. ${RC_D}/${_DOT}${t}.${_SH}'"
+    elif [ -f "${RC_D}/${_DOT}${t}.sh" ]; then
+	eval "alias .${t}='. ${RC_D}/${_DOT}${t}.sh'"
     fi
 done
 unset t
@@ -20,10 +20,9 @@ alias d='dirs'
 alias pd='pushpopd'
 
 # fs viewing aliases
-_ls="$(alias ls 2>/dev/null)" && {	# incase prior alias ls='ls --colour=?'
-    _ls="${_ls#alias ls=\'ls}"; _ls="${_ls%\'}"
-    alias ls="ls -x${_ls# -x}"
-}; unset _ls
+${USE_COLOR} &&
+    alias ls='ls --color=always -x' ||
+    alias ls='ls --color=never -x'
 alias l='ls'
 alias lpg='ls_pager'
 alias ll='ls -l'
@@ -60,15 +59,30 @@ type 'opera' > /dev/null 2>&1 &&
 type 'octave' > /dev/null 2>&1 &&
     alias octave='octave --silent'
 type 'xdg-open' > /dev/null 2>&1 &&
-    alias xo='xdg-open'
+    alias xo='xdg-open >/dev/null 2>&1'
 
 # gentoo aliases
 type 'equery' > /dev/null 2>&1 && {
-    alias equery='equery --no-pipe'
+    ${USE_COLOR} &&
+	alias equery='equery --no-pipe' ||
+	alias equery='equery --no-color --no-pipe'
     alias elist='equery list --installed --portage-tree --overlay-tree'
     alias euses='equery uses'
+    alias ehas='equery hasuse'
     alias egraph='equery depgraph'
     alias edepend='equery depends'
+}
+type 'eix' > /dev/null 2>&1 && {
+    ${USE_COLOR} &&
+	alias eix='eix --force-color' ||
+	alias eix='eix --nocolor'
+    alias eidep='eix --installed --deps'
+    alias eihas='eix --installed --use'
+    alias eiwith='eix --installed-with-use'
+    alias eiwithout='eix --installed-without-use'
+    alias eiwo='eix --installed-without-use'
+    alias eover='eix --in-overlay'
+    alias eiover='eix --installed-from-overlay'
 }
 
 # git aliases
@@ -86,6 +100,9 @@ type 'hg' > /dev/null 2>&1 && {
 }
 
 # searching aliases
+${USE_COLOR} &&
+    alias grep='grep --colour=always' ||
+    alias grep='grep --colour=never'
 which -i which </dev/null >/dev/null 2>&1 &&
     alias which='{ alias; declare -f; } | which -i'
 

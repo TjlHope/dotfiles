@@ -25,14 +25,15 @@ type 'VisualBoyAdvance' > /dev/null 2>&1 &&
 type 'desmume' > /dev/null 2>&1 &&
     complete -o plusdirs -fX '!*.@(nds|NDS)' desmume desmume-glade desmume-cli
 
-# Completion function allowing 'cd' to interpret N '.'s to mean the (N-1)th
-# parent directory; i.e. '..' is up to parent, '...' is parent's parent,
-# '....' is parent's parent's parent, etc.
+# Completion function allowing 'cd' to interpret N '.'s to mean the (N-1)th 
+# parent directory; i.e. '..' is up to parent, '...' is grandparent, '....' is 
+# great-grandparent, etc. Complement to 'cdd' function.
 _cdd () {
-    COMP_WORDS[1]="$(echo "${COMP_WORDS[1]}" | sed -e \
-	':sub
-	s:^\(.*/\)\?\.\.\.:\1../..:g
-	t sub')"
+    COMP_WORDS[1]="$(echo "${COMP_WORDS[1]}" | \
+	sed -e ':sub
+	    s:^\(.*/\)\?\.\.\.:\1../..:g
+	    t sub'
+	)"
     _cd $1 ${COMP_WORDS[1]} $2
     return 0
 }

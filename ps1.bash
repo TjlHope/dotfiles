@@ -143,21 +143,30 @@ _R () {
 }
 
 ## Displays non-zero exit status at end of previous line
-# cannot use function as bash only processes PS1 once.
 # CSI:	\033[
 #	CNL:	nE	CPL:	nF
 #	CHA:	nG	CUP:	n;mH
 #	SCP:	s	RCP:	u
-_x="\[\033[s\033[F\033[\$((\${COLUMNS}-\${#?}))G\]\$(_xf \\#)\[\033[u\]"
-_xf () {
-    local x="${?}" px
-    [ -f "${SHM}/cmd/$$" ] && read px < "${SHM}/cmd/$$"
-    [ ${x} -gt 0 ] && [ "${px}" != "${1}" ] && {
-	echo "${1}" > "${SHM}/cmd/$$"
-	echo "${x}"
+# NB:
+#	Cannot output these codes from a function as bash only evaluates PS1 
+#	once.
+# NB:
+#	Anything not in the main prompt should be enclosed in \[..\] so as to 
+#	not screw up cursor position when accessing history or with multiline 
+#	commands.
+_xf () {	# Outputs non-zero exit status (iff a new command)
+    local x=${?} p
+    [ -f "${SHM_D}/cmd/$$" ] && read p < "${SHM_D}/cmd/$$"
+    [ ${x} -gt 0 ] && [ ${p-0} -ne ${1} ] && {
+	echo ${1} > "${SHM_D}/cmd/$$"
+	echo ${x}
     }
 }
-[ -d "${SHM}/cmd" ] || mkdir "${SHM}/cmd"	# make the dir for _xf
+[ -d "${SHM_D}/cmd" ] || mkdir "${SHM_D}/cmd"	# make the dir for _xf
+# This only works at the start of PS1:
+#_x="\[\033[F\033[\$((\${COLUMNS}-\${#?}+1))G\$(_xf \\#)\033[E\]"
+# By saving and restoring cursor position this should work anywhere:
+_x="\[\033[s\033[F\033[\$((\${COLUMNS}-\${#?}+1))G\$(_xf \\#)\033[u\]"
 
 # If run as a program, output a representation of PS1
 [ "${0##*/}" = "ps1.bash" ] && {
@@ -174,4 +183,4 @@ _xf () {
 					    -e "s:\$(_R):$(_R):g" \
 					    -e 's:\\\$:$:g' \
 			)"
-}
+} || true
