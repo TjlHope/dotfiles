@@ -7,11 +7,12 @@ cd () {
     # Function allowing 'cd' to interpret N '.'s to mean the (N-1)th parent 
     # directory; i.e. '..' is up to parent, '...' is grandparent, '....' is 
     # great-grandparent, etc. Complement to '_cdd' completion function.
-    command cd "$(echo "${1}" | \
+    local d="$(echo "${1}" | \
 	sed -e ':sub
 	    s:^\(.*/\)\?\.\.\.:\1../..:g
 	    t sub'
 	)"
+    builtin cd ${d:+"${d}"}	# if empty, no quoting, else quote
 }
 
 pushpopd () {

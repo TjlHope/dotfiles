@@ -29,13 +29,15 @@ type 'desmume' > /dev/null 2>&1 &&
 # parent directory; i.e. '..' is up to parent, '...' is grandparent, '....' is 
 # great-grandparent, etc. Complement to 'cdd' function.
 _cdd () {
-    COMP_WORDS[1]="$(echo "${COMP_WORDS[1]}" | \
-	sed -e ':sub
-	    s:^\(.*/\)\?\.\.\.:\1../..:g
-	    t sub'
+    COMP_WORDS[${COMP_CWORD}]="$( \
+	echo "${COMP_WORDS[${COMP_CWORD}]}" | \
+	    sed -e ':sub
+		s:^\(.*/\)\?\.\.\.:\1../..:g
+		t sub'
 	)"
-    _cd $1 ${COMP_WORDS[1]} $2
-    return 0
+    [ "${1}" = "${2}" ] &&	# only do substitution once if needed
+	two="${COMP_WORDS[${COMP_CWORD}]}" || two="${2}"
+    _cd ${1} "${COMP_WORDS[${COMP_CWORD}]}" "${two}"
 }
 complete -p cd >/dev/null 2>&1 && {
     complete -o nospace -F _cdd cd		# ./..../file 'cd' completion
@@ -110,10 +112,10 @@ complete -p cd >/dev/null 2>&1 && {
 _wrap_alias () {
     # Function to generate wrapper
     local name="${1}"	; shift
-    local cmd="${1}"	; shift
+    local cmd="${1}" cmdline="${*}"
     [ "${name}" = "${cmd}" ] &&	# don't process ones like ls='ls --color=auto'
 	return 0
-    local ns="_alias."	# namespace for aliases
+    local ns="_alias_comp."	# namespace for aliases
     # Get the old completion function and completion line for the new alias
     local comp="$(complete -p ${cmd} 2>/dev/null | sed -ne \
 	"s:^\(complete\s.*\s-F\s\+\)\(\S\+\)\s\(.*\)${cmd}\s*$:\2|\1${ns}${name} \3${name}:p")"
@@ -123,11 +125,13 @@ _wrap_alias () {
     # Generate the new wrapper function
     eval "
 ${ns}${name} () {
-    COMP_CWORD=\$(( \${COMP_CWORD} + ${#} ))
-    COMP_WORDS=( ${cmd} ${@} \${COMP_WORDS[@]:1} )
-    ${comp_func} ${cmd} \${COMP_WORDS[\${COMP_CWORD}]} \${COMP_WORDS[\$((\${COMP_CWORD} - 1))]} 
+    COMP_CWORD=\$(( \${COMP_CWORD} + $(( ${#} - 1 )) ))
+    COMP_WORDS=( ${cmdline} \"\${COMP_WORDS[@]:1}\" )
+    COMP_POINT=\$(( \${COMP_POINT} - ${#name} + ${#cmdline} ))
+    COMP_LINE=\"${cmdline}\${COMP_LINE#${name}}\"
+    ${comp_func} ${cmd} \"\${COMP_WORDS[\${COMP_CWORD}]}\" \"\${COMP_WORDS[\$((\${COMP_CWORD} - 1))]}\" 
 }"
-    # Generate new complete
+    # Generate the new completion
     eval "${comp#*|}"
 }
 # Process all aliases
