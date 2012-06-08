@@ -1,21 +1,26 @@
-# git ls-files --others --exclude-from=.git/info/exclude
-# Lines that start with '#' are comments.
-# For a project mostly in C, the following would be a good set of
-# exclude patterns (uncomment them if you want to use them):
+# Using the name cvsignore, as utilities like rsync will use it as well.  
+# Formats shold be consistant: '#' denotes a comment at the start, and 
+# otherwise it's one glob pattern per line.
 
-# Line to make it work as a mercurial ignore file.
+# Line to make it work as a mercurial ignore file, hopefully there would never 
+# be a file called 'syntax: glob' that I ever needed to include!
 syntax: glob
 
-# vcs merging
+# vcs
 *.orig
+.git
+.hg
+.svn
+.bzr
 # backup
 *~
 .*.sw[po]
-# exuberant ctags
+# ctags
 tags
 .tags
 # c
 *.[oa]
+*.[ks]o
 *.out
 # python
 *.pyc
