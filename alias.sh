@@ -1,27 +1,29 @@
 #!/bin/sh
 
 ###############################
-## Definition of shell aliases
+## Shell alias definitions	{{{1
 
-# source aliases
-alias .rc=". ${RC_D}/${_DOT}${_SH}rc"
+# source aliases		{{{2
+alias .rc=". '${RC_D}/${_DOT}${_SH}rc'"
 for t in "ps1" "function" "alias" "complete"
 do
-    if [ -f "${RC_D}/${_DOT}${t}.${_SH}" ]; then
-	eval "alias .${t}='. ${RC_D}/${_DOT}${t}.${_SH}'"
-    elif [ -f "${RC_D}/${_DOT}${t}.sh" ]; then
-	eval "alias .${t}='. ${RC_D}/${_DOT}${t}.sh'"
+    if [ -f "${RC_D}/${_DOT}${t}.${_SH}" ]
+    then
+	eval "alias .${t}=\". '${RC_D}/${_DOT}${t}.${_SH}'\""
+    elif [ -f "${RC_D}/${_DOT}${t}.sh" ]
+    then
+	eval "alias .${t}=\". '${RC_D}/${_DOT}${t}.sh'\""
     fi
 done
 unset t
 
-# fs navigation aliases
+# fs navigation aliases		{{{2
 alias d='dirs'
 alias pd='pushpopd'
 
-# fs viewing aliases
-${USE_COLOR} &&
-    alias ls='ls --color=always -x' ||
+# fs viewing aliases		{{{2
+${USE_COLOR}					&&
+    alias ls='ls --color=always -x'		||
     alias ls='ls --color=never -x'
 alias l='ls'
 alias lpg='ls_pager'
@@ -37,34 +39,43 @@ alias lalh='ls -Alh'
 alias duh='du -sh'
 alias dfh='df -h'
 
-# vi like stuff aliases
-type "${VIMPAGER}" > /dev/null 2>&1 &&
+# vi like stuff aliases		{{{2
+type "${VIMPAGER}"					>/dev/null 2>&1 &&
     alias vp="${VIMPAGER}"
-type "${VIMMANPAGER}" > /dev/null 2>&1 &&
+type "${VIMMANPAGER}"					>/dev/null 2>&1 &&
     alias vmp="${VIMMANPAGER}"
-type 'dash' > /dev/null 2>&1 &&
+type 'dash'						>/dev/null 2>&1 &&
     alias dash='dash -V'
 alias :q='exit'
 alias vim='vim --servername VIM'	# Needed for LaTeX-Box latexmk
 alias svim='SUDO_EDITOR=vim sudoedit'	# Need to stop using 'sudo vim'!!!
 alias sudovim='SUDO_EDITOR=vim sudoedit'
 
-# program aliases
-type 'bc' > /dev/null 2>&1 &&
+# searching aliases		{{{2
+${USE_COLOR}					&&
+    alias grep='grep --colour=always'		||
+    alias grep='grep --colour=never'
+which -i which </dev/null				>/dev/null 2>&1 &&
+    alias which='{ alias; declare -f; } | which -i'
+
+# program aliases		{{{2
+type 'bc'						>/dev/null 2>&1 &&
     alias bc='bc --quiet'
-type 'keychain' > /dev/null 2>&1 &&
-    alias keychain.add_all='keychain "${HOME}/.ssh/id"*[^p][^u][^b]'
-type 'opera' > /dev/null 2>&1 &&
+type 'keychain'						>/dev/null 2>&1 &&
+    alias keychain.add_all='keychain 2>/dev/null "${HOME}/.ssh/id"*[^p][^u][^b]'
+type 'mplayer'						>/dev/null 2>&1 &&
+    alias mplayer.slow='mplayer -vfm ffmpeg -lavdopts fast:skiploopfilter=all'
+type 'opera'						>/dev/null 2>&1 &&
     alias opera='opera -nomail'
-type 'octave' > /dev/null 2>&1 &&
+type 'octave'						>/dev/null 2>&1 &&
     alias octave='octave --silent'
-type 'xdg-open' > /dev/null 2>&1 &&
+type 'xdg-open'						>/dev/null 2>&1 &&
     alias xo='xdg-open >/dev/null 2>&1'
 
-# gentoo aliases
-type 'equery' > /dev/null 2>&1 && {
-    ${USE_COLOR} &&
-	alias equery='equery --no-pipe' ||
+# gentoo aliases		{{{2
+type 'equery'						>/dev/null 2>&1 && {
+    ${USE_COLOR}				&&
+	alias equery='equery --no-pipe'		||
 	alias equery='equery --no-color --no-pipe'
     alias elist='equery list --installed --portage-tree --overlay-tree'
     alias euses='equery uses'
@@ -72,9 +83,9 @@ type 'equery' > /dev/null 2>&1 && {
     alias egraph='equery depgraph'
     alias edepend='equery depends'
 }
-type 'eix' > /dev/null 2>&1 && {
-    ${USE_COLOR} &&
-	alias eix='eix --force-color' ||
+type 'eix'						>/dev/null 2>&1 && {
+    ${USE_COLOR}				&&
+	alias eix='eix --force-color'		||
 	alias eix='eix --nocolor'
     alias eidep='eix --installed --deps'
     alias eihas='eix --installed --use'
@@ -85,29 +96,22 @@ type 'eix' > /dev/null 2>&1 && {
     alias eiover='eix --installed-from-overlay'
 }
 
-# git aliases
-type 'git' > /dev/null 2>&1 && {
+# git aliases			{{{2
+type 'git'						>/dev/null 2>&1 && {
     alias gs='git status'
     alias gl='git log'
     alias gca='git commit -a'
 }
 
-# mercurial aliases
-type 'hg' > /dev/null 2>&1 && {
+# mercurial aliases		{{{2
+type 'hg'						>/dev/null 2>&1 && {
     alias hs='hg status'
     alias hl='hg log'
     alias hc='hg commit'
 }
 
-# searching aliases
-${USE_COLOR} &&
-    alias grep='grep --colour=always' ||
-    alias grep='grep --colour=never'
-which -i which </dev/null >/dev/null 2>&1 &&
-    alias which='{ alias; declare -f; } | which -i'
-
-# game aliases
-type 'VisualBoyAdvance' > /dev/null 2>&1 && {
+# game aliases			{{{2
+type 'VisualBoyAdvance'					>/dev/null 2>&1 && {
     alias VisualBoyAdvance='VisualBoyAdvance --config="${HOME}/.VBArc"'
     alias VBA='VisualBoyAdvance'
 }
@@ -115,10 +119,10 @@ for f in "${HOME}/Games/"*/*.exe
 do
     if [ "${f}" != "${HOME}/Games/*/*.exe" ]
     then
-	[ -x "${f}" -a "${f%orig*.exe}" = "${f}" ] && {
+	[ -x "${f}" -a "${f%orig*.exe}" = "${f}" ]	&& {
 	    name="$(echo "${f}" | sed -e 's:^.*/\(.*\)\.exe$:\1:; s:\s\+:_:g')"
 	    # Don't want to overwrite a system command.
-	    type "wine.${name}" > /dev/null 2>&1 ||
+	    type "wine.${name}" >/dev/null 2>&1 ||
 		eval "alias wine.${name}='wine \"${f}\"'"
 	}
     else
@@ -127,12 +131,12 @@ do
 done
 unset f name
 
-# misc aliases
-type 'luvcview' > /dev/null 2>&1 &&
+# misc aliases			{{{2
+type 'luvcview'						>/dev/null 2>&1 &&
     alias luvcview.n220='luvcview -f yuv -i 30'
-type 'msp430-gcc' 'mspdebug' > /dev/null 2>&1 &&
+type 'msp430-gcc' 'mspdebug'				>/dev/null 2>&1 &&
     alias prog.msp430='make; echo -e "\n###########\n"; mspdebug -q rf2500 "prog main.elf"'
 
-## End aliases
+## End aliases		}}}1
 ######################
 

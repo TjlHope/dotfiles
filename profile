@@ -10,7 +10,7 @@ export LANG="en_GB.utf8"
 export EDITOR="vim"
 
 ### auth agents
-type 'keychain' > /dev/null 2>&1 &&
+type 'keychain' >/dev/null 2>&1 &&
     eval $(keychain --eval --quiet --noask)
 
 ### export SHM_D variable pointing to personal tempory storage
@@ -37,14 +37,14 @@ export GNASH_PLUGIN_DESCRIPTION="Shockwave Flash 10.1 r999"
 export INTEL_BATCH=1
 
 # This file is sourced by bash for login shells. The following line runs your
-# .bashrc and is recommended by the bash info pages.  This has been modified to
-# run the rc file with the name of the shell. I could have checked shell
-# dependent variables, but thought this simpler and more elegant. This is
-# required as it's not infrequent for me to drop (from bash) into a dash shell
-# to play with constructs for scripts, and if testing a login dash sourcing my
-# bashrc would play havoc. This is also why just testing the ${SHELL} variable
-# is insufficient, as that reports the ${USER}s default login shell, not the
-# current one.
+# .bashrc and is recommended by the bash info pages.
+# This has been modified to run the rc file with the name of the shell. I could 
+# have checked shell dependent variables, but thought this simpler and more 
+# elegant. This is required as it's not infrequent for me to drop (from bash) 
+# into a dash shell to play with constructs for scripts, and if testing a login 
+# dash sourcing my bashrc would play havoc. This is also why just testing the 
+# ${SHELL} variable is insufficient, as that reports the ${USER}s default login 
+# shell, not the current one.
 [ -f "/proc/$$/comm" ] && {	# only available in later kernels.
     read _SH < "/proc/$$/comm"
 } || {
