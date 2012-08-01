@@ -21,7 +21,9 @@ type 'mupdf' > /dev/null 2>&1 &&
 type 'zathura' > /dev/null 2>&1 &&
     complete -o plusdirs -fX '!*.@(pdf|PDF|djv?(u)|DJV?(U)|ps|PS)' zathura
 type 'VisualBoyAdvance' > /dev/null 2>&1 &&
-    complete -o plusdirs -fX '!*.@(gb?(a)|GB?(A))' VisualBoyAdvance
+    complete -o plusdirs -fX '!*.@(gb|GB)*(c|C|a|A)' VisualBoyAdvance
+type 'vbam' >/dev/null 2>&1 &&
+    complete -o plusdirs -C 'vbam -C' vbam
 type 'desmume' > /dev/null 2>&1 &&
     complete -o plusdirs -fX '!*.@(nds|NDS)' desmume desmume-glade desmume-cli
 
@@ -54,43 +56,47 @@ _sudo () {
     offset=1;
     for ((i=1; i <= COMP_CWORD; i++ ))
     do
-	if [[ "${COMP_WORDS[i]}" != -* ]]; then
+	if [[ "${COMP_WORDS[i]}" != -* && "${COMP_WORDS[i]}" != *'='* ]]; then
 	    offset=$i;
 	    break;
 	fi;
     done;
     _command_offset ${offset}
     # End default sudo completion
-    if [ ${#COMPREPLY[@]} -gt 1 ]; then
-	return 0	# If we have several, return now
-    elif [ ${#COMPREPLY[@]} -eq 1 ]; then
+    #if [ ${#COMPREPLY[@]} -gt 1 ]; then
+	#return 0	# If we have several, return now
+    #elif [ ${#COMPREPLY[@]} -eq 1 ]; then
 	# Need to expand aliases, so sudo can run them...
-	local alias_cmd=( $(alias "${COMPREPLY[0]}" 2> /dev/null | \
-	    sed -ne "s:^alias\s${COMPREPLY[0]}='\(.\+\)'\s*$:\1:p") )
-	if [ -n "${alias_cmd[*]}" ]; then
-	    # Only try expansion if name is different (ignore ll='ls -l', etc.)
-	    [ ${COMPREPLY[0]} != ${alias_cmd[0]} ] && {
-		[ -n "${TMUX}" ] &&	# Use tmux to send alias expansion keys
-		    tmux send-keys "Escape" ",xlA" "Space" &&	# FIXME: HACK!!
-		    COMPREPLY=()
-		return 0	# Have one valid [expanded] alias, we're done
-	    }
-	fi
-    fi
+	#local alias_cmd=( $(alias "${COMPREPLY[0]}" 2> /dev/null | \
+	    #sed -ne "s:^alias\s${COMPREPLY[0]}='\(.\+\)'\s*$:\1:p") )
+	#if [ -n "${alias_cmd[*]}" ]; then
+	    # Only expand if different name (ignore ls='ls -x', etc.)
+	    #[ ${COMPREPLY[0]} != ${alias_cmd[0]} ] && {
+		#[ -n "${TMUX}" ] &&	# Use tmux to send alias expansion keys
+		    #tmux send-keys "Escape" ",xlA" "Space" &&	# FIXME: HACK!!
+		    #COMPREPLY=()
+		#return 0	# Have one valid [expanded] alias, we're done
+	    #}
+	#fi
+    #fi
     #echo;echo "|${COMPREPLY[*]}|";echo
     if [ ${#COMPREPLY[@]} -le 0 ]; then
 	local comp_func="$(complete -p "${COMP_WORDS[${offset}]}" 2>/dev/null \
 	    | sed -ne \
-	    "s:complete\s.*-F\s\(\S\+\)\s\+${COMP_WORDS[${offset}]}\s*$:\1:p")"
+	    "s:complete\s.*-F\s*\(\S\+\)\s\+${COMP_WORDS[${offset}]}\s*$:\1:p")"
 	if [ -n "${comp_func}" ]; then
-	    COMP_WORDS=( ${COMP_WORDS[@]:${offset}} )
+	    COMP_WORDS=( "${COMP_WORDS[@]:${offset}}" )
 	    COMP_CWORD=$(( ${COMP_CWORD} - ${offset} ))
-	    ${comp_func} ${COMP_WORDS[0]} $2 $3
+	    c_l=${#COMP_LINE}
+	    COMP_LINE="${COMP_WORDS[${offset}]}${COMP_LINE#*${COMP_WORDS[${offset}]}}"
+	    COMP_POINT=$(( ${COMP_POINT} - ${c_l} + ${#COMP_LINE} ))
+	    unset c_l
+	    "${comp_func}" "${COMP_WORDS[0]}" "$2" "$3"
 	fi
     fi
     return 0
 }
-complete -p cd >/dev/null 2>&1 && {
+complete -p sudo >/dev/null 2>&1 && {
     alias sudo='sudo '		# needed for alias expansion	# FIXME: HACK!!
     complete -F _sudo sudo
 }
@@ -105,7 +111,7 @@ complete -p cd >/dev/null 2>&1 && {
 	#}
     #}')
 
-# Wrap all alias definitions to allow completion when using them, generating 
+# Wrap all alias definitions to allow completion when using them, generating an 
 # individual completion wrapper for each alias (more environment polution but 
 # each individual completion is faster), a 'namespace' is used to make 
 # pollution less obvious. TODO: get working for non function completion

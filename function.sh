@@ -28,13 +28,21 @@ pushpopd () {
 }
 
 pgr () {
-    [ -n "${*}" ] || [ "${*}" = '-' ] &&
+    [ -n "${*}" ] && [ "${1}" != '-' ] &&
 	"${@}" | ${PAGER:-less} ||
 	${PAGER:-less} "${@}"
 }
 
 ls_pgr () {
     ls "${@}" | ${PAGER:-less}
+}
+
+date_time () {
+    date "+${1}%F_%X${2}"
+}
+
+unquote_url () {
+    python -c "from urllib2 import unquote; print(unquote('${1}'))"
 }
 
 ## End functions

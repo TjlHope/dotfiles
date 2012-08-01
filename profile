@@ -17,7 +17,7 @@ type 'keychain' >/dev/null 2>&1 &&
 ! sed -ne '\:^\s*\S\+\s\+/dev/shm\s\+tmpfs\s\+.*$: q1' /proc/mounts &&
     export SHM_D="/dev/shm/${USER}" ||
     export SHM_D="/tmp/${USER}"	# default to /tmp if no shared memory
-[ -d "${SHM_D}" ] || mkdir "${SHM_D}"	# no -p as ${shm_dir:-/tmp} must exist
+[ -d "${SHM_D}" ] || mkdir "${SHM_D}"	# no -p as /dev/shm and /tmp must exist
 [ -d "${SHM_D}" ] && chmod 700 "${SHM_D}"	# user read only
 
 ### python variables

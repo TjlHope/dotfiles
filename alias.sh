@@ -47,9 +47,12 @@ type "${VIMMANPAGER}"					>/dev/null 2>&1 &&
 type 'dash'						>/dev/null 2>&1 &&
     alias dash='dash -V'
 alias :q='exit'
-alias vim='vim --servername VIM'	# Needed for LaTeX-Box latexmk
-alias svim='SUDO_EDITOR=vim sudoedit'	# Need to stop using 'sudo vim'!!!
-alias sudovim='SUDO_EDITOR=vim sudoedit'
+type 'vim'						>/dev/null 2>&1 && {
+    ! vim -h | sed -ne '/--servername/q1' &&	# only in later versions
+	alias vim='vim --servername VIM'	# Needed for LaTeX-Box latexmk
+    alias svim='SUDO_EDITOR=vim sudoedit'	# try to stop 'sudo vim'ing!!!
+    alias sudovim='SUDO_EDITOR=vim sudoedit'
+}
 
 # searching aliases		{{{2
 ${USE_COLOR}					&&
@@ -87,6 +90,7 @@ type 'eix'						>/dev/null 2>&1 && {
     ${USE_COLOR}				&&
 	alias eix='eix --force-color'		||
 	alias eix='eix --nocolor'
+    alias eicat='eix --installed --category'
     alias eidep='eix --installed --deps'
     alias eihas='eix --installed --use'
     alias eiwith='eix --installed-with-use'
@@ -101,6 +105,7 @@ type 'git'						>/dev/null 2>&1 && {
     alias gs='git status'
     alias gl='git log'
     alias gca='git commit -a'
+    alias gvn='git svn'
 }
 
 # mercurial aliases		{{{2
@@ -112,7 +117,7 @@ type 'hg'						>/dev/null 2>&1 && {
 
 # game aliases			{{{2
 type 'VisualBoyAdvance'					>/dev/null 2>&1 && {
-    alias VisualBoyAdvance='VisualBoyAdvance --config="${HOME}/.VBArc"'
+    alias VisualBoyAdvance='VisualBoyAdvance --config="${HOME}/.vba/VisualBoyAdvance.cfg"'
     alias VBA='VisualBoyAdvance'
 }
 for f in "${HOME}/Games/"*/*.exe
