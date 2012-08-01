@@ -37,6 +37,15 @@ ls_pgr () {
     ls "${@}" | ${PAGER:-less}
 }
 
+! type 'vimpager' >/dev/null 2>&1 &&		# comment to disable check
+type 'vim' >/dev/null 2>&1 &&	#false &&	# comment to enable
+    vimpager () {	# function edited from vimpager script
+	local c=''
+	[ -t 1 ] || c=cat
+	${c:-vim --cmd 'let no_plugin_maps=1' -c 'runtime! macros/less.vim'} \
+	    "${@:--}"
+    }
+
 date_time () {
     date "+${1}%F_%X${2}"
 }

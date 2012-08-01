@@ -157,7 +157,7 @@ _R () {
 _xf () {	# Outputs non-zero exit status (iff a new command)
     local x=${?} p
     [ -f "${SHM_D}/cmd/$$" ] && read p < "${SHM_D}/cmd/$$"
-    [ ${x} -gt 0 ] && [ ${p-0} -ne ${1} ] && {
+    [ ${x} -gt 0 ] && [ ${p:-0} -ne ${1} ] && {
 	echo ${1} > "${SHM_D}/cmd/$$"
 	echo ${x}
     }
