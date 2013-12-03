@@ -1,11 +1,48 @@
-[user]
-    name = Tom JL Hope
-    email = tjlhope@gmail.com
-[merge]
-    conflictstyle = diff3
-    tool = vimdiff
-[core]
-    excludesfile = ~/.cvsignore
-    pager = $VIMPAGER
+# My Git Config
+# vim: ft=gitconfig ts=4 noet
 
-# vim: ft=gitconfig
+[user]
+	name = Tom JL Hope
+	email = tjlhope@gmail.com
+
+[core]
+	excludesfile = ~/.cvsignore
+	#pager = $VIMPAGER
+
+[color]
+	ui = true
+
+[merge]
+	conflictstyle = diff3
+	tool = vimdiff
+
+[alias]
+	glog = log --graph --decorate
+	wdiff = diff --word-diff=color --word-diff-regex='\\w+|\\S' --diff-algorithm=minimal
+
+[pager]
+	#svn-diff = true
+
+[remote-hg]
+	hg-git-compat = true
+
+[url "gitifyhg::http://hg.eng.telsis.local/hg/"]
+	insteadOf = "thg:"
+	insteadOf = "thg::"
+	insteadOf = "http://hg.eng.telsis.local/hg/"
+
+[push]
+	default = simple
+
+[init]
+	templatedir = ~/.git/templates
+
+[cvsimport]
+	d = $CVSROOT
+	r = cvs
+
+[instaweb]
+	browser = default
+
+[browser "default"]
+	cmd = xdg-open

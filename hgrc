@@ -1,5 +1,38 @@
 
 [ui]
 username = Tom JL Hope <tjlhope@gmail.com>
-verbose = yes
+merge = vimdiff
 ignore = ~/.cvsignore
+verbose = yes
+
+[alias]
+nudge = push --rev .
+
+[merge-tools]
+;vimdiff.executable = vim
+;vimdiff.args = -c "wincmd J" "$output" "$local" "$base" "$other"
+
+[extensions]
+color =
+graphlog =
+hgshelve = ~/.hg.d/hgshelve/hgshelve.py
+highlight =
+inotify =
+pager =
+progress =
+rebase =
+zeroconf =
+
+[color]
+status.modified = magenta
+status.added = green
+status.removed = red
+status.deleted = cyan
+status.unknown = blue
+status.ignored = black
+
+[pager]
+pager = LESS='FRX' less
+attend = annotate, cat, diff, export, glog, log, qdiff
+
+; vim: ft=dosini
