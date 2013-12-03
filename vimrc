@@ -23,8 +23,8 @@ endif
 
 " source and call pathogen
 runtime bundle/pathogen/autoload/pathogen.vim
-"call pathogen#infect()
-call pathogen#runtime_append_all_bundles()
+call pathogen#infect()
+"call pathogen#runtime_append_all_bundles()
 
 
 """ helper functions
@@ -88,9 +88,24 @@ set showtabline=1				" 0:never 1:>1page 2:always
 
 set tabpagemax=40				" max number opening tabs = ?
 
-colorscheme TjlH_col
+"colorscheme TjlH_col
 "colorscheme desert
 "colorscheme elflord
+
+" solarized
+"if ! has("gui_running")
+    "let g:solarized_termcolor = 256
+    "let g:solarized_termtrans = 1
+"endif
+"call togglebg#map("<Leader><Leader>bg")
+"set background=dark
+"colorscheme solarized
+"unmap <F5>
+
+colorscheme desert256
+autocmd ColorScheme * highlight Normal ctermbg=none |
+	    \ highlight NonText ctermbg=none
+
 
 set display+=lastline		" show as much of lastline as possible, not '@'s
 
@@ -143,6 +158,9 @@ set whichwrap=b,s,>,< 				" which movement chars move lines
 
 set incsearch					" search as type
 set ignorecase smartcase 			" ignore case except explicit UC
+
+" make Y like C
+map Y y$
 
 " remove search highlighting
 nnoremap <silent>	<Space>		:nohlsearch<CR>
@@ -310,7 +328,7 @@ set tabstop=8					" literal tab width
 "autocmd Filetype c,cpp setlocal tabstop=4
 set softtabstop=8				" spaces per tab (pressed)
 set shiftwidth=4				" spaces per indent
-autocmd Filetype markdown,rst setlocal
+autocmd Filetype ant,dtd,markdown,proto,rst,xml,xsd setlocal
 	    \ shiftwidth=2
 set noexpandtab					" don't expand tabs to spaces
 autocmd Filetype c,cpp,rst,python setlocal 
@@ -322,9 +340,9 @@ set linebreak 					" wraps without <eol>
 " don't insert comment leader on <CR> or o/O
 set formatoptions-=r formatoptions-=o
 " code style: wrap at length, normal navigation
-autocmd Filetype c,cpp,css,html,javascript,make,python,sh,vim,xml setlocal
-	    \ textwidth=79 formatoptions+=aw2
-	    \ formatoptions-=l
+autocmd Filetype ant,c,cpp,css,dtd,html,javascript,make,python,sh,vim,xml,xsd setlocal
+	    \ textwidth=79 formatoptions+=a2
+	    \ formatoptions-=l formatoptions-=a formatoptions-=w
 	    " auto wrap at standard terminal width (80) to 2nd line indent, 
 	    " allow auto formating long lines
 " text style: no line wrap, g{j,k} <==> {j,k} for movement
@@ -367,15 +385,15 @@ autocmd BufNewFile * silent! 0r ~/Templates/%:e.%:e
 """""""""""""""""""""""""
 
 set foldminlines=1 foldnestmax=10 foldignore=""
-" let $code = "c,cpp,css,gentoo-init-d,html,javascript,php,prolog,python,sh,verilog,vhdl,xml"
-autocmd Filetype c,cpp,css,gentoo-init-d,html,javascript,php,prolog,python,sh,verilog,vhdl,xml setlocal
+" let $code = "ant,c,cpp,css,dtd,gentoo-init-d,html,java,javascript,jsp,perl,php,prolog,python,sh,verilog,vhdl,xml,xsd"
+autocmd Filetype ant,c,cpp,css,dtd,gentoo-init-d,html,java,javascript,jsp,perl,php,prolog,proto,python,sh,verilog,vhdl,xml,xsd setlocal
 	    \ foldcolumn=5
 	    \ foldmethod=indent
 	    \ foldlevel=1
 autocmd Filetype tex,vim setlocal
 	    \ foldcolumn=3
 	    \ foldlevel=1
-autocmd Filetype c,cpp setlocal foldignore="#"
+autocmd Filetype c,cpp setlocal foldignore="#" foldmethod=syntax
 "autocmd Filetype python autocmd BufWritePre python mkview
 "autocmd Filetype python autocmd BufReadPost python silent loadview
 
@@ -480,10 +498,14 @@ set complete=.,k,w,b,u,t,i			" add dictionary completion
 autocmd InsertLeave * if pumvisible() == 0|silent! pclose|endif
 
 "set omnifunc=syntaxcomplete#Complete
+"autocmd FileType c set omnifunc=ccomplete#Complete
 "autocmd FileType css set omnifunc=csscomplete#CompleteCSS
-"autocmd FileType python set omnifunc=pythoncomplete#Complete
-"autocmd FileType javascript set omnifunc=javascriptcomplete#CompleteJS
 "autocmd FileType html set omnifunc=htmlcomplete#CompleteTags
+"autocmd FileType java,jsp set omnifunc=javacomplete#Complete
+"autocmd FileType javascript set omnifunc=javascriptcomplete#CompleteJS
+"autocmd FileType python set omnifunc=pythoncomplete#Complete
+"autocmd FileType ruby set omnifunc=pythoncomplete#Complete
+"autocmd FileType sql set omnifunc=sqlcomplete#Complete
 
 """ attempt to continue completion
 "imap <silent> <expr> <buffer> <CR> pumvisible() ? "<CR><C-R>=(col('.')-1&&match(getline(line('.')), '\\.', col('.')-2) == col('.')-2)?\"\<lt>C-X>\<lt>C-O>\":\"\"<CR>" : "<CR>"
@@ -527,6 +549,7 @@ let g:easytags_dynamic_files = 2
 let g:easytags_include_members = 0
 let g:easytags_autorecurse = 0
 let g:easytags_resolve_links = 1
+let g:easytags_include_members = 1
 nnoremap <Leader>tu	:UpdateTags<CR>
 nnoremap <Leader>th	:HighlightTags<CR>
 set notagbsearch	" tag file seems to not play nice with binary search
@@ -544,8 +567,9 @@ let g:bugsummary_browser = "xdg-open '%s'"	" uses the desktop default
 set hidden		" just hide abandoned buffers, don't unload
 let g:LustyExplorerSuppressHiddenWarning = 1
 nnoremap <Leader>j	:LustyJuggler<CR>
-nnoremap <Leader>p	:LustyJugglePrevious<CR>
+nnoremap <Leader>;	:LustyJugglePrevious<CR>
 nnoremap <Leader>e	:LustyBufferExplorer<CR>
+nnoremap <Leader>G	:LustyBufferGrep<CR>
 nnoremap <Leader>f	:LustyFilesystemExplorer<CR>
 nnoremap <Leader>F	:LustyFilesystemExplorerFromHere<CR>
 
@@ -666,6 +690,14 @@ if version >= 703
     " use stronger encryption
     set cryptmethod="blowfish"
 endif
+
+""" Diff against the file on disk
+command DiffOrig	vert new | set bt=nofile | r # | 0d_ | diffthis
+			\ | wincmd p | diffthis
+nnoremap <Leader>do	:DiffOrig<CR>
+
+
+""" Miscellaneous functions
 
 function! SetLastModified()
     " Function to set the modified time in a file

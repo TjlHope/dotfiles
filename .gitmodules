@@ -88,3 +88,15 @@
 [submodule "vim/bundle-all/repeat"]
 	path = vim/bundle-all/repeat
 	url = https://github.com/tpope/vim-repeat.git
+[submodule "vim/bundle-all/solarized"]
+	path = vim/bundle-all/solarized
+	url = https://github.com/altercation/vim-colors-solarized.git
+[submodule "vim/bundle-all/javacomplete"]
+	path = vim/bundle-all/javacomplete
+	url = https://github.com/vim-scripts/javacomplete.git
+[submodule "vim/bundle-all/misc"]
+	path = vim/bundle-all/misc
+	url = https://github.com/xolox/vim-misc.git
+[submodule "vim/bundle-all/shell"]
+	path = vim/bundle-all/shell
+	url = https://github.com/xolox/vim-shell.git

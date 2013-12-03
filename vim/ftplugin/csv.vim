@@ -1,6 +1,14 @@
 " csv specifics
 """""""""""""""""""""""""
 
+" highlight groups
+hi CSVColumnHilight	ctermfg=Red
+hi CSVHeaderHilight						cterm=reverse
+hi CSVColumnEven	ctermfg=Green
+hi CSVColumnOdd		ctermfg=darkGreen
+hi CSVColumnHeaderEven	ctermfg=Black	ctermbg=Green		cterm=bold
+hi CSVColumnHeaderOdd	ctermfg=Black	ctermbg=darkGreen	cterm=bold
+
 " fix highlighting problems
 autocmd BufLeave <buffer> call clearmatches()
 
