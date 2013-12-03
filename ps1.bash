@@ -69,7 +69,7 @@ _W () {
 _sW () {
     # Pass sed flags in as first, and length as second variables.
     # 'p' flag good for debugging, 'g' flag reduces every dir simultaneously,
-    # instead of doin the first, then the second, etc.
+    # instead of doing the first, then the second, etc.
     local len=${2:-$((${COLUMNS-80} / 2 - 25))}	# max length of \w; def: ~1/2
     [ ${len} -lt 0 ] && len=0			# can't have a negative length
     local chs=1		# minimum number of characters to keep from name
@@ -80,7 +80,7 @@ _sW () {
 	:chk
 	\:^.\{,${len}\}$: b
 	:sub
-	s:\(\.\?[^/]\{${chs},\}\)[^/\(${_el}\)]\{1,\}\(${_el}\)\?/:\1${_el}/:${1}
+	s:\(\.\?[^/]\{${chs},\}\)[^/${_el}]\{1,\}\(${_el}\)\?/:\1${_el}/:${1}
 	t chk
 	"
 }
@@ -93,7 +93,7 @@ _R () {
     # Iterate up to root directory searching for repo.
     while [ -n "${d}" ]
     do
-	if [ -d "${d}/.git" ]	# git repo
+	if [ -d "${d}/.git" -a -f "${d}/.git/HEAD" ]	# git repo
 	then
 
 	    # Take action parsing from git bash completion
@@ -129,17 +129,41 @@ _R () {
 		read -r b < "${d}/.git/HEAD"
 		b="${b##*/}"
 	    fi
-	elif [ -d "${d}/.hg" ]	# mercurial repo
+	elif [ -d "${d}/.hg" -a -f "${d}/.hg/branch" ]	# mercurial repo
 	then
+	    if [ -d "${d}/.hg/merge" ]
+	    then
+		x="|MERGING"
+	    fi
 	    #b="$(< "${d}/.hg/branch")"				# FIXME:bashism
 	    read -r b < "${d}/.hg/branch"
+        elif [ -d "${d}/CVS" ]				# CVS repo
+        then
+            if [ -f "${d}/CVS/Tag" ]
+            then
+                read -r b < "${d}/CVS/Tag"
+                b="${b#T}"
+            else
+                b=HEAD
+            fi
 	else			# up a directory
 	    d="${d%/*}"	
 	    continue
 	fi
+	[ ${#b} -le 10 ] ||
+	    b="${b%${b#?????????}}$_elip"
 	echo " (${b}${x})"
 	break
     done
+}
+
+## Provide task number
+_t () {
+    type t >/dev/null 2>&1 || return    # if we don't have it, do nothing
+    local num=$(t 2>/dev/null | wc -l) print0=false
+    [ "$1" = -0 ] && print0=true && shift
+    [ ${num:-0} -gt 0 ] || $print0 &&
+        echo "${1:-[}${num:-0}${2:-${1:-]}}"
 }
 
 ## Displays non-zero exit status at end of previous line

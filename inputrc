@@ -38,5 +38,7 @@ $if mode=vi
     ",xs":	shell-expand-line
     # ",xb":	brace-expand-line	# doesn't exist?
     # ",xa":	all-expand-line		# doesn't exist?
+    "!a":	yank-nth-arg
+    "!$":	yank-last-arg
 $endif
 

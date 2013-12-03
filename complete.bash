@@ -27,6 +27,15 @@ type 'vbam' >/dev/null 2>&1 &&
 type 'desmume' > /dev/null 2>&1 &&
     complete -o plusdirs -fX '!*.@(nds|NDS)' desmume desmume-glade desmume-cli
 
+type 'rlwrap' >/dev/null 2>&1 && {
+    alias rlwrap='rlwrap '	# needed for alias expansion	# FIXME: HACK!!
+    complete -F _command rlwrap
+}
+
+type 'pipe_wireshark' >/dev/null 2>&1 && {
+    complete -F _ssh pipe_wireshark
+}
+
 # Completion function allowing 'cd' to interpret N '.'s to mean the (N-1)th 
 # parent directory; i.e. '..' is up to parent, '...' is grandparent, '....' is 
 # great-grandparent, etc. Complement to 'cdd' function.
@@ -145,6 +154,11 @@ eval "$(alias -p | sed -ne \
     "s:^alias\s\+\([^\:;=]\+\)='\([^;\:\"'(){}]\+\)'\s*$:_wrap_alias \1 \2:p")"
 # don't need function anymore
 unset _wrap_alias
+
+type 'tmuxinator_completion' >/dev/null 2>&1 &&
+    . tmuxinator_completion
+type 'teamocil' >/dev/null 2>&1 &&
+    complete -W "$(teamocil --list)" teamocil
 
 ## End completions
 ######################

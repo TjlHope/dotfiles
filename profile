@@ -1,6 +1,7 @@
 # ~/.profile
 # vim: ft=sh
 
+. "${HOME}/.profile.local"      # source local settings
 export PATH="${HOME}/Documents/Code/scripts/bin:${PATH}"
 
 # set user locale
@@ -26,9 +27,14 @@ export PYTHONPATH="${pypath}${PYTHONPATH#${pypath}}"
 unset pypath
 
 ### gnuplot variables
-GNUPLOT_FONTPATH="${GNUPLOT_FONTPATH%:}${GNUPLOT_FONTPATH:+:}/usr/share/fonts/!"
-GDFONTPATH="${GDFONTPATH%:}${GDFONTPATH:+:}/usr/share/fonts/!"
-GNUPLOT_DEFAULT_GDFONT="veranda"
+export GNUPLOT_FONTPATH="${GNUPLOT_FONTPATH%:}${GNUPLOT_FONTPATH:+:}/usr/share/fonts/!"
+export GDFONTPATH="${GDFONTPATH%:}${GDFONTPATH:+:}/usr/share/fonts/!"
+export GNUPLOT_DEFAULT_GDFONT="veranda"
+
+# For Qt's GTK style to work, you need to either export
+# the following variable into your environment:
+export GTK2_RC_FILES="$HOME/.gtkrc-2.0"
+# or alternatively install gnome-base/libgnomeui
 
 ### gnash / lightspark
 export GNASH_PLUGIN_DESCRIPTION="Shockwave Flash 10.1 r999"

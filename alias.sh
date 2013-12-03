@@ -22,9 +22,14 @@ alias d='dirs'
 alias pd='pushpopd'
 
 # fs viewing aliases		{{{2
-${USE_COLOR}					&&
-    alias ls='ls --color=always -x'		||
+${USE_COLOR}					&& {
+    alias ls='ls --color=always -x'
+    alias tree='tree -C'
+}						|| {
     alias ls='ls --color=never -x'
+    alias tree='tree -n'
+}
+
 alias l='ls'
 alias lpg='ls_pager'
 alias ll='ls -l'
@@ -68,12 +73,25 @@ type 'keychain'						>/dev/null 2>&1 &&
     alias keychain.add_all='keychain 2>/dev/null "${HOME}/.ssh/id"*[^p][^u][^b]'
 type 'mplayer'						>/dev/null 2>&1 &&
     alias mplayer.slow='mplayer -vfm ffmpeg -lavdopts fast:skiploopfilter=all'
+type 'mplayer2'						>/dev/null 2>&1 &&
+    alias mplayer2.slow='mplayer2 --vfm=ffmpeg --lavdopts=fast:skiploopfilter=all'
 type 'opera'						>/dev/null 2>&1 &&
     alias opera='opera -nomail'
 type 'octave'						>/dev/null 2>&1 &&
     alias octave='octave --silent'
 type 'xdg-open'						>/dev/null 2>&1 &&
     alias xo='xdg-open >/dev/null 2>&1'
+[ -f "${HOME}/Documents/Code/t/t.py" ] && {
+    alias t="${HOME}/Documents/Code/t/t.py"
+    eval "$(alias t)' --task-dir \"\${HOME}/Documents/tasks\" --list tasks'"
+    alias f="t -f"
+    alias r="t -r"
+    alias td="t --done"
+    alias b="${HOME}/Documents/Code/t/t.py --task-dir . --list bugs"
+    alias deps="${HOME}/Documents/Code/t/t.py"
+    eval "$(alias deps)' --task-dir \"\$HOME/Documents/tasks\" --list deps'"
+}
+
 
 # gentoo aliases		{{{2
 type 'equery'						>/dev/null 2>&1 && {
@@ -90,6 +108,8 @@ type 'eix'						>/dev/null 2>&1 && {
     ${USE_COLOR}				&&
 	alias eix='eix --force-color'		||
 	alias eix='eix --nocolor'
+    alias eex='eix --exact'
+    alias eie='eix --installed --exact'
     alias eicat='eix --installed --category'
     alias eidep='eix --installed --deps'
     alias eihas='eix --installed --use'
@@ -105,6 +125,7 @@ type 'git'						>/dev/null 2>&1 && {
     alias gs='git status'
     alias gl='git log'
     alias gca='git commit -a'
+    alias gb='git branch'
     alias gvn='git svn'
 }
 
@@ -141,6 +162,43 @@ type 'luvcview'						>/dev/null 2>&1 &&
     alias luvcview.n220='luvcview -f yuv -i 30'
 type 'msp430-gcc' 'mspdebug'				>/dev/null 2>&1 &&
     alias prog.msp430='make; echo -e "\n###########\n"; mspdebug -q rf2500 "prog main.elf"'
+type 'sudo' >/dev/null 2>&1 &&
+    alias bkgnd='sudo >/dev/null 2>&1 -bnu "${USER}" '
+
+type yum >/dev/null 2>&1 &&
+    alias yum='yum --nogpgcheck'
+
+alias dd_usb='dd oflag=sync bs=1M'
+
+type ant >/dev/null 2>&1 &&
+    alias ant.local_lib='ant $(find ../*/dist -name *.jar | sed "s:.*:-lib &:")'
+
+type rpmbuild > /dev/null 2>&1 &&
+    alias build_rpm='CLASSPATH="$CLASSPATH:$(echo $(find ${PWD}/../*/dist -name *.jar) | sed "s/\s\+/:/g")" rpmbuild --nodeps --define "_topdir ${PWD}/build/rpmbuild" --rebuild build/rpmbuild/SRPMS/*.src.rpm'
+
+alias test_cp='echo "$CLASSPATH:$(echo $(find ${PWD}/../*/dist -name *.jar) | sed "s/\s\+/:/g")"'
+
+type python > /dev/null 2>&1 &&
+    alias pycalc='python -i -c "from __future__ import division; from math import *; from cmath import *"'
+
+type mysql > /dev/null 2>&1 &&
+    alias mysql='mysql -u root'
+
+type java > /dev/null 2>&1 && {
+    alias java_jconsole='java -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false'
+    alias java_debug='java -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n'
+}
+
+type rlwrap >/dev/null 2>&1 && {
+    type bsh-interpreter >/dev/null 2>&1 &&
+        alias bsh='rlwrap -w10 -O"bsh % " -pcyan -rc bsh-interpreter'
+
+    type nc >/dev/null 2>&1 &&
+        alias ncrl='rlwrap nc'
+
+    type snc >/dev/null 2>&1 &&
+        alias sncrl="WRAPPER=\${WRAPPER:-rlwrap} snc"
+}
 
 ## End aliases		}}}1
 ######################

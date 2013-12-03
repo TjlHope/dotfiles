@@ -1,0 +1,4 @@
+# ~/.profile.local
+# global configuration only for this box
+# vim: ft=sh
+
