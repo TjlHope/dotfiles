@@ -639,6 +639,7 @@ for _opt in [
 	    \	'fdc',	'foldcolumn',
 	    \	'fdm',	'foldmethod',
 	    \	'fmr',	'foldmarker',
+	    \	'wrap',	'nowrap',
 	    \]
 	    "\	'fde',	'foldexpr',
     call AddUnique(g:secure_modelines_allowed_items, _opt)

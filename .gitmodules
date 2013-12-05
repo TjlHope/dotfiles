@@ -1,102 +1,105 @@
-[submodule "vim/bundle-all/pathogen"]
-	path = vim/bundle-all/pathogen
-	url = https://github.com/tpope/vim-pathogen.git
-[submodule "vim/bundle-all/fugitive"]
-	path = vim/bundle-all/fugitive
-	url = https://github.com/tpope/vim-fugitive.git
-[submodule "vim/bundle-all/surround"]
-	path = vim/bundle-all/surround
-	url = https://github.com/tpope/vim-surround.git
-[submodule "vim/bundle-all/pyflakes"]
-	path = vim/bundle-all/pyflakes
-	url = https://github.com/mitechie/pyflakes-pathogen.git
-[submodule "vim/bundle-all/pep8"]
-	path = vim/bundle-all/pep8
-	url = https://github.com/vim-scripts/pep8.git
-[submodule "vim/bundle-all/nerdtree"]
-	path = vim/bundle-all/nerdtree
-	url = https://github.com/vim-scripts/The-NERD-tree.git
-[submodule "vim/bundle-all/csv"]
-	path = vim/bundle-all/csv
-	url = https://github.com/chrisbra/csv.vim.git
-[submodule "vim/bundle-all/easytags"]
-	path = vim/bundle-all/easytags
-	url = https://github.com/xolox/vim-easytags.git
-[submodule "vim/bundle-all/screen"]
-	path = vim/bundle-all/screen
-	url = https://github.com/ervandew/screen.git
-[submodule "vim/bundle-all/securemodelines"]
-	path = vim/bundle-all/securemodelines
-	url = https://github.com/ciaranm/securemodelines.git
-[submodule "vim/bundle-all/lusty"]
-	path = vim/bundle-all/lusty
-	url = https://github.com/sjbach/lusty.git
-[submodule "vim/bundle-all/now-info"]
-	path = vim/bundle-all/now-info
-	url = https://github.com/now/vim-info.git
-[submodule "vim/bundle-all/supertab"]
-	path = vim/bundle-all/supertab
-	url = https://github.com/ervandew/supertab.git
-[submodule "vim/bundle-all/zencoding"]
-	path = vim/bundle-all/zencoding
-	url = https://github.com/mattn/zencoding-vim.git
-[submodule "vim/bundle-all/info"]
-	path = vim/bundle-all/info
-	url = https://github.com/vim-scripts/info.vim.git
-[submodule "vim/bundle-all/now-sudo"]
-	path = vim/bundle-all/now-sudo
-	url = https://github.com/now/vim-sudo.git
-[submodule "vim/bundle-all/now-man"]
-	path = vim/bundle-all/now-man
-	url = https://github.com/now/vim-man.git
-[submodule "vim/bundle-all/sparkup"]
-	path = vim/bundle-all/sparkup
-	url = https://github.com/rstacruz/sparkup.git
-[submodule "vim/bundle-all/afterimage"]
-	path = vim/bundle-all/afterimage
-	url = https://github.com/tpope/vim-afterimage.git
-[submodule "vim/bundle-all/taglist"]
-	path = vim/bundle-all/taglist
-	url = https://github.com/vim-scripts/taglist.vim.git
-[submodule "vim/bundle-all/octave"]
-	path = vim/bundle-all/octave
-	url = https://github.com/vim-scripts/octave.vim--.git
-[submodule "vim/bundle-all/AutomaticLaTexPlugin"]
-	path = vim/bundle-all/AutomaticLaTexPlugin
-	url = https://github.com/vim-scripts/AutomaticLaTexPlugin.git
-[submodule "vim/bundle-all/Align"]
-	path = vim/bundle-all/Align
+[submodule "vim/all-bundles/Align"]
+	path = vim/all-bundles/Align
 	url = https://github.com/vim-scripts/Align.git
-[submodule "vim/bundle-all/VimPdb"]
-	path = vim/bundle-all/VimPdb
-	url = https://github.com/vim-scripts/VimPdb.git
-[submodule "vim/bundle-all/AutoAlign"]
-	path = vim/bundle-all/AutoAlign
+[submodule "vim/all-bundles/AutoAlign"]
+	path = vim/all-bundles/AutoAlign
 	url = https://github.com/vim-scripts/AutoAlign.git
-[submodule "vim/bundle-all/SudoEdit"]
-	path = vim/bundle-all/SudoEdit
-	url = https://github.com/vim-scripts/SudoEdit.vim.git
-[submodule "vim/bundle-all/OmniCppComplete"]
-	path = vim/bundle-all/OmniCppComplete
-	url = https://github.com/vim-scripts/OmniCppComplete.git
-[submodule "vim/bundle-all/LaTeX-Box"]
-	path = vim/bundle-all/LaTeX-Box
-	url = https://github.com/LaTeX-Box-Team/LaTeX-Box.git
-[submodule "vim/bundle-all/EasyColour"]
-	path = vim/bundle-all/EasyColour
+[submodule "vim/all-bundles/AutomaticLaTexPlugin"]
+	path = vim/all-bundles/AutomaticLaTexPlugin
+	url = https://github.com/vim-scripts/AutomaticLaTexPlugin.git
+[submodule "vim/all-bundles/EasyColour"]
+	path = vim/all-bundles/EasyColour
 	url = https://github.com/abudden/EasyColour.git
-[submodule "vim/bundle-all/repeat"]
-	path = vim/bundle-all/repeat
-	url = https://github.com/tpope/vim-repeat.git
-[submodule "vim/bundle-all/solarized"]
-	path = vim/bundle-all/solarized
-	url = https://github.com/altercation/vim-colors-solarized.git
-[submodule "vim/bundle-all/javacomplete"]
-	path = vim/bundle-all/javacomplete
+[submodule "vim/all-bundles/LaTeX-Box"]
+	path = vim/all-bundles/LaTeX-Box
+	url = https://github.com/LaTeX-Box-Team/LaTeX-Box.git
+[submodule "vim/all-bundles/OmniCppComplete"]
+	path = vim/all-bundles/OmniCppComplete
+	url = https://github.com/vim-scripts/OmniCppComplete.git
+[submodule "vim/all-bundles/SudoEdit"]
+	path = vim/all-bundles/SudoEdit
+	url = https://github.com/vim-scripts/SudoEdit.vim.git
+[submodule "vim/all-bundles/Tail"]
+	path = vim/all-bundles/Tail
+	url = http://vim-scripts.googlecode.com/svn/trunk/1714%20Tail%20Bundle
+[submodule "vim/all-bundles/VimPdb"]
+	path = vim/all-bundles/VimPdb
+	url = https://github.com/vim-scripts/VimPdb.git
+[submodule "vim/all-bundles/afterimage"]
+	path = vim/all-bundles/afterimage
+	url = https://github.com/tpope/vim-afterimage.git
+[submodule "vim/all-bundles/csv"]
+	path = vim/all-bundles/csv
+	url = https://github.com/chrisbra/csv.vim.git
+[submodule "vim/all-bundles/easytags"]
+	path = vim/all-bundles/easytags
+	url = https://github.com/xolox/vim-easytags.git
+[submodule "vim/all-bundles/fugitive"]
+	path = vim/all-bundles/fugitive
+	url = https://github.com/tpope/vim-fugitive.git
+[submodule "vim/all-bundles/info"]
+	path = vim/all-bundles/info
+	url = https://github.com/vim-scripts/info.vim.git
+[submodule "vim/all-bundles/javacomplete"]
+	path = vim/all-bundles/javacomplete
 	url = https://github.com/vim-scripts/javacomplete.git
-[submodule "vim/bundle-all/misc"]
-	path = vim/bundle-all/misc
+[submodule "vim/all-bundles/lusty"]
+	path = vim/all-bundles/lusty
+	url = https://github.com/sjbach/lusty.git
+[submodule "vim/all-bundles/misc"]
+	path = vim/all-bundles/misc
 	url = https://github.com/xolox/vim-misc.git
-[submodule "vim/bundle-all/shell"]
-	path = vim/bundle-all/shell
+[submodule "vim/all-bundles/nerdtree"]
+	path = vim/all-bundles/nerdtree
+	url = https://github.com/vim-scripts/The-NERD-tree.git
+[submodule "vim/all-bundles/now-info"]
+	path = vim/all-bundles/now-info
+	url = https://github.com/now/vim-info.git
+[submodule "vim/all-bundles/now-man"]
+	path = vim/all-bundles/now-man
+	url = https://github.com/now/vim-man.git
+[submodule "vim/all-bundles/now-sudo"]
+	path = vim/all-bundles/now-sudo
+	url = https://github.com/now/vim-sudo.git
+[submodule "vim/all-bundles/octave"]
+	path = vim/all-bundles/octave
+	url = https://github.com/vim-scripts/octave.vim--.git
+[submodule "vim/all-bundles/pathogen"]
+	path = vim/all-bundles/pathogen
+	url = https://github.com/tpope/vim-pathogen.git
+[submodule "vim/all-bundles/pep8"]
+	path = vim/all-bundles/pep8
+	url = https://github.com/vim-scripts/pep8.git
+[submodule "vim/all-bundles/pyflakes"]
+	path = vim/all-bundles/pyflakes
+	url = https://github.com/mitechie/pyflakes-pathogen.git
+[submodule "vim/all-bundles/repeat"]
+	path = vim/all-bundles/repeat
+	url = https://github.com/tpope/vim-repeat.git
+[submodule "vim/all-bundles/screen"]
+	path = vim/all-bundles/screen
+	url = https://github.com/ervandew/screen.git
+[submodule "vim/all-bundles/securemodelines"]
+	path = vim/all-bundles/securemodelines
+	url = https://github.com/ciaranm/securemodelines.git
+[submodule "vim/all-bundles/shell"]
+	path = vim/all-bundles/shell
 	url = https://github.com/xolox/vim-shell.git
+[submodule "vim/all-bundles/solarized"]
+	path = vim/all-bundles/solarized
+	url = https://github.com/altercation/vim-colors-solarized.git
+[submodule "vim/all-bundles/sparkup"]
+	path = vim/all-bundles/sparkup
+	url = https://github.com/rstacruz/sparkup.git
+[submodule "vim/all-bundles/supertab"]
+	path = vim/all-bundles/supertab
+	url = https://github.com/ervandew/supertab.git
+[submodule "vim/all-bundles/surround"]
+	path = vim/all-bundles/surround
+	url = https://github.com/tpope/vim-surround.git
+[submodule "vim/all-bundles/taglist"]
+	path = vim/all-bundles/taglist
+	url = https://github.com/vim-scripts/taglist.vim.git
+[submodule "vim/all-bundles/zencoding"]
+	path = vim/all-bundles/zencoding
+	url = https://github.com/mattn/zencoding-vim.git

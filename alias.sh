@@ -124,6 +124,7 @@ type 'eix'						>/dev/null 2>&1 && {
 type 'git'						>/dev/null 2>&1 && {
     alias gs='git status'
     alias gl='git log'
+    alias gch='git checkout'
     alias gca='git commit -a'
     alias gb='git branch'
     alias gvn='git svn'
