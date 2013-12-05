@@ -40,7 +40,7 @@ case "$(git config remote.origin.url)" in
             fi
         fi
 
-        if [ $BRANCH -eq 1 ]; then      # branch checkout
+        if [ -f .hgignore ] && [ $BRANCH -eq 1 ]; then  # branch checkout
             # (re)generate the .gitignore file
             [ -z "$GIT_DBG" ] || echo "post-checkout: generate .gitignore"
             sed <.hgignore >.gitignore -e '
