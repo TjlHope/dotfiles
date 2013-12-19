@@ -23,6 +23,9 @@
 [pager]
 	#svn-diff = true
 
+[credential "https://github.com"]
+	username = TjlHope
+
 [remote-hg]
 	hg-git-compat = true
 
