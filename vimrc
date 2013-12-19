@@ -563,6 +563,13 @@ nnoremap <Leader>gd	:Gdiff<CR>
 """ gentoo
 let g:bugsummary_browser = "xdg-open '%s'"	" uses the desktop default
 
+""" linediff
+let g:linediff_first_buffer_command = 'enew'    " don't use tabs
+"let g:linediff_indent = 1                      " indent so as to ignore format
+noremap <Leader>dt      :Linediff<CR>
+"noremap <Leader>da      :LinediffAdd<CR> TODO
+noremap <Leader>dr      :LinediffReset<CR>
+
 """ lusty
 set hidden		" just hide abandoned buffers, don't unload
 let g:LustyExplorerSuppressHiddenWarning = 1
@@ -691,12 +698,6 @@ if version >= 703
     " use stronger encryption
     set cryptmethod="blowfish"
 endif
-
-""" Diff against the file on disk
-command DiffOrig	vert new | set bt=nofile | r # | 0d_ | diffthis
-			\ | wincmd p | diffthis
-nnoremap <Leader>do	:DiffOrig<CR>
-
 
 """ Miscellaneous functions
 
@@ -827,9 +828,15 @@ function! s:dig(input)
 endfunction
 command! -range -bar DIG
 	    \ let b:cursor_pos = getpos(".")
-	    \ | <line1>,<line2>call ReplaceSelection("s:dig", "<cWORD>")
-	    \ | call setpos(".", b:cursor_pos)
+	    \|<line1>,<line2>call ReplaceSelection("s:dig", "<cWORD>")
+	    \|call setpos(".", b:cursor_pos)
 map <Leader>dig :DIG<CR>
+
+" Diff against the file on disk
+command! -bar DiffOrig	vert new | set bt=nofile | r # | 0d_ | diffthis
+			\| wincmd p | diffthis
+nnoremap <Leader>do	:DiffOrig<CR>
+
 
 """ Nagios
 autocmd BufNewFile */[Nn][Aa][Gg]**/host**/*.cfg silent! 0r ~/Templates/nag-host.cfg

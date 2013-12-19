@@ -103,3 +103,18 @@
 [submodule "vim/all-bundles/zencoding"]
 	path = vim/all-bundles/zencoding
 	url = https://github.com/mattn/zencoding-vim.git
+[submodule "vim/all-bundles/detectindent"]
+	path = vim/all-bundles/detectindent
+	url = https://github.com/raymond-w-ko/detectindent/
+[submodule "vim/all-bundles/accordion"]
+	path = vim/all-bundles/accordion
+	url = https://github.com/mattboehm/vim-accordion.git
+[submodule "vim/all-bundles/unstack"]
+	path = vim/all-bundles/unstack
+	url = https://github.com/mattboehm/vim-unstack.git
+[submodule "vim/all-bundles/tmuxify"]
+	path = vim/all-bundles/tmuxify
+	url = https://github.com/mhinz/vim-tmuxify.git
+[submodule "vim/all-bundles/linediff"]
+	path = vim/all-bundles/linediff
+	url = https://github.com/AndrewRadev/linediff.vim.git
