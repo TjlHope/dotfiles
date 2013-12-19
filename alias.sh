@@ -171,8 +171,10 @@ type yum >/dev/null 2>&1 &&
 
 alias dd_usb='dd oflag=sync bs=1M'
 
-type ant >/dev/null 2>&1 &&
+type ant >/dev/null 2>&1 && {
     alias ant.local_lib='ant $(find ../*/dist -name *.jar | sed "s:.*:-lib &:")'
+    alias vant="ssh test@vm ant -f '~/${PWD#$HOME}/build.xml'"  # TODO: generic
+}
 
 type rpmbuild > /dev/null 2>&1 &&
     alias build_rpm='CLASSPATH="$CLASSPATH:$(echo $(find ${PWD}/../*/dist -name *.jar) | sed "s/\s\+/:/g")" rpmbuild --nodeps --define "_topdir ${PWD}/build/rpmbuild" --rebuild build/rpmbuild/SRPMS/*.src.rpm'

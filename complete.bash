@@ -32,6 +32,9 @@ type 'rlwrap' >/dev/null 2>&1 && {
     complete -F _command rlwrap
 }
 
+type 'fork' >/dev/null 2>&1 &&
+    complete -F _command fork
+
 type 'pipe_wireshark' >/dev/null 2>&1 && {
     complete -F _ssh pipe_wireshark
 }

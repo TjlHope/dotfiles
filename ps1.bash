@@ -7,7 +7,7 @@
 #[[ "${LANG}" =~ [Uu][Tt][Ff][-_]?8 ]] && {			# FIXME:bashism
 [ -z "${LANG##*[Uu][Tt][Ff]8}" ] && {
     {	# If on a vt we need to successfully enable unicode
-	[ "${TERM}" != 'linux' ] || unicode_start
+	[ "$TERM" != 'linux' ] || unicode_start
     } && _elip="…"	# then enable utf8 elipsis.
 } || {
     _elip='..'		# replacement string to if no unicode
@@ -15,50 +15,50 @@
 
 ## Short version of \w - attempt to limit PWD to set length.
 _W () {
-    local wd="${PWD/#${HOME}/~}"	# CWD with ~ for $HOME	# FIXME:bashism
-    #[ "${PWD#${HOME}}" = "${PWD}" ] &&
-	#local wd="${PWD}" ||		# current working directory
-	#local wd="~${PWD#${HOME}}"	# ... with ~ for $HOME
+    local wd="${PWD/#$HOME/~}"	# CWD with ~ for $HOME	# FIXME:bashism
+    #[ "${PWD#$HOME}" = "$PWD" ] &&
+	#local wd="$PWD" ||		# current working directory
+	#local wd="~${PWD#$HOME}"	# ... with ~ for $HOME
     local len=${1:-$((${COLUMNS-80} / 2 - 25))}	# max length of \w; def: ~1/2
-    [ ${len} -lt 0 ] && len=0			# can't have a negative length
+    [ $len -lt 0 ] && len=0			# can't have a negative length
     local chars=1	# minimum number of characters to keep from name
     local fixdot=1	# set non-zero to have $chars after . in hidden .dirs
     local iter=3	# incrementally decrement $len to $chars...
     local sep=2		# ... using decrement of $sep
     # Keep trying to shrink, one directory at a time
-    while [ ${#wd} -gt ${len} ]
+    while [ ${#wd} -gt $len ]
     do
-	local nchars=$((${chars} + ${iter} * ${sep}))	# $iter dependent chars
+	local nchars=$(($chars + $iter * $sep))	# $iter dependent chars
 	local h="${wd%%/*}"	# head (~) if it's there
-	local b="${wd#${h}/}"	# main body
+	local b="${wd#$h/}"	# main body
 	local nb=""		# new body (before current dir)
 	local d="${b%%/*}"	# current directory
-	b="${b#${d}/}"		# body (after current dir)
+	b="${b#$d/}"		# body (after current dir)
 	# Number of chars depending on ${fixdot}
-	[ ${fixdot:-0} -gt 0 -a "${d}" != "${d#.}" ] &&
-	    local nc=$((${nchars} + 1)) || local nc=${nchars}
+	[ ${fixdot:-0} -gt 0 -a "$d" != "${d#.}" ] &&
+	    local nc=$(($nchars + 1)) || local nc=$nchars
 	# Iterate over directories for directory to shrink
-	while [ "${b}" != "${b#*/}" -a ${#d} -le $((${nc} + ${#_elip})) ]
+	while [ "$b" != "${b#*/}" -a ${#d} -le $(($nc + ${#_elip})) ]
 	do			# if current directory too short
-	    nb="${nb}/${d}"	# add it to new body
+	    nb="$nb/$d"		# add it to new body
 	    d="${b%%/*}"	# get next directory
-	    b="${b#${d}/}"	# get rest of body after new dir
-	    #[ -n "${DEBUG}" ] && echo "$h | $nb | $d | $b" >&2
+	    b="${b#$d/}"	# get rest of body after new dir
+	    #[ -n "$DEBUG" ] && echo "$h | $nb | $d | $b" >&2
 	    # Number of chars depending on ${fixdot}
-	    [ ${fixdot:-0} -gt 0 -a "${d}" != "${d#.}" ] &&
-		nc=$((${nchars} + 1)) || nc=${nchars}
+	    [ ${fixdot:-0} -gt 0 -a "$d" != "${d#.}" ] &&
+		nc=$(($nchars + 1)) || nc=$nchars
 	done
 	# Join with reduced dir for new CWD
-	wd="${h}/${nb#/}${nb:+/}${d:0:${nc}}${_elip}/${b}"	# FIXME:bashism
-	[ "${b}" = "${b#*/}" ] && {	# tried to shrink all dirs?
-	    [ ${iter} -gt 0 ] && {	# still got iterations to go?
-		iter=$((${iter} - 1))
+	wd="$h/${nb#/}${nb:+/}${d:0:$nc}$_elip/$b"	# FIXME:bashism
+	[ "$b" = "${b#*/}" ] && {	# tried to shrink all dirs?
+	    [ $iter -gt 0 ] && {	# still got iterations to go?
+		iter=$(($iter - 1))
 		continue		# ... go to next iteration
 	    } ||
 		break			# ... done all we can, so end
 	}
     done
-    echo "${wd}"
+    echo "$wd"
 }
 
 ## Short version of \w - uses sed instead of shell loops, expansion and globs.
@@ -71,88 +71,100 @@ _sW () {
     # 'p' flag good for debugging, 'g' flag reduces every dir simultaneously,
     # instead of doing the first, then the second, etc.
     local len=${2:-$((${COLUMNS-80} / 2 - 25))}	# max length of \w; def: ~1/2
-    [ ${len} -lt 0 ] && len=0			# can't have a negative length
+    [ $len -lt 0 ] && len=0			# can't have a negative length
     local chs=1		# minimum number of characters to keep from name
     local _el="${_elip//./\\.}"					# FIXME:bashism
-    #_el="$(echo "${_elip}" | sed 's:\.:\\.:g')"		# FIXME:SLOW!!
-    echo "${PWD}" | sed -e "\
-	s:^${HOME}:\~:
+    #_el="$(echo "$_elip" | sed 's:\.:\\.:g')"			# FIXME:SLOW!!
+    echo "$PWD" | sed -e "\
+	s:^$HOME:\~:
 	:chk
-	\:^.\{,${len}\}$: b
+	\:^.\{,$len\}$: b
 	:sub
-	s:\(\.\?[^/]\{${chs},\}\)[^/${_el}]\{1,\}\(${_el}\)\?/:\1${_el}/:${1}
+	s:\(\.\?[^/]\{$chs,\}\)[^/$_el]\{1,\}\($_el\)\?/:\1$_el/:$1
 	t chk
 	"
 }
 
 ## Provide repositary information, e.g. branch, etc.
 _R () {
-    local d="${PWD}"	# current dir
+    local d="$PWD"	# current dir
     local b=""		# branch name
     local x=""		# extra information about repo
     # Iterate up to root directory searching for repo.
-    while [ -n "${d}" ]
+    while [ -n "$d" ]
     do
-	if [ -d "${d}/.git" -a -f "${d}/.git/HEAD" ]	# git repo
+	if [ -e "$d/.git" ] && {			# git repo
+		[ -d "$d/.git" ] &&			# standard git repo
+		    git_d="$d/.git" || {
+		    local a v				# otherwise submodule
+		    while read a v
+		    do
+			case "$a" in
+			    gitdir:)	git_d="$d/$v";;
+			    *)		false;;
+			esac && break
+		    done < "$d/.git"
+		}
+	    } && [ -f "$git_d/HEAD" ]
 	then
 
 	    # Take action parsing from git bash completion
-	    if [ -f "${d}/.git/rebase-merge/interactive" ]
+	    if [ -f "$git_d/rebase-merge/interactive" ]
 	    then
 		x="|REBASE-i"
-		#b="$(< "${d}/.git/rebase-merge/head-name")"	# FIXME:bashism
-		read -r b < "${d}/.git/rebase-merge/head-name"
-	    elif [ -d "${d}/.git/rebase-merge" ]
+		#b="$(< "$d/.git/rebase-merge/head-name")"	# FIXME:bashism
+		read -r b < "$git_d/rebase-merge/head-name"
+	    elif [ -d "$git_d/rebase-merge" ]
 	    then
 		x="|REBASE-m"
-		#b="$(< "${d}/.git/rebase-merge/head-name")"	# FIXME:bashism
-		read -r b < "${d}/.git/rebase-merge/head-name"
+		#b="$(< "$git_d/rebase-merge/head-name")"	# FIXME:bashism
+		read -r b < "$git_d/rebase-merge/head-name"
 	    else
-		if [ -d "${d}/.git/rebase-apply" ]
+		if [ -d "$git_d/rebase-apply" ]
 		then
-		    if [ -f "${d}/.git/rebase-apply/rebasing" ]; then
+		    if [ -f "$git_d/rebase-apply/rebasing" ]; then
 			x="|REBASE"
-		    elif [ -f "${d}/.git/rebase-apply/applying" ]; then
+		    elif [ -f "$git_d/rebase-apply/applying" ]; then
 			x="|AM"
 		    else
 			x="|AM/REBASE"
 		    fi
-		elif [ -f "${d}/.git/MERGE_HEAD" ]
+		elif [ -f "$git_d/MERGE_HEAD" ]
 		then
 		    x="|MERGING"
-		elif [ -f "${d}/.git/BISECT_LOG" ]
+		elif [ -f "$git_d/BISECT_LOG" ]
 		then
 		    x="|BISECTING"
 		fi
 	    # End action parsing from git bash completion.
-		#b="$(< "${d}/.git/HEAD")"			# FIXME:bashism
-		read -r b < "${d}/.git/HEAD"
+		#b="$(< "$git_d/HEAD")"				# FIXME:bashism
+		read -r b < "$git_d/HEAD"
 		b="${b##*/}"
 	    fi
-	elif [ -d "${d}/.hg" -a -f "${d}/.hg/branch" ]	# mercurial repo
+	elif [ -d "$d/.hg" -a -f "$d/.hg/branch" ]	# mercurial repo
 	then
-	    if [ -d "${d}/.hg/merge" ]
+	    if [ -d "$d/.hg/merge" ]
 	    then
 		x="|MERGING"
 	    fi
-	    #b="$(< "${d}/.hg/branch")"				# FIXME:bashism
-	    read -r b < "${d}/.hg/branch"
-        elif [ -d "${d}/CVS" ]				# CVS repo
-        then
-            if [ -f "${d}/CVS/Tag" ]
-            then
-                read -r b < "${d}/CVS/Tag"
-                b="${b#T}"
-            else
-                b=HEAD
-            fi
+	    #b="$(< "$d/.hg/branch")"				# FIXME:bashism
+	    read -r b < "$d/.hg/branch"
+	elif [ -d "$d/CVS" ]				# CVS repo
+	then
+	    if [ -f "$d/CVS/Tag" ]
+	    then
+		read -r b < "$d/CVS/Tag"
+		b="${b#T}"
+	    else
+		b=HEAD
+	    fi
 	else			# up a directory
 	    d="${d%/*}"	
 	    continue
 	fi
 	[ ${#b} -le 10 ] ||
 	    b="${b%${b#?????????}}$_elip"
-	echo " (${b}${x})"
+	echo " ($b$x)"
 	break
     done
 }
@@ -163,7 +175,7 @@ _t () {
     local num=$(t 2>/dev/null | wc -l) print0=false
     [ "$1" = -0 ] && print0=true && shift
     [ ${num:-0} -gt 0 ] || $print0 &&
-        echo "${1:-[}${num:-0}${2:-${1:-]}}"
+	echo "${1:-[}${num:-0}${2:-${1:-]}}"
 }
 
 ## Displays non-zero exit status at end of previous line
