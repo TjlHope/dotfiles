@@ -212,6 +212,10 @@ autocmd Filetype javascript,perl,php,python,ruby,sh
 	    \ map <buffer>	<Leader>mx	:update<Bar>!chmod +x %<CR>
 autocmd Filetype javascript,perl,php,python,ruby,sh
 	    \ map <buffer>	<Leader>mX	:update<CR>:!chmod <Up>
+autocmd Filetype ebuild
+	    \ map <buffer>	<Leader>mx	:update<Bar>!ebuild "%" manifest<CR>
+autocmd Filetype ebuild
+	    \ map <buffer>	<Leader>mX	:update<CR>:!ebuild "%" <Up>
 map <buffer>	<Leader>mm		:update<Bar>make<CR>
 map <buffer>	<Leader>ma		:update<Bar>make all<CR>
 map <buffer>	<Leader>M		:update<CR>:make <Up>
@@ -224,6 +228,8 @@ autocmd Filetype c,cpp
 	    \ map <buffer>	<Leader>x	:!"%:h/%:t:r"<CR>
 autocmd Filetype make
 	    \ map <buffer>	<Leader>x	:update<Bar>make<CR>
+autocmd Filetype ebuild
+	    \ map <buffer>	<Leader>x	:update<Bar>!emerge "=%:s:^.*/\([^/]\+/\)\([^/]\+\)/\2\(-.\+\)\.ebuild$:\1\2\3:"<CR>
 
 " Execute file with args
 autocmd Filetype javascript,perl,php,python,ruby,sh 
@@ -232,6 +238,8 @@ autocmd Filetype c,cpp
 	    \ map <buffer>	<Leader>X	:!"%:h/%:t:r" <Up>
 autocmd Filetype make
 	    \ map <buffer>	<Leader>X	:update<CR>:make <Up>
+autocmd Filetype ebuild
+	    \ map <buffer>	<Leader>X	:update<CR>:!ebuild "%"  <Up>
 
 
 """ quit for buffers
