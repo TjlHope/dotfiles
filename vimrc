@@ -563,6 +563,9 @@ nnoremap <Leader>gd	:Gdiff<CR>
 """ gentoo
 let g:bugsummary_browser = "xdg-open '%s'"	" uses the desktop default
 
+""" gundo
+noremap gu	:GundoToggle<CR>
+
 """ linediff
 let g:linediff_first_buffer_command = 'enew'    " don't use tabs
 "let g:linediff_indent = 1                      " indent so as to ignore format

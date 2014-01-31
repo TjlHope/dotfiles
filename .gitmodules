@@ -118,3 +118,6 @@
 [submodule "vim/all-bundles/linediff"]
 	path = vim/all-bundles/linediff
 	url = https://github.com/AndrewRadev/linediff.vim.git
+[submodule "vim/all-bundles/gundo"]
+	path = vim/all-bundles/gundo
+	url = https://github.com/sjl/gundo.vim.git
