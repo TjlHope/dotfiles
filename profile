@@ -1,7 +1,6 @@
 # ~/.profile
 # vim: ft=sh
 
-. "${HOME}/.profile.local"      # source local settings
 export PATH="${HOME}/Documents/Code/scripts/bin:${PATH}"
 
 # set user locale
@@ -41,6 +40,9 @@ export GNASH_PLUGIN_DESCRIPTION="Shockwave Flash 10.1 r999"
 
 #export WINEDEBUG="-all"
 export INTEL_BATCH=1
+
+[ -f "${HOME}/.profile.local" ] &&	# If there are local settings,
+    . "${HOME}/.profile.local"		# source them now
 
 # This file is sourced by bash for login shells. The following line runs your
 # .bashrc and is recommended by the bash info pages.

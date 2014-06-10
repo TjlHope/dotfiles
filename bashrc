@@ -8,7 +8,10 @@
 # Test for an interactive shell. There is no need to set anything past this
 # point for scp and rcp, and it's important to refrain from outputting anything
 # in those cases.
-[ "${-#*i}" != "${-}" ] || return	# Shell is non-interactive. Be done now!
+case "$-" in
+    *i*)	:;;		# Shell is interactive, carry on
+    *)		return;;	# otherwise, be done now!
+esac
 
 ###############################
 ## Fix vte screwing TERM variable	{{{1
@@ -267,18 +270,18 @@ unset t
 ### autostart.*sh contains stuff to run at startup - try it now		{{{2
 priv() {	# run cmd with correct permissions and (io)niced
     local _nice="$(command -v nice) $(command -v ionice)"
-    command sudo -nb -u "${USER}" ${_nice} "${@}"
+    command sudo -nb -u "$USER" $_nice "$@"
 }
-for f in "${RC_D}/${_DOT}autostart.${_SH}" "${RC_D}/${_DOT}autostart.sh"
+for f in "$RC_D/${_DOT}autostart.$_SH" "$RC_D/${_DOT}autostart.sh"
 do
-    [ -f "${f}" ] &&
+    [ -f "$f" ] &&
 	while read cmd args
 	do
 	    [ -n "${cmd###*}" ] &&	# have a non-(empty|comented) cmd
-		! command pgrep -u "${USER}" ${cmd} >/dev/null &&
-		command -v ${cmd} >/dev/null &&		# command is valid
-		priv ${cmd} ${args} >/dev/null 2>&1	# run it
-	done < "${f}"
+		! command pgrep -u "$USER" "$cmd" >/dev/null &&
+                cmd="$(command -v $cmd)" >/dev/null &&  # command is valid
+		priv "$cmd" $args >/dev/null 2>&1	# run it
+	done < "$f"
 done
 unset priv f cmd args
 

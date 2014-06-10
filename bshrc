@@ -1,0 +1,13 @@
+// BeanShell configuration file
+// vim: ft=java
+
+import java.util.*;
+import java.util.concurrent.*;
+
+public static final String getBshPrompt() {
+    return "\u001B[00;36mbsh"
+        //+ "\u001B[00;34m" + bsh.cwd
+        + " \u001B[00;1;36m% \u001B[00m";
+}
+
+show();         // doesn't seem to work

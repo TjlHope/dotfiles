@@ -9,3 +9,5 @@
 
 recollindex -m -x
 
+# notifies me the length of time screen saver's been active
+track_timeout

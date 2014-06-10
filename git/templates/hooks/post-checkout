@@ -27,6 +27,9 @@ case "$(git config remote.origin.url)" in
 
         if [ "$(printf "%d" "0x$PREV_HEAD" 2>/dev/null)" -eq 0 ]; then	# it's a clone
             [ -z "$GIT_DBG" ] || echo "post-checkout: cloning..."
+        fi
+
+        if [ ! -f "$GIT_DIR/refs/notes/hg" ]; then
             # Set up notes ref for the mercurial commit hash
             if hg_ref_fl="$(ls "$GIT_DIR/refs/notes/hg-"* 2>&1)"; then
                 hg_ref="${hg_ref_fl#$GIT_DIR/}"

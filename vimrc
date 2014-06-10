@@ -152,7 +152,8 @@ let maplocalleader = '\'
 noremap!	jj			<Esc>
 
 set scrolloff=4					" keep cursor 5 lines from edge
-set sidescrolloff=10
+set sidescroll=8
+set sidescrolloff=12
 
 set whichwrap=b,s,>,< 				" which movement chars move lines
 
@@ -160,7 +161,11 @@ set incsearch					" search as type
 set ignorecase smartcase 			" ignore case except explicit UC
 
 " make Y like C
-map Y y$
+noremap		Y	y$
+
+" map increment and decrement TODO - equivalent for visual mode?
+nnoremap	++	<C-a>
+nnoremap	--	<C-x>
 
 " remove search highlighting
 nnoremap <silent>	<Space>		:nohlsearch<CR>

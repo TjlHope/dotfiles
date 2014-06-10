@@ -137,6 +137,12 @@ type 'hg'						>/dev/null 2>&1 && {
     alias hc='hg commit'
 }
 
+# CVS aliases			{{{2
+type 'cvs'						>/dev/null 2>&1 && {
+    alias cs='cvs -nq update'
+    alias cl='pgr cvs log'
+}
+
 # game aliases			{{{2
 type 'VisualBoyAdvance'					>/dev/null 2>&1 && {
     alias VisualBoyAdvance='VisualBoyAdvance --config="${HOME}/.vba/VisualBoyAdvance.cfg"'
@@ -166,9 +172,6 @@ type 'msp430-gcc' 'mspdebug'				>/dev/null 2>&1 &&
 type 'sudo' >/dev/null 2>&1 &&
     alias bkgnd='sudo >/dev/null 2>&1 -bnu "${USER}" '
 
-type yum >/dev/null 2>&1 &&
-    alias yum='yum --nogpgcheck'
-
 alias dd_usb='dd oflag=sync bs=1M'
 
 type ant >/dev/null 2>&1 && {
@@ -183,6 +186,7 @@ alias test_cp='echo "$CLASSPATH:$(echo $(find ${PWD}/../*/dist -name *.jar) | se
 
 type python > /dev/null 2>&1 &&
     alias pycalc='python -i -c "from __future__ import division; from math import *; from cmath import *"'
+    #alias pycalc="PYTHONSTARTUP='${RC_D}/${_DOT}calc.py' python"
 
 type mysql > /dev/null 2>&1 &&
     alias mysql='mysql -u root'
@@ -194,7 +198,7 @@ type java > /dev/null 2>&1 && {
 
 type rlwrap >/dev/null 2>&1 && {
     type bsh-interpreter >/dev/null 2>&1 &&
-        alias bsh='rlwrap -w10 -O"bsh % " -pcyan -rc bsh-interpreter'
+        alias bsh='rlwrap -rc bsh-interpreter'
 
     type nc >/dev/null 2>&1 &&
         alias ncrl='rlwrap nc'

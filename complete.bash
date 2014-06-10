@@ -113,6 +113,15 @@ complete -p sudo >/dev/null 2>&1 && {
     complete -F _sudo sudo
 }
 
+type git-hg-diff >/dev/null 2>&1 &&
+    _git_hg_diff() { _git_diff "$@"; }
+type git-svn-diff >/dev/null 2>&1 &&
+    _git_svn_diff() { _git_diff "$@"; }
+type git-sparse-clone >/dev/null 2>&1 &&
+    _git_sparse_clone() { _git_clone "$@"; }
+type git-sparse >/dev/null 2>&1 &&
+    _git_sparse() { _git_checkout "$@"; }
+
 # Make everything with -o default have -o bashdefault
 # FIXME: doesn't work as 'bashdefault' doesn't do files, and 'default' doesn't 
 # understand $VAR etc. so it completes with filename \$VAR/file

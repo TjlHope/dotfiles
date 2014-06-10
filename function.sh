@@ -38,7 +38,7 @@ ls_pgr() {
 }
 
 ! type 'vimpager' >/dev/null 2>&1 &&		# comment to disable check
-type 'vim' >/dev/null 2>&1 &&	#false &&	# comment to enable
+type 'vim' >/dev/null 2>&1 &&	#false &&	# comment 'false &&' to enable
     vimpager() {	# function edited from vimpager script
 	local c=''
 	[ -t 1 ] || c=cat
@@ -50,8 +50,12 @@ date_time() {
     date "+$1%F_%X$2"
 }
 
+quote_url() {
+    python -c "from urllib2 import quote; print(quote('$*'))"
+}
+
 unquote_url() {
-    python -c "from urllib2 import unquote; print(unquote('$1'))"
+    python -c "from urllib2 import unquote; print(unquote('$*'))"
 }
 
 send-message() {
@@ -108,12 +112,12 @@ my_ip() {
     # Output the first external ip of this machine
     # In case it's run under sudo with a crap setup that mangles PATH:
     local ip="$(command -v ip || { [ -x /sbin/ip ] && echo /sbin/ip; })"
-    $ip 2>/dev/null -4 -o addr show | \
-        sed -ne '
+    "$ip" 2>/dev/null -4 -o addr show | \
+        sed -ne "
             /\<scope\s\+global\>/ {
                 s/^.*\<inet\s\+\([0-9\.]\+\)\/[0-9]\+\>.*$/\1/p
-                q
-            }'
+                $([ "$1" = -a] || echo 'q')
+            }"
 }
 
 mysql_grant() {
@@ -147,6 +151,18 @@ pysoap() {
 snc() {
     local host="$1"; shift
     $WRAPPER ssh "$host" nc localhost "$@"
+}
+
+type rpm >/dev/null 2>&1 &&
+rpm_list_keys() {
+    local cmd="echo" key
+    case "$1" in
+        -a|-v|--all|--verbose)  cmd="rpm -qi";;
+    esac
+    for key in $(rpm -qa 'gpg-pubkey*')
+    do
+        $cmd "$key"
+    done
 }
 
 ## End functions
