@@ -121,3 +121,9 @@
 [submodule "vim/all-bundles/gundo"]
 	path = vim/all-bundles/gundo
 	url = https://github.com/sjl/gundo.vim.git
+[submodule "vim/all-bundles/diffchar"]
+	path = vim/all-bundles/diffchar
+	url = https://github.com/vim-scripts/diffchar.vim.git
+[submodule "vim/all-bundles/diffchanges"]
+	path = vim/all-bundles/diffchanges
+	url = https://github.com/jmcantrell/vim-diffchanges.git
