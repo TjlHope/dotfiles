@@ -127,3 +127,6 @@
 [submodule "vim/all-bundles/diffchanges"]
 	path = vim/all-bundles/diffchanges
 	url = https://github.com/jmcantrell/vim-diffchanges.git
+[submodule "vim/all-bundles/typescript"]
+	path = vim/all-bundles/typescript
+	url = https://github.com/leafgarland/typescript-vim.git
