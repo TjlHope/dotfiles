@@ -79,11 +79,11 @@ setlocal indentkeys+=*<CR>	" typing <CR> will reindent current line
 " Fix SuperTab completion
 function! LatexBox_Context()
     " LaTeX context for SuperTab (parsing extracted from LatexBox_Complete).
-    if &filetype == 'tex'
+    if &filetype ==? 'tex'
 	" return the starting position of the word
 	let line = getline('.')
 	let pos = col('.') - 1
-	while pos > 0 && line[pos - 1] !~ '\s\|\\\|{'
+	while pos > 0 && line[pos - 1] !~# '\s\|\\\|{'
 	    let pos -= 1
 	endwhile
 	if line[pos - 2] == '{'

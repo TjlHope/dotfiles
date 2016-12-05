@@ -25,7 +25,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
 " I have taken the functions for the programmatic approximation of the gui 
 " colors to the palettes of 88- and " 256- color xterms from the desert256 
 " colorscheme. {{{
-   fun <SID>grey_number(x)
+   fun! <SID>grey_number(x)
       if &t_Co == 88
          if a:x < 23
             return 0
@@ -63,7 +63,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
       endif
    endfun
    " returns the actual grey level represented by the grey index
-   fun <SID>grey_level(n)
+   fun! <SID>grey_level(n)
       if &t_Co == 88
          if a:n == 0
             return 0
@@ -95,7 +95,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
       endif
    endfun
    " returns the palette index for the given grey index
-   fun <SID>grey_color(n)
+   fun! <SID>grey_color(n)
       if &t_Co == 88
          if a:n == 0
             return 16
@@ -115,7 +115,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
       endif
    endfun
    " returns an approximate color index for the given color level
-   fun <SID>rgb_number(x)
+   fun! <SID>rgb_number(x)
       if &t_Co == 88
          if a:x < 69
             return 0
@@ -141,7 +141,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
       endif
    endfun
    " returns the actual color level for the given color index
-   fun <SID>rgb_level(n)
+   fun! <SID>rgb_level(n)
       if &t_Co == 88
          if a:n == 0
             return 0
@@ -161,7 +161,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
       endif
    endfun
    " returns the palette index for the given R/G/B color indices
-   fun <SID>rgb_color(x, y, z)
+   fun! <SID>rgb_color(x, y, z)
       if &t_Co == 88
 	 return 16 + (a:x * 16) + (a:y * 4) + a:z
       else
@@ -169,7 +169,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
       endif
    endfun
    " returns the palette index to approximate the given R/G/B color levels
-   fun <SID>color(r, g, b)
+   fun! <SID>color(r, g, b)
       " get the closest grey
       let l:gx = <SID>grey_number(a:r)
       let l:gy = <SID>grey_number(a:g)
@@ -203,7 +203,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
       endif
    endfun
    " returns the palette index to approximate the 'rrggbb' hex string
-   fun <SID>rgb(rgb)
+   fun! <SID>rgb(rgb)
       " Strip optional '#' at start, and make lowercase
       let l:c = substitute(a:rgb, '^#\(.*\)', '\L\1', '')
       if l:c == 'none'
@@ -224,7 +224,7 @@ if has("gui_running") || &t_Co == 88 || &t_Co == 256
       endif
    endfun
    " sets the highlighting for the given group
-   fun <SID>X(group, fg, bg, attr)
+   fun! <SID>X(group, fg, bg, attr)
       if a:fg != ""
          exec "hi " . a:group . " guifg=" . a:fg . " ctermfg=" . <SID>rgb(a:fg)
       endif

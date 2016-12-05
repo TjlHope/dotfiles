@@ -133,3 +133,16 @@
 [submodule "vim/all-bundles/gitv"]
 	path = vim/all-bundles/gitv
 	url = https://github.com/gregsexton/gitv.git
+[submodule "vimperator/all-plugins"]
+	path = vimperator/all-plugins
+	url = https://github.com/vimpr/vimperator-plugins.git
+	branch = 3.6
+[submodule "vim/all-bundles/md5"]
+	path = vim/all-bundles/md5
+	url = https://github.com/vim-scripts/md5.vim.git
+[submodule "vim/all-bundles/jedi"]
+	path = vim/all-bundles/jedi
+	url = https://github.com/davidhalter/jedi-vim.git
+[submodule "vim/all-bundles/javacomplete2"]
+	path = vim/all-bundles/javacomplete2
+	url = https://github.com/artur-shaik/vim-javacomplete2
