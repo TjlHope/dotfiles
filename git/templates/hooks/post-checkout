@@ -27,6 +27,10 @@ case "$(git config remote.origin.url)" in
 
         if [ "$(printf "%d" "0x$PREV_HEAD" 2>/dev/null)" -eq 0 ]; then	# it's a clone
             [ -z "$GIT_DBG" ] || echo "post-checkout: cloning..."
+            # Include the notes ref in the log
+            git config core.notesRef refs/notes/hg
+            [ -z "$GIT_DBG" ] || echo "post-checkout: core.notesRef: $(
+                                           git config core.notesRef)"
         fi
 
         if [ ! -f "$GIT_DIR/refs/notes/hg" ]; then
@@ -35,9 +39,6 @@ case "$(git config remote.origin.url)" in
                 hg_ref="${hg_ref_fl#$GIT_DIR/}"
                 [ -z "$GIT_DBG" ] || echo "post-checkout: hg ref: $hg_ref"
                 git symbolic-ref refs/notes/hg "$hg_ref"
-                git config core.notesRef refs/notes/hg
-                [ -z "$GIT_DBG" ] || echo "post-checkout: core.notesRef: $(
-                                               git config core.notesRef)"
             else
                 [ -z "$GIT_DBG" ] || echo "post-checkout: $hg_ref_fl"
             fi
@@ -59,7 +60,7 @@ case "$(git config remote.origin.url)" in
                 /^syntax:\s*regexp/ { d; b regexp }
                 n; b glob
                 '
-            echo ".gitignore" >>.gitignore
+            printf '\n.gitignore\n' >>.gitignore
         fi
         ;;
 esac

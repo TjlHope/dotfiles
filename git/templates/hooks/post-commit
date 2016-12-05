@@ -1,0 +1,46 @@
+#!/bin/sh
+# post-commit
+#       This hook is invoked by git commit. It takes no parameter, and is
+#       invoked after a commit is made.
+#
+#       This hook is meant primarily for notification, and cannot affect the
+#       outcome of git commit.
+
+[ -z "$GIT_DBG" ] || echo "post-commit"
+
+CONFIG="commit.update-server-info"
+BASE_URL="http://localhost/git"
+if ! update_server_info="$(git config "$CONFIG")"
+then    # it's not set, so guess
+    dir="${GIT_DIR##*/}"
+    case "$GIT_DIR" in
+        */.git/)        dir="${GIT_DIR##${GIT_DIR%/*/.git/}/}";;
+        */)             dir="${GIT_DIR##${GIT_DIR%/*/}/}";;
+        */.git)         dir="${GIT_DIR##${GIR_DIR%/*/.git}/}";;
+        *)              dir="${GIT_DIR##${GIT_DIR%/*}/}";;
+    esac
+    code="$(curl -L -w '%{http_code}' "$BASE_URL/$dir" | tail -n1)"
+
+    case "$code" in
+        2??|403)        val=true;;
+        *)              val=false;;
+    esac
+
+    [ -z "$GIT_DBG" ] || echo "post-commit: config $CONFIG $val"
+    git config "$CONFIG" "$val"
+fi
+
+yesno() {
+    case "$1" in
+        [Yy]|[Yy][Ee][Ss]|[Tt][Rr][Uu][Ee]|1)   return 0;;
+        [Nn]|[Nn][Oo]|[Ff][Aa][Ll][Ss][Ee]|0)   return 1;;
+    esac
+    return 2
+}
+
+if yesno "$(git config "$CONFIG")"
+then
+    [ -z "$GIT_DBG" ] || echo "post-commit: update-server-info"
+    git update-server-info
+fi
+

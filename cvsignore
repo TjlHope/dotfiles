@@ -20,6 +20,7 @@ syntax: glob
 # backup
 *~
 .*.sw[po]
+.sw[po]
 
 # ctags
 tags

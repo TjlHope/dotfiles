@@ -3,14 +3,15 @@
 username = Tom JL Hope <tjlhope@gmail.com>
 merge = vimdiff
 ignore = ~/.cvsignore
-verbose = yes
+;verbose = yes
 
 [alias]
 nudge = push --rev .
 
 [merge-tools]
-;vimdiff.executable = vim
-;vimdiff.args = -c "wincmd J" "$output" "$local" "$base" "$other"
+vimdiff.executable = vim
+vimdiff.args = -f -d $output -M $local $base $other -c "wincmd J" -c "set modifiable" -c "set write"
+vimdiff.premerge = keep
 
 [extensions]
 color =

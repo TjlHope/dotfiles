@@ -8,6 +8,7 @@
 [core]
 	excludesfile = ~/.cvsignore
 	#pager = $VIMPAGER
+	whitespace = cr-at-eol	# need to edit dos style files
 
 [color]
 	ui = true
@@ -16,10 +17,36 @@
 	conflictstyle = diff3
 	tool = vimdiff
 
+[diff]
+	renames = copy
+
+[log]
+	decorate = true
+
 [alias]
+	b = branch
+
+	co = commit
+	ca = commit --all
+
+	ch = checkout
+
+	l = log --exclude='refs/notes/*' --exclude='refs/hg/*'
 	log = log --exclude='refs/notes/*' --exclude='refs/hg/*'
-	glog = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph --decorate
+	gl = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph
+	glog = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph
+	la = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph --all
+	gla = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph --all
+
+	d = diff
+	w = diff --word-diff=color --word-diff-regex='\\w+|\\S' --diff-algorithm=minimal
 	wdiff = diff --word-diff=color --word-diff-regex='\\w+|\\S' --diff-algorithm=minimal
+	fdiff = diff --full-index
+
+	s = status
+	st = status
+
+	vn = svn
 
 [pager]
 	#svn-diff = true
@@ -30,13 +57,23 @@
 [remote-hg]
 	hg-git-compat = true
 
-[url "gitifyhg::http://hg.eng.telsis.local/hg/"]
+[url "hg::http://hg.eng.telsis.local/hg/"]
 	insteadOf = "thg:"
 	insteadOf = "thg::"
 	insteadOf = "http://hg.eng.telsis.local/hg/"
 
+[url "git://git.eng.telsis.local/"]
+	insteadOf = "tgit:"
+	insteadOf = "tgit::"
+
+[pull]
+	rebase = preserve
+
 [push]
 	default = simple
+
+[rerere]
+	enabled = true
 
 [init]
 	templatedir = ~/.git/templates
@@ -50,3 +87,4 @@
 
 [browser "default"]
 	cmd = xdg-open
+
