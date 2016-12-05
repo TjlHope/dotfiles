@@ -58,6 +58,42 @@ unquote_url() {
     python -c "from urllib2 import unquote; print(unquote('$*'))"
 }
 
+fifo_size() {
+    [ $# -lt 1 ] || [ "$1" = -h ] && {
+	echo "Usage: fifo_size <path/to/fifo>"
+	return 0
+    }
+    local fifo="$1"
+    [ -p "$fifo" ] || {
+	echo "Not a FIFO (named pipe): $fifo" >&2
+	return 1
+    }
+    python <<-_EOF
+	from fcntl import ioctl
+	from struct import unpack
+	from termios import FIONREAD
+	from threading import Thread
+
+	# we need to also open the fifo as a writer, as if there's no writer
+	# the read open will block indefinitely
+	fifo = "$fifo"
+	writer = None
+	def open_writer(f):
+	    global writer
+	    writer = open(f, 'wb')
+	thread = Thread(target=open_writer, args=(fifo,))
+	thread.daemon = True
+	thread.start()
+	reader = open(fifo, 'rb');
+	try:
+	    print(unpack('h', ioctl(reader, FIONREAD, "  "))[0])
+	finally:
+	    reader.close()
+	if (writer): writer.close()
+	thread.join()
+	_EOF
+}
+
 send-message() {
     local host="$1" head="$2"; shift 2
     ssh "$host" sh <<- EOF
@@ -103,7 +139,7 @@ java_memdump() {
     jmap -dump:live,format=b,file="${2-$1.dump}" "$1"
 }
 
-twinkle() {
+twinkle.remote() {
     local host="${1:-vm}"; shift
     ssh >/dev/null 2>&1 -f "$host" twinkle "$@"
 }
@@ -123,6 +159,16 @@ my_ip() {
 mysql_grant() {
     ssh "$1" mysql -e \
         "\"grant all privileges on *.* to 'root'@'${2:-$(my_ip)}' with grant option\""
+}
+
+mysql_convert_charset() {
+    local db="$1" charset="${2-utf8}" query="SELECT"
+    query="$query CONCAT(\"ALTER TABLE \`\", table_schema, \"\`.\`\","
+    query="$query table_name, \"\` CONVERT TO CHARACTER SET $charset;\")"
+    query="$query AS cmd FROM information_schema.tables"
+    query="$query WHERE table_schema = \"$db\";"
+    #echo "mysql -BNe '$query' | mysql"
+    mysql -BNe "$query" | mysql
 }
 
 fix_for_old_terminfo() {
@@ -153,6 +199,36 @@ snc() {
     $WRAPPER ssh "$host" nc localhost "$@"
 }
 
+watch_for() {
+    local i=0 int=2 fl regex
+    case "$1" in
+        -i)     int="$2"; shift 2;;
+        -i*)    int="${1#-i}"; shift;;
+    esac
+    [ -f "$1" ] && [ -r "$1" ] && {
+        fl="$1"
+        shift
+    } || {
+        echo "Cannot read file: $1" >&2
+        return 1
+    }
+    case $# in
+        0)  regex="";;
+        1)  regex="\\$1";;
+        *)  regex="\\$1"; shift;
+            while [ $# -gt 0 ]
+            do regex="$regex|$1"; shift
+            done
+            regex="$regex)";;
+    esac
+    while printf '\r%*s\r%i%s' "$COLUMNS" ' ' "$(($i * $int))" \
+        "$(sed "$fl" -Ene "$regex"'{s/\s+/ /g;H};${g;s/\n/\t/g;p}')"
+    do
+        i=$(( $i + 1 ))
+        sleep "$int"
+    done
+}
+
 type rpm >/dev/null 2>&1 &&
 rpm_list_keys() {
     local cmd="echo" key
@@ -163,6 +239,71 @@ rpm_list_keys() {
     do
         $cmd "$key"
     done
+}
+
+type firefox >/dev/null 2>&1 && {
+    get_firefox_extension_id() {
+        unzip -qc "$1" install.rdf | xmlstarlet sel \
+            -N rdf=http://www.w3.org/1999/02/22-rdf-syntax-ns# \
+            -N em=http://www.mozilla.org/2004/em-rdf# \
+            -t -v \
+            "//rdf:Description[@about='urn:mozilla:install-manifest']/em:id" \
+            -n
+    }
+    get_firefox_extension_name() {
+        unzip -qc "$1" install.rdf | xmlstarlet sel -n \
+            -N rdf=http://www.w3.org/1999/02/22-rdf-syntax-ns# \
+            -N em=http://www.mozilla.org/2004/em-rdf# \
+            -t -v \
+            "//rdf:Description[@about='urn:mozilla:install-manifest']/em:name" \
+            -n
+
+    }
+}
+
+: ${CNF=127}
+__cnf() {       # equivalent to the default bash command not found behaviour
+    echo "$_SH: $1: command not found" >&2
+    return ${CNF-127}
+}
+__top() {       # tests if current execution environment is a top level shell
+    # not in a pipe, or from MC
+    [ -t 0 ] && [ -t 1 ] && [ -z "$MC_SID" ] || return
+    # not in a subshell
+    local pid cmd state ppid pgrp session tty_nr tpgid rest
+    read pid cmd state ppid pgrp session tty_nr tpgid rest </proc/self/stat
+    [ $$ -ne $tpgid ] || return
+    :   # TODO: anything else?
+}
+__slp() {       # treats $1 as a single letter prefix command
+    [ ${#1} -gt 1 ] || return ${CNF-127}
+    local a="${1#?}" p="" c="" t=""; p="${1%$a}"; shift
+    c="$(command -v $p)" || return ${CNF-127}
+    case "$c" in
+        $p)             # function or builtin
+            set -- "$p" "$a" "$@"
+            t=f;;
+        "alias $p="*)   # alias
+            eval "set -- ${c#alias $p=} \"$a\" \"\$@\""
+            t=a;;
+        /*/$p)          # executable
+            set -- "$c" "$a" "$@"
+            t=e;;
+    esac
+    case "$t" in
+        [${SLP_T=fa}])  "$@";;
+        *)              return ${CNF-127};;
+    esac
+}
+command_not_found_handle() {
+    # only run in a top-level shell
+    #__top || __cnf "$@" || return
+    local r=0; unset r
+    # try and run <cmd> as <c md>
+    __slp "$@"; [ ${r=$?} -eq 127 ] && unset r || return $r
+    # TODO: `ll` -> `l -l`?
+    # TODO: anything else?
+    __cnf "$@"
 }
 
 ## End functions

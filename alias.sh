@@ -75,12 +75,16 @@ type 'mplayer'						>/dev/null 2>&1 &&
     alias mplayer.slow='mplayer -vfm ffmpeg -lavdopts fast:skiploopfilter=all'
 type 'mplayer2'						>/dev/null 2>&1 &&
     alias mplayer2.slow='mplayer2 --vfm=ffmpeg --lavdopts=fast:skiploopfilter=all'
+type 'mpv'						>/dev/null 2>&1 &&
+    alias mpv.slow='mpv --vd-lavc-fast --vd-lavc-skiploopfilter=all'
 type 'opera'						>/dev/null 2>&1 &&
     alias opera='opera -nomail'
 type 'octave'						>/dev/null 2>&1 &&
     alias octave='octave --silent'
 type 'xdg-open'						>/dev/null 2>&1 &&
     alias xo='xdg-open >/dev/null 2>&1'
+type 'sshfs'						>/dev/null 2>&1 &&
+    alias sshfs='sshfs -o reconnect -o workaround=all'
 [ -f "${HOME}/Documents/Code/t/t.py" ] && {
     alias t="${HOME}/Documents/Code/t/t.py"
     eval "$(alias t)' --task-dir \"\${HOME}/Documents/tasks\" --list tasks'"
@@ -122,12 +126,8 @@ type 'eix'						>/dev/null 2>&1 && {
 
 # git aliases			{{{2
 type 'git'						>/dev/null 2>&1 && {
-    alias gs='git status'
-    alias gl='git log'
-    alias gch='git checkout'
-    alias gca='git commit -a'
-    alias gb='git branch'
-    alias gvn='git svn'
+    alias g='git'
+    alias gs='git status'       # because gs is also ghostscript
 }
 
 # mercurial aliases		{{{2
@@ -174,19 +174,22 @@ type 'sudo' >/dev/null 2>&1 &&
 
 alias dd_usb='dd oflag=sync bs=1M'
 
+alias toggle_echo="stty \$(stty -a | sed -ne '
+        s/\(.*\s\)\?-echo\(\s.*\)\?/echo/p; t; s/\(.*\s\)\?echo\(\s.*\)\?/-echo/p'
+    )"
+
 type ant >/dev/null 2>&1 && {
     alias ant.local_lib='ant $(find ../*/dist -name *.jar | sed "s:.*:-lib &:")'
-    alias vant="ssh test@vm ant -f '~/${PWD#$HOME}/build.xml'"  # TODO: generic
+    alias ant.test_vm='ssh test@vm ant -f "~/${PWD#$HOME}/build.xml"'
+    alias dita-ant.test_vm='ssh test@vm /usr/share/dita-ot-1.8/dita-ant -f "~/${PWD#$HOME}/build.xml"'
 }
+
+alias vm='IWD="${PWD#$HOME/}" ssh test@vm'
 
 type rpmbuild > /dev/null 2>&1 &&
     alias build_rpm='CLASSPATH="$CLASSPATH:$(echo $(find ${PWD}/../*/dist -name *.jar) | sed "s/\s\+/:/g")" rpmbuild --nodeps --define "_topdir ${PWD}/build/rpmbuild" --rebuild build/rpmbuild/SRPMS/*.src.rpm'
 
 alias test_cp='echo "$CLASSPATH:$(echo $(find ${PWD}/../*/dist -name *.jar) | sed "s/\s\+/:/g")"'
-
-type python > /dev/null 2>&1 &&
-    alias pycalc='python -i -c "from __future__ import division; from math import *; from cmath import *"'
-    #alias pycalc="PYTHONSTARTUP='${RC_D}/${_DOT}calc.py' python"
 
 type mysql > /dev/null 2>&1 &&
     alias mysql='mysql -u root'
@@ -206,6 +209,54 @@ type rlwrap >/dev/null 2>&1 && {
     type snc >/dev/null 2>&1 &&
         alias sncrl="WRAPPER=\${WRAPPER:-rlwrap} snc"
 }
+
+type python > /dev/null 2>&1 && {       # python goodies
+    alias pycalc='python -i -c "from __future__ import division; from math import *; from cmath import *"'
+    #alias pycalc="PYTHONSTARTUP='${RC_D}/${_DOT}calc.py' python"
+
+    # answer for
+    # http://stackoverflow.com/questions/356578/how-to-output-mysql-query-results-in-csv-format
+    type t2csv >/dev/null 2>&1 || {
+        alias t2csv="python -c \"import sys as s,csv as c;"
+        eval "$(alias t2csv)'r=c.DictReader(s.stdin,dialect=c.excel_tab);'"
+        eval "$(alias t2csv)'w=c.DictWriter(s.stdout,r.fieldnames,'"
+        eval "$(alias t2csv)'dialect=c.excel,quoting=c.QUOTE_MINIMAL);'"
+        eval "$(alias t2csv)'w.writeheader();w.writerows(r)\"'"
+    }
+
+    type gethostbyaddr >/dev/null 2>&1 || {
+        alias gethostbyaddr="python -c \"import sys as s, socket as k;"
+        eval "$(alias gethostbyaddr)'print(k.gethostbyaddr(s.argv[1]))\"'"
+    }
+
+    type gethostbyname >/dev/null 2>&1 || {
+        alias gethostbyname="python -c \"import sys as s, socket as k;"
+        eval "$(alias gethostbyname)'print(k.gethostbyname(s.argv[1]))\"'"
+    }
+
+    type a2b > /dev/null 2>&1 || {
+        alias a2b="python -c \"from sys import argv as a, stdin as i;"
+        eval "$(alias a2b)'from binascii import a2b_hex as a2b;'"
+        eval "$(alias a2b)'print(a2b(a[1] if len(a)>1 else i.read().strip()))\"'"
+    }
+    type b2a > /dev/null 2>&1 || {
+        alias b2a="python -c \"from sys import argv as a, stdin as i;"
+        eval "$(alias b2a)'from binascii import b2a_hex as b2a;'"
+        eval "$(alias b2a)'print(b2a(a[1] if len(a)>1 else i.read().strip()))\"'"
+    }
+
+    type paste_image >/dev/null 2>&1 || {
+        alias paste_image="python -c \"import sys as s, gtk as g;"
+        eval "$(alias paste_image)'c=g.clipboard_get(); i=c.wait_for_image();'"
+        eval "$(alias paste_image)'i.save(s.argv[1], \\\"png\\\");\"'"
+    }
+}
+
+type cacaview >/dev/null 2>&1 &&
+    alias cacaview='env -uDISPLAY cacaview'
+
+type watch_for >/dev/null 4>&1 &&
+    alias watch_mem_cache="watch_for /proc/meminfo '^(Dirty|Writeback):'"
 
 ## End aliases		}}}1
 ######################

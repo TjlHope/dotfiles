@@ -4,7 +4,9 @@
 ## Definition of bash completions
 
 # Use drop in scripts
-if [ -f "/etc/profile.d/bash-completion.sh" ]; then	# gentoo style
+if [ -f "/etc/bash/bashrc.d/bash_completion.sh" ]; then	# new gentoo style
+    . "/etc/bash/bashrc.d/bash_completion.sh"
+elif [ -f "/etc/profile.d/bash-completion.sh" ]; then	# old gentoo style
     . "/etc/profile.d/bash-completion.sh"
 elif [ -f "/etc/profile.d/bash_completion.sh" ]; then	# ubuntu style
     . "/etc/profile.d/bash_completion.sh"
@@ -38,6 +40,9 @@ type 'fork' >/dev/null 2>&1 &&
 type 'pipe_wireshark' >/dev/null 2>&1 && {
     complete -F _ssh pipe_wireshark
 }
+
+type 'vm' >/dev/null 2>&1 &&
+    complete -F _command vm
 
 # Completion function allowing 'cd' to interpret N '.'s to mean the (N-1)th 
 # parent directory; i.e. '..' is up to parent, '...' is grandparent, '....' is 

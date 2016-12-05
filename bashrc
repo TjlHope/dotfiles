@@ -202,9 +202,10 @@ unset safe_term _dircolors dir_colors match_lhs ps1
 
 ### bash control variables	{{{2
 # prevents adding of useless commands to bash_history
-export HISTCONTROL="ignoreboth"
+export HISTCONTROL="erasedups"
 export HISTIGNORE="l:l?:l??:duh:df:dfh:cd:[bf]g:batt:exit:?q"
-export HISTSIZE=1000
+export HISTSIZE=100000
+export HISTTIMEFORMAT="%F %T %z  "
 # PATH completion for cd (need to enter full name - no bash file completion)
 export CDPATH=".:~:~/Documents/Imperial/EE4:~/Documents/Code/:~/Games:~/Documents:~/Videos:/run/media/${USER}:/media:/mnt"
 
@@ -226,6 +227,7 @@ then	# adapted from vimmanpager script
     opts="${opts} -c 'sil %s/\[[0-9]\+m//g'"	# remove ansi colour codes
     opts="${opts} -c 'sil %!col -b'"		# filter to remove *roff stuff
     opts="${opts} -c 'set nolist nomod ft=man'"	# set up as man page
+    opts="${opts} -c 'set fdm=manual'"		# ensure there's no folds
     opts="${opts} -c 'let g:showmarks_enable=0'"	# disable marks
     opts="${opts} -c 'runtime! macros/less.vim'"	# use less.vim
     export MANPAGER="vim ${opts} -"		# vim read from stdin
@@ -260,7 +262,7 @@ unset t
 # function, but defines more, etc.
 [ -d "${SHM_D}" -a -w "${SHM_D}" ] && {
     [ -f "${SHM_D}/complete.cache" ] ||
-	complete -p >"${SHM_D}/complete.cache"
+	complete -p | sed "s/^complete -F _minimal\s*$/& ''/" >"${SHM_D}/complete.cache"
     [ -f "${SHM_D}/alias.cache" ] ||
 	alias -p >"${SHM_D}/alias.cache"
     [ -f "${SHM_D}/function.cache" ] ||
@@ -299,3 +301,6 @@ type 'keychain.add_all' >/dev/null 2>&1 && {
     trap - INT		# remove trap for following execution
 }
 
+# Output the current task status
+type t >/dev/null 2>&1 &&
+    t || :

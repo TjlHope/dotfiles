@@ -80,7 +80,7 @@ _sW () {
 	:chk
 	\:^.\{,$len\}$: b
 	:sub
-	s:\(\.\?[^/]\{$chs,\}\)[^/$_el]\{1,\}\($_el\)\?/:\1$_el/:$1
+	s:\(\.\?[^/]\{$chs,\}\)[^/$_el]\{1,\}\($_el\)\?/:\1$_el/:${1-}
 	t chk
 	"
 }
@@ -173,7 +173,7 @@ _R () {
 _t () {
     type t >/dev/null 2>&1 || return    # if we don't have it, do nothing
     local num=$(t 2>/dev/null | wc -l) print0=false
-    [ "$1" = -0 ] && print0=true && shift
+    [ "${1-}" = -0 ] && print0=true && shift
     [ ${num:-0} -gt 0 ] || $print0 &&
 	echo "${1:-[}${num:-0}${2:-${1:-]}}"
 }
