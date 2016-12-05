@@ -1,0 +1,30 @@
+""""""""""""""""""""""""""""""
+" Vimperator settings file
+" vim: ft=vim
+"""""""""""""""""""""""""
+
+" Change TEXTAREA switch so <C-t> can be used for new tab
+inoremap	<C-S-t>		<C-t>
+
+""" Pass these keys through directly:
+noremap		<C-Tab>		i<C-Tab>
+inoremap	<C-Tab>		<Esc>i<C-Tab>
+noremap		<C-S-Tab>	i<C-S-Tab>
+inoremap	<C-S-Tab>	<Esc>i<C-S-Tab>
+
+noremap         <C-b> i<C-b>
+noremap         <C-f> i<C-f>
+noremap         <C-g> i<C-g>
+noremap         <C-n> i<C-n>
+noremap         <C-p> i<C-p>
+inoremap	<C-t> <Esc><C-t>
+inoremap	<C-w> <Esc>i<C-w>
+
+
+""" options
+set ignorecase
+set smartcase
+
+""" feedsomekeys
+"command! -nargs=+ lazy autocmd VimperatorEnter .* &lt;args>
+"lazy fmaps -u='duckduckgo.com' h j k l

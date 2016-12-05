@@ -1,0 +1,18 @@
+
+set ignorecase
+set smartcase
+set regexsearch
+set hlsearch
+set incsearch
+
+set cleanindent
+set number
+
+set scrolloff=5
+
+set softtabstop=4
+set shiftwidth=4
+
+set textwidth=79
+
+noremap Y y$
