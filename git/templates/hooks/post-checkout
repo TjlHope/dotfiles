@@ -28,9 +28,9 @@ case "$(git config remote.origin.url)" in
         if [ "$(printf "%d" "0x$PREV_HEAD" 2>/dev/null)" -eq 0 ]; then	# it's a clone
             [ -z "$GIT_DBG" ] || echo "post-checkout: cloning..."
             # Include the notes ref in the log
-            git config core.notesRef refs/notes/hg
-            [ -z "$GIT_DBG" ] || echo "post-checkout: core.notesRef: $(
-                                           git config core.notesRef)"
+            git config notes.displayRef refs/notes/hg
+            [ -z "$GIT_DBG" ] || echo "post-checkout: notes.displayRef: $(
+                                           git config notes.displayRef)"
         fi
 
         if [ ! -f "$GIT_DIR/refs/notes/hg" ]; then
