@@ -3,7 +3,7 @@
 """""""""""""""""""""""""	{{{2
 
 set nocompatible				" not VI compatible
-set history=50 					" lines of history to remember
+set history=500					" lines of history to remember
 set timeoutlen=700				" shorter timeout for mappings
 set ttimeoutlen=100				" shorter timeout for key codes
 
@@ -121,13 +121,13 @@ endfunction			" }}}
 " Dictionary fuctions to be used to control dictionary like options	{{{3
 " (e.g. listchars and fillchars). To use:
 " 1. Create a dictionary called [s:][_]optname (no conflict with actual option
-"    as that looks like &optname, but can prefix with '_' and make script local 
+"    as that looks like &optname, but can prefix with '_' and make script local
 "    for clarity.
 " 2. Create a control dictionary by calling:
 "	let CNTRL_NAME = deepcopy(_opt_ctrl_dict)._init('DICT_NAME'[, 'process'])
-"    where DICT_NAME is the [s:][_]optname used above. This initialises the 
-"    control dictionary, and then either by passing the argument 'process', 
-"    calling CNTRL_NAME._process(), or an initial CNTRL_NAME._toggle(...) will 
+"    where DICT_NAME is the [s:][_]optname used above. This initialises the
+"    control dictionary, and then either by passing the argument 'process',
+"    calling CNTRL_NAME._process(), or an initial CNTRL_NAME._toggle(...) will
 "    set the option appropriately.
 let _opt_ctrl_dict = {}
 function _opt_ctrl_dict._init(...) dict		" Initiate control dict	{{{
@@ -193,9 +193,9 @@ set vb t_vb=					" disable bell
 
 set ruler					" always show ruler (position)
 " Customise ruler
-let s:_ruler_head = "%=%.24(%<%f%)%m%( %h%w%r%)"	" file name and status
+let s:_ruler_head = "%=%.24(%f%)%m%( %h%w%r%) "	" file name and status
 if exists("*fugitive#statusline")			" fugitive branch info
-    let s:_ruler_mid = "%.24( %{fugitive#statusline()}%)"
+    let s:_ruler_mid = "%.24(%{fugitive#statusline()}%)"
 else | let s:_ruler_mid = ""
 endif
 let s:_ruler_tail = "%=%7(%c%V%)%=,%-6(%l%) %P"	" current position
@@ -240,9 +240,14 @@ set tabpagemax=40				" max number opening tabs = ?
 "colorscheme solarized
 "unmap <F5>
 
-colorscheme desert256
-autocmd ColorScheme * highlight Normal ctermbg=none |
-	    \ highlight NonText ctermbg=none
+try
+    colorscheme desert256-TjlH
+catch /^Vim\%((\a\+)\)\=:E185/
+    colorscheme desert
+    autocmd ColorScheme *
+		\ highlight Normal	ctermbg=NONE |
+		\ highlight NonText	ctermbg=NONE
+endtry
 
 
 set display+=lastline		" show as much of lastline as possible, not '@'s
@@ -253,7 +258,7 @@ if &encoding == 'utf-8'
 		\	'extends': '⟫',	'precedes': '⟪',
 		\	'conceal': '·',	'nbsp': '∾'}
     let s:_fillchars = {'stl': '┴',	'stlnc': '─',	'vert': '│',
-		\	'fold': '┄',	'diff': '-'}
+		\	'fold': '┄',	'diff': '╶'}
 else
     let s:_listchars = {'eol': '$',	'tab': '>-',	'trail': '-',
 		\	'extends': '>',	'precedes': '<',
@@ -339,6 +344,9 @@ nnoremap	<Leader><Leader>lcp	:call _lcs._toggle("precedes")<CR>
 nnoremap	<Leader><Leader>lcc	:call _lcs._toggle("conceal")<CR>
 nnoremap	<Leader><Leader>lcn	:call _lcs._toggle("nbsp")<CR>
 
+" set paste						" enable paste INSERT
+nnoremap <Leader><Leader>p :let &paste = ! &paste<CR>
+
 " add PYTHONPATH to search path for 'gf' TODO: parse line for import, etc.
 "autocmd FileType python let &path=&path.substitute($PYTHONPATH, ':', ',', 'g')
 
@@ -391,7 +399,7 @@ autocmd Filetype ebuild
 	    \ map <buffer>	<Leader>x	:update<Bar>!emerge "=%:s:^.*/\([^/]\+/\)\([^/]\+\)/\2\(-.\+\)\.ebuild$:\1\2\3:"<CR>
 
 " Execute file with args
-autocmd Filetype javascript,perl,php,python,ruby,sh 
+autocmd Filetype javascript,perl,php,python,ruby,sh
 	    \ map <buffer>	<Leader>X	:update<CR>:!"%:h/%:t" <Up>
 autocmd Filetype c,cpp
 	    \ map <buffer>	<Leader>X	:!"%:h/%:t:r" <Up>
@@ -408,7 +416,7 @@ function! QuitBuf(...)
     if a:0	| let bang = a:1
     else	| let bang = ''
     endif
-    " first check if it's a help/quickfix/preview windoe 
+    " first check if it's a help/quickfix/preview window
     if &filetype =~ '\(help\|man\|info\|qf\)'
 	execute 'quit' . bang
 	return
@@ -515,7 +523,7 @@ set formatoptions-=r formatoptions-=o
 autocmd Filetype ant,c,cpp,css,dtd,html,javascript,make,python,sh,vim,xml,xsd setlocal
 	    \ textwidth=79 formatoptions+=a2
 	    \ formatoptions-=l formatoptions-=a formatoptions-=w
-	    " auto wrap at standard terminal width (80) to 2nd line indent, 
+	    " auto wrap at standard terminal width (80) to 2nd line indent,
 	    " allow auto formating long lines
 " text style: no line wrap, g{j,k} <==> {j,k} for movement
 autocmd Filetype markdown,rst,tex,text setlocal
@@ -710,7 +718,7 @@ autocmd Filetype vim setlocal
 	    \ foldmethod=marker
 	    \ foldexpr=FoldVim(v:lnum)
 	    \ foldlevel=1
-"autocmd BufRead **vimrc setlocal foldmethod=expr foldexpr=Fold_vimrc(v:lnum) 
+"autocmd BufRead **vimrc setlocal foldmethod=expr foldexpr=Fold_vimrc(v:lnum)
 "autocmd Filetype vim setlocal foldlevel=1
 
 """ folding tar			{{{2
@@ -749,9 +757,9 @@ noremap <Leader>i <C-i>
 noremap <Leader>o <C-o>
 
 """ Redifine goto mark mappings	{{{2
-" Think the default should be the position in the previous line, rather than 
-" the start of it. Alse have ` set as tmux prefix, so using <Leader>' as start 
-" of previous line (although send-prefix allows ` to work, wil become confusing 
+" Think the default should be the position in the previous line, rather than
+" the start of it. Alse have ` set as tmux prefix, so using <Leader>' as start
+" of previous line (although send-prefix allows ` to work, wil become confusing
 " in nested sessions).
 noremap <Leader>' '
 noremap ' `
@@ -836,8 +844,8 @@ autocmd BufRead,BufNew */msp430/**/*.c setlocal tags+=~/.vim/tags/msp430
 autocmd BufRead,BufNew */avr/**/*.c setlocal tags+=~/.vim/tags/avr
 "set tags+=~/.vim/tags/gl
 "set tags+=~/.vim/tags/sdl
-"autocmd Filetype cpp set tags+=~/.vim/tags/qt4 
-"set tags+=~/.vim/tags/gtk-2 
+"autocmd Filetype cpp set tags+=~/.vim/tags/qt4
+"set tags+=~/.vim/tags/gtk-2
 
 """ diffchar			{{{2
 let g:DiffUpdate = 1
@@ -1005,6 +1013,7 @@ augroup END
 
 """ securemodelines		{{{2
 set nomodeline
+let g:secure_modelines_modelines=30
 if ! exists("g:secure_modelines_allowed_items")
     let g:secure_modelines_allowed_items = []
 endif
@@ -1117,7 +1126,7 @@ function! s:replace(rep, ...)
     endif
     if ! rep	| return Warn("No replacement string.")		| endif
     let new_line =
-		\ strpart(old_line, 0, c_start) . 
+		\ strpart(old_line, 0, c_start) .
 		\ rep .
 		\ strpart(old_line, c_length)
     if setline(c_line, new_line)
@@ -1291,6 +1300,15 @@ command! IndentJSON
 	    \| unlet b:syntax_on
 " end IndentJSON	}}}
 
+" command CurrentHL - show current highlight information		{{{
+command! CurrentHL	echo
+	    \  'hi<' . synIDattr(synID(line("."),col("."),1),"name") . '>'
+	    \ .' trans<' . synIDattr(synID(line("."),col("."),0),"name") . '>'
+	    \ .' lo<' . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . '>'
+	    \ .' fg<' . synIDattr(synIDtrans(synID(line("."),col("."),1)),"fg#") . '>'
+map <Leader>hi	:CurrentHL<CR>
+" end CurrentHL								}}}
+
 """ Nagios			{{{2
 autocmd BufNewFile */[Nn][Aa][Gg]**/host**/*.cfg silent! 0r ~/Templates/nag-host.cfg
 autocmd BufNewFile */[Nn][Aa][Gg]**/service**/*.cfg silent! 0r ~/Templates/nag-service.cfg
@@ -1298,4 +1316,4 @@ autocmd BufNewFile */[Nn][Aa][Gg]**/templates.cfg silent! 0r ~/Templates/nag-tem
 autocmd BufWritePre */[Nn][Aa][Gg]**/*.cfg call SetLastModified()
 
 
-" vi: ft=vim sw=4 sts=8 ts=8 noet :	{{{1
+" vi: ft=vim sw=4 sts=8 ts=8 noet :
