@@ -14,13 +14,13 @@ URxvt*.depth:		32
 
 !// geometry: geom
 !//   Create the window with the specified X window geometry [default 80x24]
-URxvt*.geometry:	159x65
+URxvt*.geometry:	180x65
 
 !// the colours I'm using
 !#define _black	#000000
 !#define _red	#cd5c5c
 !#define _green	#2e8b57
-!#define _yellow	#daa520
+!#define _yellow #daa520
 !#define _blue	#5757d7
 !#define _magenta #875f87
 !#define _cyan	#578787
@@ -28,7 +28,7 @@ URxvt*.geometry:	159x65
 !#define _BLACK	#4d4d4d
 !#define _RED	#ffa0a0
 !#define _GREEN	#98fb98
-!#define _YELLOW	#foe68c
+!#define _YELLOW #foe68c
 !#define _BLUE	#6699ff
 !#define _MAGENTA #af87d7
 !#define _CYAN	#87ebeb
@@ -38,7 +38,7 @@ URxvt*.geometry:	159x65
 #define _black	#000000
 #define _red	#aa0000
 #define _green	#00aa00
-#define _yellow	#aa5500
+#define _yellow #aa5500
 #define _blue	#0000aa
 #define _magenta #aa00aa
 #define _cyan	#00aaaa
@@ -46,7 +46,7 @@ URxvt*.geometry:	159x65
 #define _BLACK	#555555
 #define _RED	#ff5555
 #define _GREEN	#55ff55
-#define _YELLOW	#ffff55
+#define _YELLOW #ffff55
 #define _BLUE	#5555ff
 #define _MAGENTA #ff55ff
 #define _CYAN	#55ffff

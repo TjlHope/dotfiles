@@ -269,6 +269,13 @@ unset t
 	declare -fp >"${SHM_D}/function.cache"
 }
 
+# function to reset tty status
+# eval to bake in the initial stty settings
+eval "reset_tty() {
+    stty $(stty -g)
+    tput reset
+}"
+
 ### autostart.*sh contains stuff to run at startup - try it now		{{{2
 priv() {	# run cmd with correct permissions and (io)niced
     local _nice="$(command -v nice) $(command -v ionice)"

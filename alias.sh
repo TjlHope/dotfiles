@@ -25,9 +25,7 @@ alias pd='pushpopd'
 ${USE_COLOR}					&& {
     alias ls='ls --color=always -x'
     alias tree='tree -C'
-}						|| {
-    alias ls='ls --color=never -x'
-    alias tree='tree -n'
+    alias dmesg='dmesg --color=always'
 }
 
 alias l='ls'
@@ -172,7 +170,7 @@ type 'msp430-gcc' 'mspdebug'				>/dev/null 2>&1 &&
 type 'sudo' >/dev/null 2>&1 &&
     alias bkgnd='sudo >/dev/null 2>&1 -bnu "${USER}" '
 
-alias dd_usb='dd oflag=sync bs=1M'
+alias dd.usb='dd oflag=sync bs=1M'
 
 alias toggle_echo="stty \$(stty -a | sed -ne '
         s/\(.*\s\)\?-echo\(\s.*\)\?/echo/p; t; s/\(.*\s\)\?echo\(\s.*\)\?/-echo/p'
