@@ -195,6 +195,7 @@ type mysql > /dev/null 2>&1 &&
 type java > /dev/null 2>&1 && {
     alias java_jconsole='java -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false'
     alias java_debug='java -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n'
+    alias java_flags='java -XX:+UnlockDiagnosticVMOptions -XX:+PrintFlagsFinal -version'
 }
 
 type rlwrap >/dev/null 2>&1 && {
