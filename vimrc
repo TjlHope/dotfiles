@@ -279,6 +279,7 @@ call _fcs._toggle('stl', 'stlnc')
 """ Feel			{{{2
 
 set mouse=a					" always enable mouse input
+set backspace=indent,eol,start			" always let <BS> do its thing
 
 " use <Esc> to enter cmd window and again from normal mode to exit it.
 set cedit=<Esc>
@@ -503,7 +504,7 @@ set tabstop=8					" literal tab width
 "autocmd Filetype c,cpp setlocal tabstop=4
 set softtabstop=8				" spaces per tab (pressed)
 set shiftwidth=4				" spaces per indent
-autocmd Filetype ant,dtd,proto,xml,xsd setlocal
+autocmd Filetype ant,dtd,json,proto,xml,xsd,yaml setlocal
 	    \ shiftwidth=2
 set noexpandtab					" don't expand tabs to spaces
 autocmd Filetype ant,c,cpp,dtd,java,javascript,jsp,json,python,rst,xml,xsd setlocal

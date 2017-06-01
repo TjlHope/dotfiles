@@ -21,7 +21,7 @@
 	url = https://github.com/vim-scripts/SudoEdit.vim.git
 [submodule "vim/all-bundles/Tail"]
 	path = vim/all-bundles/Tail
-	url = http://vim-scripts.googlecode.com/svn/trunk/1714%20Tail%20Bundle
+	url = https://github.com/vim-scripts/Tail-Bundle.git
 [submodule "vim/all-bundles/VimPdb"]
 	path = vim/all-bundles/VimPdb
 	url = https://github.com/vim-scripts/VimPdb.git
@@ -123,7 +123,7 @@
 	url = https://github.com/sjl/gundo.vim.git
 [submodule "vim/all-bundles/diffchar"]
 	path = vim/all-bundles/diffchar
-	url = https://github.com/TjlHope/diffchar.git
+	url = https://github.com/rickhowe/diffchar.vim.git
 [submodule "vim/all-bundles/diffchanges"]
 	path = vim/all-bundles/diffchanges
 	url = https://github.com/jmcantrell/vim-diffchanges.git
