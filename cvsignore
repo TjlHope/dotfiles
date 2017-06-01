@@ -52,3 +52,7 @@ tags
 # ant
 .ant-targets-build.xml
 
+# intellij IDEA
+*.iml
+.idea
+
