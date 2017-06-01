@@ -4,15 +4,22 @@
 ## Definition of bash completions
 
 # Use drop in scripts
-if [ -f "/etc/bash/bashrc.d/bash_completion.sh" ]; then	# new gentoo style
-    . "/etc/bash/bashrc.d/bash_completion.sh"
-elif [ -f "/etc/profile.d/bash-completion.sh" ]; then	# old gentoo style
-    . "/etc/profile.d/bash-completion.sh"
-elif [ -f "/etc/profile.d/bash_completion.sh" ]; then	# ubuntu style
-    . "/etc/profile.d/bash_completion.sh"
-elif [ -f "/etc/bash_completion" ]; then		# DoC ubuntu style
-    . "/etc/bash_completion"
-fi
+for comp in \
+    ${PREFIX:+
+	"$PREFIX/etc/bash/bashrc.d/bash_completion.sh" \
+	"$PREFIX/etc/profile.d/bash-completion.sh" \
+	"$PREFIX/etc/profile.d/bash_completion.sh" \
+	"$PREFIX/etc/bash_completion" \
+    } \
+    $(type brew >/dev/null 2>&1 && echo "$(brew --prefix)/etc/bash_completion") \
+    "/etc/bash/bashrc.d/bash_completion.sh" \
+    "/etc/profile.d/bash-completion.sh" \
+    "/etc/profile.d/bash_completion.sh" \
+    "/etc/bash_completion"
+do
+    [ -f "$comp" ] && . "$comp" && break
+done
+unset comp
 
 # And extension completion for programs without their own defined.
 # TODO: Generate from mime database?

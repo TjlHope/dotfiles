@@ -14,76 +14,107 @@ case "$-" in
 esac
 
 ###############################
-## Fix vte screwing TERM variable	{{{1
+## Support graceful TERM fallback	{{{1
 
-if [ -n "${COLORTERM}" -a "${TERM%color}" = "${TERM}" ] ||
-    [ ! -f "/usr/share/terminfo/${TERM%${TERM#?}}/${TERM}" ]
+type _find_sys_dir >/dev/null 2>&1 ||
+    . "$HOME/.rc.d/find_sys_dir.sh"
+
+# But we can only do anything if we can find the terminfo directories...
+if terminfo_d="$(_find_sys_dir share/terminfo)"
 then
-    case "${COLORTERM}" in
-	"Terminal")
-	    export TERM="${TERM}-256color"
-	    ;;
-	"rxvt-xpm")
-	    export TERM="${TERM}-256color"
-	    ;;
-	"gnome-terminal")
-	    export TERM="${TERM}-16color"
-	    ;;
-	*)
-	    export TERM="${TERM}-color"
-	    ;;
-    esac
-fi
+    has_term() {
+	local term="${1-$TERM}"
+	[ -n "$(find "$terminfo_d" -type f -name "$TERM")" ]
+    }
+    set_term() {
+	local term="${1-$TERM}" pfx clrs sfxs sfx
+	case "$term" in
+	    *-truecolor)pfx="${term%-truecolor}" clrs=6000000;;	#TODO
+	    *-256color)	pfx="${term%-256color}"	clrs=256;;
+	    *-88color)	pfx="${term%-88color}"	clrs=88;;
+	    *-16color)	pfx="${term%-16color}"	clrs=16;;
+	    *-color)	pfx="${term%-color}"	clrs=8;;
+	    *)		pfx="$term"		clrs=2;;
+	esac
+	sfxs="" &&
+	    [ $clrs -ge 8 ] && sfxs="-color $sfxs" &&
+	    [ $clrs -ge 16 ] && sfxs="-16color $sfxs" &&
+	    [ $clrs -ge 88 ] && sfxs="-88color $sfxs" &&
+	    [ $clrs -ge 256 ] && sfxs="-256color $sfxs" &&
+	    [ $clrs -ge 6000000 ] && sfxs="-truecolor $sfxs"
+	for sfx in $sfxs ''
+	do has_term "$pfx$sfx" && export TERM="$pfx$sfx" && break
+	done
+    }
 
-## End vte fix		}}}1
+    # fix vte screwing TERM var
+    [ "${COLORTERM+set}" = set ] && case "$COLORTERM" in
+	"Terminal"|"gnome-terminal")
+	    case "$TERM" in
+		*-truecolor|*-256color)	:;;	# probably OK
+		*)	# it's probably screwed it up - take a punt
+		    export TERM="${TERM%-*color}-256color";;
+	    esac;;
+    esac
+
+    has_term || set_term ||
+	export TERM=xterm	# TODO: better fallback?
+
+    unset has_term set_term
+fi
+unset terminfo_d
+
+## End TERM fallback		}}}1
 ######################
 
 ###############################
 ## Automate multiplexer use		{{{1
 
 # Test to see if we are in a multiplexer session or not.
-if [ "${TERM#screen}" = "${TERM}" ]
-then
-
-    # TODO: allow attaching to previous session.
-    # TODO: get working with screen as well.
-    # Not in a multiplexer session, so start one now. Make sure it's not a
-    # function or builtin, and fail gracefully.
-    mux_cmd="$(command -v "tmux")" && {
-	mux_active_cmd="${mux_cmd} list-sessions -F #{session_name}"
-	mux_new_cmd="${mux_cmd} new-session -ds \${name} \\; \
-	    set-option -qt \${name} lock-after-time \${timeout} \\; \
-	    attach-session -t \${name}"
-    }
-    [ -n "${mux_cmd}" -a -z "${mux_cmd%%/*}" ] && {	# exists, and abs path
-	sed -n -e '/^-/q1' /proc/$$/cmdline && {	# logins start with '-'
-	    name_pre='sh'		# session name prefix
-	    timeout=0			# don't timeout normal sessions
-	} || {
-	    name_pre='login'		# ... or for login shells
-	    timeout=300			# 5 minute timeout for login shells
+case "$TERM" in
+    screen*)	:;;	# do nothing - already in a mux session
+    *)	# TODO: allow attaching to previous session.
+	# TODO: get working with screen as well.
+	# Not in a multiplexer session, so start one now. Make sure it's not a
+	# function or builtin, and fail gracefully.
+	mux_cmd="$(command -v "tmux")" && {
+	    mux_active_cmd="${mux_cmd} list-sessions -F #{session_name}"
+	    mux_new_cmd="${mux_cmd} new-session -ds \${name} \\; \
+		set-option -qt \${name} lock-after-time \${timeout} \\; \
+		attach-session -t \${name}"
 	}
-	name_idx=0				# starting index
-	mux_active="$(${mux_active_cmd} 2>/dev/null)" && {
-	    # Check for conflicts
-	    while [ "${mux_active#*${name_pre}${name_idx}}" != \
-		"${mux_active}" ]
-	    do
-		name_idx=$(( ${name_idx} + 1 ))
-	    done
+	[ -n "${mux_cmd}" ] && [ -z "${mux_cmd%%/*}" ] && {	# exists, and abs path
+	    { [ -f "/proc/$$/cmdline" ] &&
+		cat "/proc/$$/cmdline" ||
+		ps -ocommand= "$$";
+	    } | grep -q '^-' && {		# logins start with '-'
+		name_pre='login'		# login session prefix
+		timeout=300			# give them a 5 minute timeout
+	    } || {
+		name_pre='sh'		# normal session name prefix
+		timeout=0			# don't timeout normal sessions
+	    }
+	    name_idx=0				# starting index
+	    mux_active="$(${mux_active_cmd} 2>/dev/null)" && {
+		# Check for conflicts
+		while [ "${mux_active#*${name_pre}${name_idx}}" != \
+		    "${mux_active}" ]
+		do
+		    name_idx=$(( ${name_idx} + 1 ))
+		done
+	    }
+	    name="${name_pre}${name_idx}"
+	    eval "${mux_new_cmd}" && {	# run mux in foreground
+		# If it didn't error, and the launched session is not still running,
+		mux_active="$(${mux_active_cmd} 2>/dev/null)" &&
+		    [ "${mux_active#*${name}}" != "${mux_active}" ] ||
+		    exit		# finished with this terminal, so exit.
+	    }
+	    unset mux_active name_pre name_idx name timeout
 	}
-	name="${name_pre}${name_idx}"
-	eval "${mux_new_cmd}" && {	# run mux in foreground
-            # If it didn't error, and the launched session is not still running,
-	    mux_active="$(${mux_active_cmd} 2>/dev/null)" &&
-                [ "${mux_active#*${name}}" != "${mux_active}" ] ||
-                exit		# finished with this terminal, so exit.
-        }
-	unset mux_active name_pre name_idx name timeout
-    }
-    unset mux_new_cmd mux_active_cmd mux_cmd
-
-fi
+	unset mux_new_cmd mux_active_cmd mux_cmd
+	;;
+esac
 
 ## End mux		}}}1
 ######################
@@ -91,25 +122,14 @@ fi
 ###############################
 ## Shell configuration variables	{{{1
 
-# Find the name of the current shell
-[ -f "/proc/$$/comm" ] && {	# only available in later kernels.
-    read _SH < "/proc/$$/comm"
-} || {
-    _SH="$(sed -ne "s:^-\?\([^\x00]\+\)\x00.*:\1:p" "/proc/$$/cmdline")"
-    _SH="${_SH##*/}"
-}
+# Find the name of the current shell	# TODO
+[ "${_SH:+set}" = set ] || . "$HOME/.rc.d/shell_name.sh"
 # Find path of this script, and consequently other conf files.
 case "${_SH}" in
-    bash)
-	rc_path="$(readlink -f "${BASH_SOURCE[0]}")"
-	;;
-    zsh)
-	rc_path="$(readlink -f "${0}")"
-	;;
-    *sh)
-	[ -f "${HOME}/.${_SH}rc" ] &&
-	    rc_path="$(readlink -f "${HOME}/.${_SH}rc")"
-	;;
+    bash)	rc_path="$(readlink -f "${BASH_SOURCE[0]}")";;
+    zsh)	rc_path="$(readlink -f "${0}")";;
+    *sh)	[ -f "${HOME}/.${_SH}rc" ] &&
+		    rc_path="$(readlink -f "${HOME}/.${_SH}rc")";;
 esac
 export RC_D="${rc_path%/*}"
 unset rc_path
@@ -117,14 +137,7 @@ unset rc_path
 # If not in a .dotfiles dir, the files will themselves be .dotfiles
 [ "${RC_D}" = "${HOME}" ] && _DOT='.' || _DOT=''
 
-[ -z "${SHM_D}" ] && {	# if not set from profile, do it now.
-    ### export SHM_D variable pointing to personal tempory storage
-    ! sed -ne '\:^\s*\S\+\s\+/dev/shm\s\+tmpfs\s\+.*$: q1' /proc/mounts &&
-	export SHM_D="/dev/shm/${USER}" ||
-	export SHM_D="/tmp/${USER}"	# default to /tmp if no shared memory
-    [ -d "${SHM_D}" ] || mkdir "${SHM_D}"
-    [ -d "${SHM_D}" ] && chmod 700 "${SHM_D}"	# user read only
-}
+[ "${SHM_D:+set}" = set ] || . "$HOME/.rc.d/shm_d.sh"
 
 ## End shell conf	}}}1
 ######################
@@ -137,19 +150,26 @@ unset rc_path
 . "${RC_D}/${_DOT}ps1.bash"
 
 USE_COLOR=false
-_dircolors="$(command -v "dircolors")"	# The dircolors command
-for dir_colors in "${HOME}/.dir_colors.${TERM}" "${HOME}/.dircolors.${TERM}" \
-    "${HOME}/.dir_colors" "${HOME}/.dircolors" "/etc/DIR_COLORS" ""
-do
-    [ -f "${dir_colors}" -a -r "${dir_colors}" ] || continue
+find_term() {
+    local line="" IFS=""
     while read line
-    do
-	[ "${line#TERM ${TERM}}" != "${line}" ] &&
-	    USE_COLOR=true &&
-	    break
-    done < "${dir_colors:-$(${_dircolors} -p)}" || continue
-    break       # TODO: if  ^this doesn't exist??
-done
+    do  case "$line" in (TERM*)
+	    case "TERM $TERM" in ($line)
+		return;;
+	    esac;;
+	esac
+    done
+    false
+}
+for dir_colors in "${HOME}/.dir_colors.${TERM}" "${HOME}/.dircolors.${TERM}" \
+    "${HOME}/.dir_colors" "${HOME}/.dircolors" "${PREFIX-}/etc/DIR_COLORS"
+do
+    [ -f "$dir_colors" ] && [ -r "$dir_colors" ] &&
+	find_term <"$dir_colors" && USE_COLOR=true && break
+done ||
+    { type dircolors >/dev/null 2>&1 &&
+	dircolors -p | find_term && USE_COLOR=true; }
+unset find_term dir_colors
 
 if ${USE_COLOR}
 then
@@ -224,8 +244,8 @@ then
 elif type 'vim' >/dev/null 2>&1		#&& false	# comment to enable
 then	# adapted from vimmanpager script
     opts="--cmd 'let no_plugin_maps = 1'"	# stop plugin maps before vimrc
-    opts="${opts} -c 'sil %s/\[[0-9]\+m//g'"	# remove ansi colour codes
-    opts="${opts} -c 'sil %!col -b'"		# filter to remove *roff stuff
+    opts="${opts} -c 'sil! %s/\[[0-9]\+m//g'"	# remove ansi colour codes
+    opts="${opts} -c 'sil! %!col -b'"		# filter to remove *roff stuff
     opts="${opts} -c 'set nolist nomod ft=man'"	# set up as man page
     opts="${opts} -c 'set fdm=manual'"		# ensure there's no folds
     opts="${opts} -c 'let g:showmarks_enable=0'"	# disable marks
@@ -307,6 +327,14 @@ type 'keychain.add_all' >/dev/null 2>&1 && {
 	[ -d "${SHM_D}" -a -w "${SHM_D}" ] && >"${SHM_D}/keychain_added"
     trap - INT		# remove trap for following execution
 }
+
+if type docker-machine >/dev/null 2>&1
+then
+    case "$(docker-machine status)" in
+	Running) eval `docker-machine env`;;
+	Stopped) :;;	 # don't bother with anything
+    esac
+fi
 
 # Output the current task status
 type t >/dev/null 2>&1 &&

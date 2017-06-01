@@ -4,14 +4,13 @@
 ## Customisation of bash PS1
 
 # If on a LANG is utf8, we want unicode support for "…" in `_W`.
-#[[ "${LANG}" =~ [Uu][Tt][Ff][-_]?8 ]] && {			# FIXME:bashism
-[ -z "${LANG##*[Uu][Tt][Ff]8}" ] && {
-    {	# If on a vt we need to successfully enable unicode
-	[ "$TERM" != 'linux' ] || unicode_start
-    } && _elip="…"	# then enable utf8 elipsis.
-} || {
-    _elip='..'		# replacement string to if no unicode
-}
+case "$LANG" in
+    *.[uU][tT][fF]8|*.[uU][tT][fF]-8)
+	{	# If on a vt we need to successfully enable unicode
+	    [ "$TERM" != 'linux' ] || unicode_start
+	} && _elip="…";;	# then enable utf8 elipsis.
+    *)  _elip='..';;		# replacement string to if no unicode
+esac
 
 ## Short version of \w - attempt to limit PWD to set length.
 _W () {

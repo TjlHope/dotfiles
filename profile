@@ -1,10 +1,24 @@
 # ~/.profile
 # vim: ft=sh
 
-export PATH="${HOME}/Documents/Code/scripts/bin:${PATH}"
+NL="
+"
+
+. "$HOME/.rc.d/pathmunge.sh"
+export PATH="$(TEST=true _pathmunge \
+    "${HOME}/bin" "${HOME}/Documents/Code/scripts/bin" \
+    "$(type brew >/dev/null 2>&1 &&
+	    echo "$(brew --prefix coreutils)/libexec/gnubin")" \
+    "${PATH}")"
 
 # set user locale
-export LANG="en_GB.utf8"
+case "$LANG" in
+    en_GB.[uU][tT][fF]8|en_GB.[uU][tT][fF]-8)	:;;
+    *)	lang="$(locale -a | grep '^en_GB.[Uu][Tt][Ff]-\?8$')" &&
+	    export LANG="${lang%%$NL*}" ||
+	    echo "WARNING: cannot find a UTF8 British locale" >&2
+	unset lang;;
+esac
 
 # use vim as editor
 export EDITOR="vim"
@@ -14,20 +28,17 @@ type 'keychain' >/dev/null 2>&1 &&
     eval $(keychain --eval --quiet --noask)
 
 ### export SHM_D variable pointing to personal tempory storage
-! sed -ne '\:^\s*\S\+\s\+/dev/shm\s\+tmpfs\s\+.*$: q1' /proc/mounts &&
-    export SHM_D="/dev/shm/${USER}" ||
-    export SHM_D="/tmp/${USER}"	# default to /tmp if no shared memory
-[ -d "${SHM_D}" ] || mkdir "${SHM_D}"	# no -p as /dev/shm and /tmp must exist
-[ -d "${SHM_D}" ] && chmod 700 "${SHM_D}"	# user read only
+. "$HOME/.rc.d/shm_d.sh"
 
 ### python variables
-pypath="${HOME}/Documents/Code/python:"
-export PYTHONPATH="${pypath}${PYTHONPATH#${pypath}}"
-unset pypath
+export PYTHONPATH="$(_pathmunge \
+    "${HOME}/Documents/Code/python" "${PYTHONPATH}")"
 
 ### gnuplot variables
-export GNUPLOT_FONTPATH="${GNUPLOT_FONTPATH%:}${GNUPLOT_FONTPATH:+:}/usr/share/fonts/!"
-export GDFONTPATH="${GDFONTPATH%:}${GDFONTPATH:+:}/usr/share/fonts/!"
+export GNUPLOT_FONTPATH="$(_pathmunge \
+    "${GNUPLOT_FONTPATH}" "/usr/share/fonts/!")"
+export GDFONTPATH="$(_pathmunge \
+    "${GDFONTPATH}" "/usr/share/fonts/!")"
 export GNUPLOT_DEFAULT_GDFONT="veranda"
 
 # For Qt's GTK style to work, you need to either export
@@ -46,18 +57,7 @@ export INTEL_BATCH=1
 
 # This file is sourced by bash for login shells. The following line runs your
 # .bashrc and is recommended by the bash info pages.
-# This has been modified to run the rc file with the name of the shell. I could 
-# have checked shell dependent variables, but thought this simpler and more 
-# elegant. This is required as it's not infrequent for me to drop (from bash) 
-# into a dash shell to play with constructs for scripts, and if testing a login 
-# dash sourcing my bashrc would play havoc. This is also why just testing the 
-# ${SHELL} variable is insufficient, as that reports the ${USER}s default login 
-# shell, not the current one.
-[ -f "/proc/$$/comm" ] && {	# only available in later kernels.
-    read _SH < "/proc/$$/comm"
-} || {
-    _SH="$(sed -ne "s:^-\?\([^\x00]\+\)\x00.*:\1:p" "/proc/$$/cmdline")"
-    _SH="${_SH##*/}"
-}
+# This has been modified to run the rc file with the name of the shell.
+. "$HOME/.rc.d/shell_name.sh"
 [ -f "${HOME}/.${_SH}rc" ] &&	# Source the rc file if it exists.
     . "${HOME}/.${_SH}rc"
