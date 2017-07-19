@@ -261,6 +261,23 @@ type firefox >/dev/null 2>&1 && {
     }
 }
 
+type pip >/dev/null 2>&1 && {
+    pip() {
+	case "$1" in
+	    update|upgrade)	shift
+		local _ifs="$IFS" IFS="
+"
+		set -- install --upgrade "$@" \
+		    $(pip list --outdated --format=freeze | cut -d= -f1)
+		IFS="$_ifs";;
+	    reinstall)		shift
+		set -- install --upgrade --force-reinstall --no-deps "$@";;
+	    *)	:;;
+	esac
+	command pip "$@"
+    }
+}
+
 : ${CNF=127}
 __cnf() {       # equivalent to the default bash command not found behaviour
     echo "$_SH: $1: command not found" >&2
