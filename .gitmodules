@@ -146,3 +146,6 @@
 [submodule "vim/all-bundles/javacomplete2"]
 	path = vim/all-bundles/javacomplete2
 	url = https://github.com/artur-shaik/vim-javacomplete2
+[submodule "vim/all-bundles/terraform"]
+	path = vim/all-bundles/terraform
+	url = https://github.com/hashivim/vim-terraform

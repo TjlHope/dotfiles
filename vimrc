@@ -504,10 +504,10 @@ set tabstop=8					" literal tab width
 "autocmd Filetype c,cpp setlocal tabstop=4
 set softtabstop=8				" spaces per tab (pressed)
 set shiftwidth=4				" spaces per indent
-autocmd Filetype ant,dtd,json,proto,xml,xsd,yaml setlocal
+autocmd Filetype ant,dtd,json,proto,terraform,xml,xsd,yaml setlocal
 	    \ shiftwidth=2
 set noexpandtab					" don't expand tabs to spaces
-autocmd Filetype ant,c,cpp,dtd,java,javascript,jsp,json,python,rst,xml,xsd setlocal
+autocmd Filetype ant,c,cpp,dtd,java,javascript,jsp,json,python,terraform,rst,xml,xsd,yaml setlocal
 	    \ expandtab		" for MLs, xfce and python 3 compatibility
 set smarttab			" use shiftwidth for indent, else softtabstop
 
@@ -575,6 +575,9 @@ autocmd FileType json	hi link jsonCommentError Comment
 
 let g:tex_flavor = 'latex'		" use latex styles
 autocmd BufRead,BufNewFile */WEB_INF/tags/*.tag set filetype=jsp
+
+" terraform tfstate files are pure JSON
+autocmd BufRead,BufNewFile *.tfstate,*.tfstate.* set filetype=json
 
 """ use skeleton files		{{{2
 autocmd BufNewFile * silent! 0r ~/Templates/%:e.%:e
