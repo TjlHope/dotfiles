@@ -254,8 +254,19 @@ type python > /dev/null 2>&1 && {       # python goodies
 type cacaview >/dev/null 2>&1 &&
     alias cacaview='env -uDISPLAY cacaview'
 
-type watch_for >/dev/null 4>&1 &&
+type watch_for >/dev/null 2>&1 &&
     alias watch_mem_cache="watch_for /proc/meminfo '^(Dirty|Writeback):'"
+
+type kubectl >/dev/null 2>&1 && {
+    alias kstage="kubectl -n stage"
+    alias kproduction="kubectl -n production"
+    alias kinfra="kubectl -n infra"
+    alias ksystem="kubectl -n kube-system"
+    alias kuse_stage="kubectl config use-context stage"
+    alias kuse_production="kubectl config use-context production"
+    alias kuse_infra="kubectl config use-context infra"
+    alias kuse_system="kubectl config use-context kube-system"
+}
 
 ## End aliases		}}}1
 ######################
