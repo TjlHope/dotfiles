@@ -492,8 +492,10 @@ nnoremap <silent>	ZL		:wincmd l<Bar>exit<CR>
 " Style and Syntax		{{{1
 """""""""""""""""""""""""	{{{2
 
-filetype plugin indent on			" enable file type check and indent
-syntax on					" enable syntax highlighting
+if ! $VIM_SIMPLE
+    filetype plugin indent on			" enable file type check and indent
+    syntax on					" enable syntax highlighting
+endif
 
 " allow syntax (and diff) refreshing
 noremap		<Leader>rs		:syntax sync fromstart<CR>
