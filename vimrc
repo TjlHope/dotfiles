@@ -501,15 +501,18 @@ endif
 noremap		<Leader>rs		:syntax sync fromstart<CR>
 noremap		<Leader>rd		:diffupdate<CR>
 
+" allow for ineficient regexes
+set maxmempattern=100000
+
 """ Tabs			{{{2
 set tabstop=8					" literal tab width
 "autocmd Filetype c,cpp setlocal tabstop=4
 set softtabstop=8				" spaces per tab (pressed)
 set shiftwidth=4				" spaces per indent
-autocmd Filetype ant,dtd,json,proto,terraform,xml,xsd,yaml setlocal
+autocmd Filetype ant,dtd,json,markdown,proto,terraform,xml,xsd,yaml setlocal
 	    \ shiftwidth=2
 set noexpandtab					" don't expand tabs to spaces
-autocmd Filetype ant,c,cpp,dtd,java,javascript,jsp,json,python,terraform,rst,xml,xsd,yaml setlocal
+autocmd Filetype apiblueprint,ant,c,cpp,cql,dtd,java,javascript,jsp,json,markdown,python,terraform,rst,xml,xsd,yaml setlocal
 	    \ expandtab		" for MLs, xfce and python 3 compatibility
 set smarttab			" use shiftwidth for indent, else softtabstop
 
@@ -581,6 +584,9 @@ autocmd BufRead,BufNewFile */WEB_INF/tags/*.tag set filetype=jsp
 " terraform tfstate files are pure JSON
 autocmd BufRead,BufNewFile *.tfstate,*.tfstate.* set filetype=json
 
+" Cassandra Query Language
+autocmd BufRead,BufNewFile *.cql,*.cqlsh set filetype=cql
+
 """ use skeleton files		{{{2
 autocmd BufNewFile * silent! 0r ~/Templates/%:e.%:e
 
@@ -648,6 +654,7 @@ autocmd InsertLeave,WinLeave *
 	    \|endif
 
 """ syntax folds		{{{2
+let g:apiblueprint_folding = 1
 "let g:clojure_fold = 1
 "let g:baan_fold = 1
 "let g:baan_fold_block = 1
@@ -656,6 +663,9 @@ autocmd InsertLeave,WinLeave *
 "let g:fortran_fold = 1
 "let g:fortran_fold_conditionals = 1
 "let g:fortran_fold_multilinecomments = 1
+let g:markdown_folding = 1
+let g:vim_markdown_override_foldtext = 0
+let g:vim_markdown_folding_style_pythonic = 1
 "let g:javaScript_fold = 1	" FIXME: BROKEN
 let g:perl_fold = 1
 let g:perl_fold_anonymous_subs = 1
@@ -675,11 +685,11 @@ autocmd Filetype ant,c,cpp,gentoo-init-d,html,java,jsp,json,perl,php,sh,xml,xsd 
 	    \ foldcolumn=5
 	    \ foldmethod=syntax
 	    \ foldlevel=1
-autocmd Filetype bib,css,tex setlocal
+autocmd Filetype apiblueprint,bib,css,markdown,tex setlocal
 	    \ foldcolumn=3
 	    \ foldmethod=syntax
 	    \ foldlevel=1
-autocmd Filetype ada,dtd,javascript,prolog,proto,python,verilog,vhdl setlocal
+autocmd Filetype ada,dtd,javascript,prolog,proto,python,verilog,vhdl,yaml setlocal
 	    \ foldcolumn=5
 	    \ foldmethod=indent
 	    \ foldlevel=1

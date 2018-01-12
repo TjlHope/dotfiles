@@ -149,3 +149,12 @@
 [submodule "vim/all-bundles/terraform"]
 	path = vim/all-bundles/terraform
 	url = https://github.com/hashivim/vim-terraform
+[submodule "vim/all-bundles/apiblueprint"]
+	path = vim/all-bundles/apiblueprint
+	url = https://github.com/kylef/apiblueprint.vim
+[submodule "vim/all-bundles/markdown"]
+	path = vim/all-bundles/markdown
+	url = https://github.com/plasticboy/vim-markdown.git
+[submodule "vim/all-bundles/cql"]
+	path = vim/all-bundles/cql
+	url = https://github.com/elubow/cql-vim.git
