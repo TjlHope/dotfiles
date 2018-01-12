@@ -258,14 +258,23 @@ type watch_for >/dev/null 2>&1 &&
     alias watch_mem_cache="watch_for /proc/meminfo '^(Dirty|Writeback):'"
 
 type kubectl >/dev/null 2>&1 && {
-    alias kstage="kubectl -n stage"
-    alias kproduction="kubectl -n production"
-    alias kinfra="kubectl -n infra"
-    alias ksystem="kubectl -n kube-system"
-    alias kuse_stage="kubectl config use-context stage"
-    alias kuse_production="kubectl config use-context production"
-    alias kuse_infra="kubectl config use-context infra"
-    alias kuse_system="kubectl config use-context kube-system"
+    alias k="kubectl"
+    alias kall="kubectl --all-namespaces=true"
+    for ns in $(kubectl get namespace --no-headers=true \
+	--output=custom-columns=:.metadata.name)
+    do
+	case "$ns" in (*['&;| 	']*)	# TODO: fix complete.bash
+	    echo "Cannot alias k8s namespace: $ns" >&2
+	    continue;;
+	esac
+	ns_name="$(echo "$ns" | sed 's/[^[:alnum:]]\+/_/g')"
+	case "$ns_name" in
+	    kube[_-]*|k8s[_-]*|k8[_-]*|kubernetes[_-]*) ns_name="${ns_name#*_}";;
+	esac
+	alias k$ns_name="kubectl --namespace=$ns"
+	alias kuse_$ns_name="kubectl config use-context $ns"
+    done
+    unset ns ns_name
 }
 
 ## End aliases		}}}1
