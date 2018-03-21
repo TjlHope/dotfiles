@@ -53,12 +53,15 @@ then
 	    case "$TERM" in
 		*-truecolor|*-256color)	:;;	# probably OK
 		*)	# it's probably screwed it up - take a punt
+		    echo "WARNING: don't trust TERM=$TERM for COLORTERM=$COLORTERM" >&2
 		    export TERM="${TERM%-*color}-256color";;
 	    esac;;
     esac
 
-    has_term || set_term ||
+    has_term || set_term || {
+	echo "WANING: cannot find suitable fallback for TERM=$TERM" >&2
 	export TERM=xterm	# TODO: better fallback?
+    }
 
     unset has_term set_term
 fi
