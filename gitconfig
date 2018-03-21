@@ -34,6 +34,7 @@
 	l = log --exclude='refs/notes/*' --exclude='refs/hg/*'
 	log = log --exclude='refs/notes/*' --exclude='refs/hg/*'
 	gl = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph
+	lg = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph
 	glog = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph
 	la = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph --all
 	gla = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph --all
@@ -42,6 +43,8 @@
 	w = diff --word-diff=color --word-diff-regex='\\w+|\\S' --diff-algorithm=minimal
 	wdiff = diff --word-diff=color --word-diff-regex='\\w+|\\S' --diff-algorithm=minimal
 	fdiff = diff --full-index
+
+	diff-root = diff 4b825dc642cb6eb9a060e54bf8d69288fbee4904
 
 	s = status
 	st = status
