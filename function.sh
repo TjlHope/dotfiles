@@ -268,7 +268,8 @@ type pip >/dev/null 2>&1 && {
 		local _ifs="$IFS" IFS="
 "
 		set -- install --upgrade "$@" \
-		    $(pip list --outdated --format=freeze | cut -d= -f1)
+		    $(pip list --outdated --format=freeze | cut -d= -f1 |
+			grep -v mercurial)	# TODO
 		IFS="$_ifs";;
 	    reinstall)		shift
 		set -- install --upgrade --force-reinstall --no-deps "$@";;
@@ -276,6 +277,22 @@ type pip >/dev/null 2>&1 && {
 	esac
 	command pip "$@"
     }
+}
+
+join_logs() { # $1: line start
+    [ $# -eq 1 ] || {
+	echo "usage: join_logs <line_start>" >&2
+	return 1
+    }
+    local line_start="$1"
+    case "$line_start" in ('\n'*) :;; (*) line_start="\\n$line_start";; esac
+    sed -e ':start; N
+	/'"$line_start"'/{
+	    h; s/\n.*//p; g; s/[^\n]*\n//
+	    b start
+	}
+	s/\n/\\n/g
+	t start'
 }
 
 : ${CNF=127}
