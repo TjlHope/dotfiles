@@ -158,3 +158,6 @@
 [submodule "vim/all-bundles/cql"]
 	path = vim/all-bundles/cql
 	url = https://github.com/elubow/cql-vim.git
+[submodule "vim/all-bundles/markdown-enhancements"]
+	path = vim/all-bundles/markdown-enhancements
+	url = https://github.com/mattly/vim-markdown-enhancements
