@@ -7,8 +7,11 @@ NL="
 . "$HOME/.rc.d/pathmunge.sh"
 export PATH="$(TEST=true _pathmunge \
     "${HOME}/bin" "${HOME}/Documents/Code/scripts/bin" \
+    "${HOME}/go/bin" \
     "$(type brew >/dev/null 2>&1 &&
 	    echo "$(brew --prefix coreutils)/libexec/gnubin")" \
+    "$(type brew >/dev/null 2>&1 &&
+	    echo "$(brew --prefix curl)/bin")" \
     "${PATH}")"
 
 # set user locale
