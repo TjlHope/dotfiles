@@ -229,6 +229,17 @@ watch_for() {
     done
 }
 
+spring_login() {
+    local host="$1" user="" pass=""; shift
+    [ $# -gt 0 ] && { user="$1"; shift; } || user="all"
+    [ $# -gt 0 ] && { pass="$1"; shift; } || pass="$user"
+    local session=$(curl 2>/dev/null -k https://"$host"/j_spring_security_check \
+        --data "j_username=$user&j_password=$pass" -w "%{redirect_url}" \
+        | sed 's/.*\(;jsessionid=.*\)/\1/')
+    echo "$session"
+    # TODO work for both cookie and url style
+}
+
 type rpm >/dev/null 2>&1 &&
 rpm_list_keys() {
     local cmd="echo" key
