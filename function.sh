@@ -286,13 +286,39 @@ join_logs() { # $1: line start
     }
     local line_start="$1"
     case "$line_start" in ('\n'*) :;; (*) line_start="\\n$line_start";; esac
-    sed -e ':start; N
+    sed -e ':start; N;
 	/'"$line_start"'/{
-	    h; s/\n.*//p; g; s/[^\n]*\n//
-	    b start
-	}
-	s/\n/\\n/g
-	t start'
+	    h; s/\n.*//p; g; s/[^\n]*\n//;
+	    b start;
+	};
+	s/\n/\\n/g;
+	t start;
+	'
+}
+
+type kubectl >/dev/null 2>&1 && {
+    k_bad_pods() {
+	{   if [ $# -eq 1 ] && [ "$1" = '-' ]
+	    then
+		cat
+	    elif [ $# -gt 0 ]
+	    then
+		case "$*" in
+		    k*)		"$@";;
+		    *" get "*)	kubectl "$@";;
+		    *)		kubectl get pods "$@";;
+		esac
+	    else
+		kubectl --all-namespaces=true get pods -a -owide
+	    fi
+	} | sed -En '
+	    1{p;b;}
+	    /^(\S+\s+){3,4}[1-9][0-9]+/{p;b;};
+	    /^(\S+\s+){1,2}0\/[0-9]+\s+Completed/d;
+	    /(\S+\s+){1,2}([0-9]+)\/\2\s+Running/d;
+	    p;
+	    '
+    }
 }
 
 : ${CNF=127}
