@@ -161,3 +161,6 @@
 [submodule "vim/all-bundles/markdown-enhancements"]
 	path = vim/all-bundles/markdown-enhancements
 	url = https://github.com/mattly/vim-markdown-enhancements
+[submodule "vim/all-bundles/sleuth"]
+	path = vim/all-bundles/sleuth
+	url = https://github.com/tpope/vim-sleuth.git
