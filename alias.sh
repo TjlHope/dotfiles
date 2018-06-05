@@ -79,8 +79,10 @@ type 'opera'						>/dev/null 2>&1 &&
     alias opera='opera -nomail'
 type 'octave'						>/dev/null 2>&1 &&
     alias octave='octave --silent'
-type 'xdg-open'						>/dev/null 2>&1 &&
+type 'xdg-open'						>/dev/null 2>&1 && {
     alias xo='xdg-open >/dev/null 2>&1'
+    type 'open' >/dev/null 2>&1 || alias open='xdg-open >/dev/null 2>&1'
+}
 type 'sshfs'						>/dev/null 2>&1 &&
     alias sshfs='sshfs -o reconnect -o workaround=all'
 [ -f "${HOME}/Documents/Code/t/t.py" ] && {
