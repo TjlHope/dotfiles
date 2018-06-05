@@ -984,48 +984,48 @@ if $ROS_ROOT != ''
 endif
 
 """ Screen			{{{2
-" Fix colors for xfce4 terminal
-if $COLORTERM ==# 'Terminal'
-    set t_Co=256
-endif
-let g:ScreenImpl = 'Tmux'
-let g:ScreenShellHeight = 10
-let g:ScreenShellExpandTabs = 1
+" " Fix colors for xfce4 terminal
+" if $COLORTERM ==# 'Terminal'
+"     set t_Co=256
+" endif
+" let g:ScreenImpl = 'Tmux'
+" let g:ScreenShellHeight = 10
+" let g:ScreenShellExpandTabs = 1
 
-function! s:ScreenShellListener()
-    if exists('g:ScreenShellActive') && g:ScreenShellActive
-	nunmap <Leader>ss
-	nunmap <Leader>sh
-	nunmap <Leader>sv
-	nunmap <Leader>sa
-	nunmap <Leader>sb
-	nunmap <Leader>sd
-	nunmap <Leader>sp
-	nunmap <Leader>si
-	nunmap <Leader>so
-	noremap <Leader>ss	:ScreenSend<CR>
-	nnoremap <Leader>sq	:ScreenQuit<CR>
-    else
-	silent! unmap <Leader>ss
-	silent! nunmap <Leader>sq
-	nnoremap <Leader>ss	:ScreenShell<CR>
-	nnoremap <Leader>sh	:ScreenShell<CR>
-	nnoremap <Leader>sv	:ScreenShellVertical<CR>
-	nnoremap <Leader>sa	:ScreenShellAttach<CR>
-	nnoremap <Leader>sb	:ScreenShell bash<CR>
-	nnoremap <Leader>sd	:ScreenShell dash<CR>
-	nnoremap <Leader>sp	:ScreenShell python<CR>
-	nnoremap <Leader>si	:IPython<CR>
-	nnoremap <Leader>so	:ScreenShell octave<CR>
-    endif
-endfunction
-call <SID>ScreenShellListener()
-augroup ScreenShellEnter
-    autocmd User * call <SID>ScreenShellListener()
-augroup END
-augroup ScreenShellExit
-    autocmd User * call <SID>ScreenShellListener()
-augroup END
+" function! s:ScreenShellListener()
+"     if exists('g:ScreenShellActive') && g:ScreenShellActive
+" 	nunmap <Leader>ss
+" 	nunmap <Leader>sh
+" 	nunmap <Leader>sv
+" 	nunmap <Leader>sa
+" 	nunmap <Leader>sb
+" 	nunmap <Leader>sd
+" 	nunmap <Leader>sp
+" 	nunmap <Leader>si
+" 	nunmap <Leader>so
+" 	noremap <Leader>ss	:ScreenSend<CR>
+" 	nnoremap <Leader>sq	:ScreenQuit<CR>
+"     else
+" 	silent! unmap <Leader>ss
+" 	silent! nunmap <Leader>sq
+" 	nnoremap <Leader>ss	:ScreenShell<CR>
+" 	nnoremap <Leader>sh	:ScreenShell<CR>
+" 	nnoremap <Leader>sv	:ScreenShellVertical<CR>
+" 	nnoremap <Leader>sa	:ScreenShellAttach<CR>
+" 	nnoremap <Leader>sb	:ScreenShell bash<CR>
+" 	nnoremap <Leader>sd	:ScreenShell dash<CR>
+" 	nnoremap <Leader>sp	:ScreenShell python<CR>
+" 	nnoremap <Leader>si	:IPython<CR>
+" 	nnoremap <Leader>so	:ScreenShell octave<CR>
+"     endif
+" endfunction
+" call <SID>ScreenShellListener()
+" augroup ScreenShellEnter
+"     autocmd User * call <SID>ScreenShellListener()
+" augroup END
+" augroup ScreenShellExit
+"     autocmd User * call <SID>ScreenShellListener()
+" augroup END
 
 """ securemodelines		{{{2
 set nomodeline

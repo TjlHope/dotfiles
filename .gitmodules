@@ -164,3 +164,33 @@
 [submodule "vim/all-bundles/sleuth"]
 	path = vim/all-bundles/sleuth
 	url = https://github.com/tpope/vim-sleuth.git
+[submodule "vim/all-bundles/tsuquyomi"]
+	path = vim/all-bundles/tsuquyomi
+	url = https://github.com/Quramy/tsuquyomi.git
+[submodule "vim/all-bundles/js-pretty-template"]
+	path = vim/all-bundles/js-pretty-template
+	url = https://github.com/Quramy/vim-js-pretty-template.git
+[submodule "vim/all-bundles/commentary"]
+	path = vim/all-bundles/commentary
+	url = https://github.com/tpope/vim-commentary.git
+[submodule "vim/all-bundles/unimpaired"]
+	path = vim/all-bundles/unimpaired
+	url = https://github.com/tpope/vim-unimpaired.git
+[submodule "vim/all-bundles/eunuch"]
+	path = vim/all-bundles/eunuch
+	url = https://github.com/tpope/vim-eunuch.git
+[submodule "vim/all-bundles/scriptease"]
+	path = vim/all-bundles/scriptease
+	url = https://github.com/tpope/vim-scriptease.git
+[submodule "vim/all-bundles/tbone"]
+	path = vim/all-bundles/tbone
+	url = https://github.com/tpope/vim-tbone.git
+[submodule "vim/all-bundles/characterize"]
+	path = vim/all-bundles/characterize
+	url = https://github.com/tpope/vim-characterize.git
+[submodule "vim/all-bundles/abolish"]
+	path = vim/all-bundles/abolish
+	url = https://github.com/tpope/vim-abolish.git
+[submodule "vim/all-bundles/speeddating"]
+	path = vim/all-bundles/speeddating
+	url = https://github.com/tpope/vim-speeddating.git
