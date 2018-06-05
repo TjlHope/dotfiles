@@ -74,8 +74,8 @@ unset terminfo_d
 ## Automate multiplexer use		{{{1
 
 # Test to see if we are in a multiplexer session or not.
-case "$TERM" in
-    screen*)	:;;	# do nothing - already in a mux session
+[ -n "$TMUX" ] || case "$TERM" in
+    tmux*|screen*)	:;;	# do nothing - already in a mux session
     *)	# TODO: allow attaching to previous session.
 	# TODO: get working with screen as well.
 	# Not in a multiplexer session, so start one now. Make sure it's not a
