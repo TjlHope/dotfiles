@@ -24,6 +24,7 @@ syntax: glob
 
 # ctags
 tags
+tags-*
 .tags
 
 # c
