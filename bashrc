@@ -24,7 +24,7 @@ if terminfo_d="$(_find_sys_dir share/terminfo)"
 then
     has_term() {
 	local term="${1-$TERM}"
-	[ -n "$(find "$terminfo_d" -type f -name "$TERM")" ]
+	[ -n "$(find -L "$terminfo_d" -type f -name "$TERM")" ]
     }
     set_term() {
 	local term="${1-$TERM}" pfx clrs sfxs sfx
