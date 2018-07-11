@@ -40,8 +40,9 @@ if ! has("ruby")
 endif
 
 " diable plugin auto stuff
-let g:jedi#auto_initialization = 0
-let g:jedi#auto_vim_configuration = 0
+"let g:jedi#auto_initialization = 0
+"let g:jedi#auto_vim_configuration = 0
+let g:tsuquyomi_disable_default_mappings = 1
 
 " source and call pathogen
 runtime bundle/pathogen/autoload/pathogen.vim
@@ -409,6 +410,9 @@ autocmd Filetype make
 autocmd Filetype ebuild
 	    \ map <buffer>	<Leader>X	:update<CR>:!ebuild "%"  <Up>
 
+" auto quickfix
+autocmd QuickFixCmdPost [^l]* nested cwindow
+autocmd QuickFixCmdPost    l* nested lwindow
 
 """ quit for buffers		{{{2
 
@@ -444,7 +448,7 @@ function! QuitBuf(...)
 	    endif
 	endif
     endfor
-    " find if we're the only window linked to the  buffer
+    " find if we're the only window linked to the buffer
     for t_i in range(1, tabpagenr('$'))		" iterate by tab and window
 	let t_bs = tabpagebuflist(t_i)
 	for w_i in range(1, tabpagewinnr(t_i, '$'))
@@ -454,6 +458,7 @@ function! QuitBuf(...)
 	endfor
 	if ! o_w | break | endif
     endfor
+    " TODO - this doesn't seem to work properly when a quickfix is open
     " perform the correct operation
     let bd_com = 'bdelete' . bang
     let bn_com = 'bnext'
@@ -763,14 +768,23 @@ nnoremap gW <C-W>
 nnoremap <silent> gb :bnext<CR>
 nnoremap <silent> gB :bprevious<CR>
 
-""" Redifine tag mappings	{{{2
+""" Redifine jump mappings	{{{2
+
+noremap <Leader>i <C-i>
+noremap <Leader>o <C-o>
+
+" By default use tags		{{{3
 nnoremap g] <C-]>
 nnoremap g} g<C-]>
 nnoremap g<C-]> g]
 nnoremap g[ <C-T>
 
-noremap <Leader>i <C-i>
-noremap <Leader>o <C-o>
+" typescript			{{{3
+autocmd Filetype typescript
+	    \ nnoremap <buffer> g] :TsuDefinition<CR>
+	    \|nnoremap <buffer> g} :TsuTypeDefinition<CR>
+	    \|nnoremap <buffer> g[ :TsuGoBack<CR>
+	    \|nnoremap <buffer> g{ :TsuReferences<CR>
 
 """ Redifine goto mark mappings	{{{2
 " Think the default should be the position in the previous line, rather than
@@ -779,6 +793,14 @@ noremap <Leader>o <C-o>
 " in nested sessions).
 noremap <Leader>' '
 noremap ' `
+
+""" maps for location/quickfix next/prev	{{{2
+noremap gln	:lnext<CR>
+noremap glN	:lNext<CR>
+noremap glp	:lprevious<CR>
+noremap gcn	:cnext<CR>
+noremap gcN	:cNext<CR>
+noremap gcp	:cprevious<CR>
 
 """"""""""""""""""""""""""""""	{{{1
 " Spelling			{{{1
@@ -938,6 +960,10 @@ let g:jedi#popup_on_dot = 0
 let g:jedi#show_call_signatures = 0
 autocmd FileType python setlocal omnifunc=jedi#completions
 
+""" js-indent			{{{2
+"let g:js_indent_logging = 1
+let g:js_indent_typescript = 0
+
 """ linediff			{{{2
 let g:linediff_first_buffer_command = 'enew'    " don't use tabs
 "let g:linediff_indent = 1                      " indent so as to ignore format
@@ -1080,6 +1106,17 @@ autocmd FileType *.tft setlocal
 	    \ filetype=txtfmt
 autocmd FileType *.tft.?,*.tft.??,*.tft.???,*.tft.???? setlocal
 	    \ filetype+=.txtfmt
+
+""" typescript			{{{2
+"let g:typescript_indent_disable = 1
+
+""" Tsuquyomi			{{{2
+let g:tsuquyomi_shortest_import_path = 1
+nnoremap <buffer> gi :TsuImport<CR>
+nnoremap <buffer> <LocalLeader>h :echo tsuquyomi#hint()<CR>
+autocmd FileType typescript
+	    \ let b:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
+
 
 """ zencoding			{{{2
 let g:user_zen_leader_key = '<LocalLeader>z'
