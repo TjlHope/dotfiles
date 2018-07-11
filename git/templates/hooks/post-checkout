@@ -48,17 +48,21 @@ case "$(git config remote.origin.url)" in
             # (re)generate the .gitignore file
             [ -z "$GIT_DBG" ] || echo "post-checkout: generate .gitignore"
             sed <.hgignore >.gitignore -e '
+                /^syntax:/ { h; b; }
+                x;
+                /^\s*$\|^syntax:\s*regexp/ { x; b regexp; }
+                /^syntax:\s*glob/ { x; b glob; }
+                d
+
                 :regexp
-                /^syntax:\s*glob/ { d; b glob }
                 s/\([^\\]\)[()|?]\+/\1/g; s/TODO: proper group handling//;
                 s/\([^\\]\){[0-9,]\+}/\1*/g; s/\\//g;
                 s/^\^\(.*\)\$$/\1/; s/^\^\(.*\)/\1*/; s/\(.*\)\$$/*\1/;
                 s/\([^\\]\)\.\*/\1*/g; s/\([^\\]\)\./\1?/g; s/\([^\\]\)+/\1*/g;
-                n; b regexp
+                n;
 
                 :glob
-                /^syntax:\s*regexp/ { d; b regexp }
-                n; b glob
+                n;
                 '
             printf '\n.gitignore\n' >>.gitignore
         fi
