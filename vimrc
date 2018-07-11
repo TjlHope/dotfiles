@@ -934,13 +934,19 @@ function! Grep(pattern)
     let w:grep_matchID = matchadd("Search", a:pattern, -1)
     normal zv
 endfunction
+function! GrepClose()
+    call s:grepClear()
+    lclose
+    nohlsearch
+endfunction
 command! -bar -nargs=? Grep	call Grep("<args>")
+command! -bar GrepClose		call GrepClose()
 nnoremap grep	:Grep 
 nnoremap gr/	:Grep 
 nnoremap grn	:lnext<CR>zv
 nnoremap grN	:lNext<CR>zv
 nnoremap grp	:lprevious<CR>zv
-nnoremap grq	:lclose<CR>
+nnoremap grq	:GrepClose<CR>
 
 """ fugitive			{{{2
 nnoremap <Leader>gs	:Gstatus<CR>
