@@ -203,3 +203,6 @@
 [submodule "vim/all-bundles/rust"]
 	path = vim/all-bundles/rust
 	url = https://github.com/rust-lang/rust.vim.git
+[submodule "vim/all-bundles/syntastic"]
+	path = vim/all-bundles/syntastic
+	url = https://github.com/vim-syntastic/syntastic.git

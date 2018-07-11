@@ -422,11 +422,25 @@ function! QuitBuf(...)
     else	| let bang = ''
     endif
     " first check if it's a help/quickfix/preview window
-    if &filetype =~ '\(help\|man\|info\|qf\)'
+    if &buftype == 'help'
 	execute 'quit' . bang
+	return
+    elseif &buftype == 'quickfix'
+	if getwininfo(win_getid())[0]['loclist'] == 1
+	    " if it's a loclist we can't close it directly, so first move to
+	    " its linked window, then close it from there
+	    execute 'll' . bang
+	    execute 'lclose'
+	    lclose
+	else
+	    execute 'quit' . bang
+	endif
 	return
     elseif &previewwindow == 1
 	execute 'pclose' . bang
+	return
+    elseif &filetype =~ 'man\|info'
+	execute 'quit' . bang
 	return
     "elseif exists('b:fugitive_type') || exists('b:fugitive_commit_arguments')
 	" also check if its from fugitive (e.g. Gdiff window)
@@ -481,16 +495,16 @@ nnoremap <silent>	Z!Q		:Bq!<CR>
 " Close all buffers
 nnoremap <silent>	ZA		:xall<CR>
 " Close other buffer and window
-nnoremap <silent>	Zw		:wincmd w<Bar>exit<CR>
-nnoremap <silent>	ZW		:wincmd w<Bar>exit<CR>
-nnoremap <silent>	Zh		:wincmd h<Bar>exit<CR>
-nnoremap <silent>	ZH		:wincmd h<Bar>exit<CR>
-nnoremap <silent>	Zj		:wincmd j<Bar>exit<CR>
-nnoremap <silent>	ZJ		:wincmd j<Bar>exit<CR>
-nnoremap <silent>	Zk		:wincmd k<Bar>exit<CR>
-nnoremap <silent>	ZK		:wincmd k<Bar>exit<CR>
-nnoremap <silent>	Zl		:wincmd l<Bar>exit<CR>
-nnoremap <silent>	ZL		:wincmd l<Bar>exit<CR>
+nnoremap <silent>	Zw		:wincmd w<Bar>Bx<CR>
+nnoremap <silent>	ZW		:wincmd w<Bar>Bx<CR>
+nnoremap <silent>	Zh		:wincmd h<Bar>Bx<CR>
+nnoremap <silent>	ZH		:wincmd h<Bar>Bx<CR>
+nnoremap <silent>	Zj		:wincmd j<Bar>Bx<CR>
+nnoremap <silent>	ZJ		:wincmd j<Bar>Bx<CR>
+nnoremap <silent>	Zk		:wincmd k<Bar>Bx<CR>
+nnoremap <silent>	ZK		:wincmd k<Bar>Bx<CR>
+nnoremap <silent>	Zl		:wincmd l<Bar>Bx<CR>
+nnoremap <silent>	ZL		:wincmd l<Bar>Bx<CR>
 
 
 """"""""""""""""""""""""""""""	{{{1
@@ -948,6 +962,10 @@ nnoremap grN	:lNext<CR>zv
 nnoremap grp	:lprevious<CR>zv
 nnoremap grq	:GrepClose<CR>
 
+""" fixmyjs			{{{2
+autocmd FileType typescript	let g:fixmyjs_engine = 'tslint'
+	    \| noremap <LocalLeader>f :Fixmyjs<CR>
+
 """ fugitive			{{{2
 nnoremap <Leader>gs	:Gstatus<CR>
 nnoremap <Leader>gc	:Gcommit<CR>
@@ -1102,6 +1120,16 @@ let g:SuperTabCrMapping = 0
     "autocmd InsertCharPre * if v:char=="<CR>" && pumvisible()|let    v:char="<C-E>".v:char|endif
 "endif
 
+""" syntastic			{{{2
+"set statusline+=%#warningmsg#
+"set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
 """ TagList			{{{2
 noremap <Leader>tl :TlistToggle<CR>
 
@@ -1118,11 +1146,13 @@ autocmd FileType *.tft.?,*.tft.??,*.tft.???,*.tft.???? setlocal
 
 """ Tsuquyomi			{{{2
 let g:tsuquyomi_shortest_import_path = 1
-nnoremap <buffer> gi :TsuImport<CR>
-nnoremap <buffer> <LocalLeader>h :echo tsuquyomi#hint()<CR>
+let g:tsuquyomi_disable_quickfix = 1
+let g:syntastic_typescript_checkers = ['tsuquyomi', 'tslint']
 autocmd FileType typescript
 	    \ let b:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
 
+nnoremap <buffer> gi :TsuImport<CR>
+nnoremap <buffer> <LocalLeader>h :echo tsuquyomi#hint()<CR>
 
 """ zencoding			{{{2
 let g:user_zen_leader_key = '<LocalLeader>z'
