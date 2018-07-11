@@ -174,6 +174,8 @@ type 'sudo' >/dev/null 2>&1 &&
 
 alias dd.usb='dd oflag=sync bs=1M'
 
+alias lsblk.label='lsblk -o name,label,uuid,size,ro,type,mountpoint'
+
 alias toggle_echo="stty \$(stty -a | sed -ne '
         s/\(.*\s\)\?-echo\(\s.*\)\?/echo/p; t; s/\(.*\s\)\?echo\(\s.*\)\?/-echo/p'
     )"
