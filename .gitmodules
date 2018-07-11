@@ -194,3 +194,12 @@
 [submodule "vim/all-bundles/speeddating"]
 	path = vim/all-bundles/speeddating
 	url = https://github.com/tpope/vim-speeddating.git
+[submodule "vim/all-bundles/fixmyjs"]
+	path = vim/all-bundles/fixmyjs
+	url = https://github.com/ruanyl/vim-fixmyjs.git
+[submodule "vim/all-bundles/js-indent"]
+	path = vim/all-bundles/js-indent
+	url = https://github.com/jason0x43/vim-js-indent.git
+[submodule "vim/all-bundles/rust"]
+	path = vim/all-bundles/rust
+	url = https://github.com/rust-lang/rust.vim.git
