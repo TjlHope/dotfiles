@@ -281,6 +281,10 @@ type kubectl >/dev/null 2>&1 && {
     unset ns ns_name
 }
 
+type mvn >/dev/null 2>&1 && {
+    alias mvn="mvn -D'https.protocols=TLSv1,TLSv1.1,TLSv1.2'"
+}
+
 ## End aliases		}}}1
 ######################
 
