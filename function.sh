@@ -332,6 +332,26 @@ type kubectl >/dev/null 2>&1 && {
     }
 }
 
+type rg >/dev/null 2>&1 && {
+    rf() {
+	local i=0 t=$# a='' _g='-g'
+	while [ $i -lt $t ];
+	do  i=$(( i + 1 )) a="$1"; shift
+	    case "$a" in
+		-i)				_g="--iglob=";	continue;;
+		-I)				_g="-g";	continue;;
+		-*)				:;;
+		'!'*'*'*|'!'*'?'*|'!'*'['*)	:;;
+		'!'*)				a="$_g!*${a#!}*";;
+		*'*'*|*'?'*|*'['*)		a="$_g$a";;
+		*)				a="$_g*$a*";;
+	    esac
+	    set -- "$@" "$a"
+	done
+	rg --files --ignore "$@"
+    }
+}
+
 : ${CNF=127}
 __cnf() {       # equivalent to the default bash command not found behaviour
     echo "$_SH: $1: command not found" >&2
