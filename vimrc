@@ -437,6 +437,8 @@ function! QuitBuf(...)
 	    execute 'll' . bang
 	    execute 'lclose'
 	    lclose
+	    " and now jump back to the previous position
+	    execute "normal! \<c-o>"
 	else
 	    execute 'quit' . bang
 	endif
