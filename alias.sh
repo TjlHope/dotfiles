@@ -264,7 +264,8 @@ type watch_for >/dev/null 2>&1 &&
 type kubectl >/dev/null 2>&1 && {
     alias k="kubectl"
     alias kall="kubectl --all-namespaces=true"
-    for ns in $(kubectl get namespace --no-headers=true \
+    for ns in $(kubectl --request-timeout=2s \
+	get namespace --no-headers=true \
 	--output=custom-columns=:.metadata.name)
     do
 	case "$ns" in (*['&;| 	']*)	# TODO: fix complete.bash
