@@ -34,6 +34,11 @@ endif
 " plugins to disable
 let g:pathogen_disabled = ["zencoding"]
 
+" python 2/3
+if has('python3')
+    let g:gundo_prefer_python3 = 1
+endif
+
 " these require ruby
 if ! has("ruby")
     call add(g:pathogen_disabled, "lusty")
