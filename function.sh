@@ -352,6 +352,31 @@ type rg >/dev/null 2>&1 && {
     }
 }
 
+type openssl >/dev/null 2>&1 && {
+    encrypt() {
+	local in="$1" out="${2:-}"
+	[ -f "$in" ] || { echo "No such file: $1" >&2; return 1; }
+	[ -n "$out" ] || out="$in.enc"
+	openssl aes-256-cbc -a -salt -in "$in" -out "$out"
+    }
+    decrypt() {
+	local in="$1" out="${2:-}"
+	[ -f "$in" ] || { echo "No such file: $1" >&2; return 1; }
+	[ -n "$out" ] || {
+	    case "$in" in
+		*.enc)
+		    out="${in%.enc}"
+		    [ -f "$out" ] && out="$out.dec"
+		    ;;
+		*)
+		    out="$in.dec"
+		    ;;
+	    esac
+	}
+	openssl aes-256-cbc -d -a -in "$in" -out "$out"
+    }
+}
+
 : ${CNF=127}
 __cnf() {       # equivalent to the default bash command not found behaviour
     echo "$_SH: $1: command not found" >&2
