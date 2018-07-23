@@ -206,3 +206,9 @@
 [submodule "vim/all-bundles/syntastic"]
 	path = vim/all-bundles/syntastic
 	url = https://github.com/vim-syntastic/syntastic.git
+[submodule "vim/all-bundles/racer"]
+	path = vim/all-bundles/racer
+	url = https://github.com/racer-rust/vim-racer.git
+[submodule "vim/all-bundles/tcomment"]
+	path = vim/all-bundles/tcomment
+	url = https://github.com/tomtom/tcomment_vim.git

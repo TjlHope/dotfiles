@@ -816,9 +816,11 @@ noremap <Leader>' '
 noremap ' `
 
 """ maps for location/quickfix next/prev	{{{2
+noremap gll	:ll<CR>
 noremap gln	:lnext<CR>
 noremap glN	:lNext<CR>
 noremap glp	:lprevious<CR>
+noremap gcc	:cc<CR>
 noremap gcn	:cnext<CR>
 noremap gcN	:cNext<CR>
 noremap gcp	:cprevious<CR>
@@ -1034,11 +1036,22 @@ let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
 """ PDF				{{{2
 runtime ftplugin/pdf.vim		" doesn't seem to do it automatically
 
+""" racer			{{{2
+let g:racer_cmd = exepath("racer")
+let g:racer_experimental_completer = 1
+autocmd FileType rust
+	    \ let b:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
+
 """ ros				{{{2
 " Enable ros specific scripts if we're in a ROS environment.
 if $ROS_ROOT != ''
     set filetype+=.ros
 endif
+
+""" rust			{{{2
+let g:rust_fold = 2
+"let g:rustfmt_autosave = 1
+let g:rustfmt_autosave_if_config_present= 1
 
 """ Screen			{{{2
 " " Fix colors for xfce4 terminal
@@ -1132,10 +1145,11 @@ let g:SuperTabCrMapping = 0
 "set statusline+=%{SyntasticStatuslineFlag()}
 "set statusline+=%*
 
-let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_always_populate_loc_list = 0
 let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_open = 0
 let g:syntastic_check_on_wq = 0
+nnoremap	<Leader>cs	:SyntasticCheck<CR>
 
 """ TagList			{{{2
 noremap <Leader>tl :TlistToggle<CR>
