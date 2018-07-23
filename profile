@@ -1,4 +1,5 @@
 # ~/.profile
+# shellcheck disable=1090,2155
 # vim: ft=sh
 
 NL="
@@ -10,6 +11,7 @@ export PATH="$(TEST=true _pathmunge \
     "${HOME}/lib/node_modules/bin" \
     "${HOME}/go/bin" \
     "${HOME}/lib/CPAN/bin" \
+    "${HOME}/.cargo/bin" \
     "$(type brew >/dev/null 2>&1 &&
 	    echo "$(brew --prefix coreutils)/libexec/gnubin")" \
     "$(type brew >/dev/null 2>&1 &&
@@ -30,7 +32,7 @@ export EDITOR="vim"
 
 ### auth agents
 type 'keychain' >/dev/null 2>&1 &&
-    eval $(keychain --eval --quiet --noask)
+    eval "$(keychain --eval --quiet --noask)"
 
 ### export SHM_D variable pointing to personal tempory storage
 . "$HOME/.rc.d/shm_d.sh"
@@ -45,6 +47,10 @@ export PERL5LIB="$(_pathmunge \
     "${HOME}/lib/CPAN/lib" \
     "${HOME}/lib/CPAN/lib/perl5" \
     "$PERL5LIB")"
+
+### rust variables
+[ -d "$HOME/Documents/Code/rust/src" ] &&
+    export RUST_SRC_PATH="$HOME/Documents/Code/rust/src"
 
 ### gnuplot variables
 export GNUPLOT_FONTPATH="$(_pathmunge \

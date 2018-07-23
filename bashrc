@@ -1,4 +1,5 @@
 # ~/.bashrc
+# shellcheck disable=1090,2015,2016
 #
 # This file is sourced by all *interactive* bash shells on startup, including
 # some apparently interactive shells such as scp and rcp that can't tolerate
@@ -41,7 +42,7 @@ then
 	    [ $clrs -ge 16 ] && sfxs="-16color $sfxs" &&
 	    [ $clrs -ge 88 ] && sfxs="-88color $sfxs" &&
 	    [ $clrs -ge 256 ] && sfxs="-256color $sfxs" &&
-	    [ $clrs -ge 6000000 ] && sfxs="-truecolor $sfxs"
+	    [ $clrs -ge 6000000 ] && sfxs="-truecolor $sfxs" || :
 	for sfx in $sfxs ''
 	do has_term "$pfx$sfx" && export TERM="$pfx$sfx" && break
 	done
@@ -58,7 +59,7 @@ then
 	    esac;;
     esac
 
-    has_term || set_term || {
+    has_term || set_term "$TERM" || {
 	echo "WANING: cannot find suitable fallback for TERM=$TERM" >&2
 	export TERM=xterm	# TODO: better fallback?
     }
@@ -103,7 +104,7 @@ unset terminfo_d
 		while [ "${mux_active#*${name_pre}${name_idx}}" != \
 		    "${mux_active}" ]
 		do
-		    name_idx=$(( ${name_idx} + 1 ))
+		    name_idx=$(( name_idx + 1 ))
 		done
 	    }
 	    name="${name_pre}${name_idx}"
@@ -155,7 +156,7 @@ unset rc_path
 USE_COLOR=false
 find_term() {
     local line="" IFS=""
-    while read line
+    while read -r line
     do  case "$line" in (TERM*)
 	    case "TERM $TERM" in ($line)
 		return;;
@@ -177,10 +178,10 @@ unset find_term dir_colors
 if ${USE_COLOR}
 then
     # Prefer ~/.dir_colors #64489
-    if [ -n "$_dircolors" -a -z "${_dircolors%%/*}" ] &&
-	[ -n "$dir_colors" -a -z "${dir_colors%%/*}" ]
+    if type dircolors >/dev/null 2>&1 &&
+	[ -n "$dir_colors" ] && [ -z "${dir_colors%%/*}" ]
     then
-	eval "$($_dircolors -b ${dir_colors:+"$dir_colors"})"
+	eval "$(dircolors -b ${dir_colors:+"$dir_colors"})"
     fi
     # Variables to help setting PS1
     S='\[\033[00;'		# start colour code (always reset first)
@@ -196,12 +197,12 @@ then
     # Repo status and prompt (#/$) code
     ps1="$N$c$E\$(_R) $B$b$E\\$ $D"
     [ $EUID -eq 0 ] && {	# prepend hostname, etc.
-        ps1="$I$r$E\$(_t)$H$r$E\h $H$b$E\W$ps1"	# root is red,
+        ps1="$I$r$E\$(_t)$H$r$E\\h $H$b$E\\W$ps1"	# root is red,
     } || {
         ps1=" $H$b$E\$(_sW)$ps1"
         [ $EUID -lt 1000 ] &&
-            ps1="$B$o$E\u$N$r$E\$(_t)$N$o$E@$H$o$E\h$ps1" ||	# system orange
-            ps1="$B$g$E\u$N$o$E\$(_t)$N$g$E@$H$g$E\h$ps1"	# users green
+            ps1="$B$o$E\\u$N$r$E\$(_t)$N$o$E@$H$o$E\\h$ps1" ||	# system orange
+            ps1="$B$g$E\\u$N$o$E\$(_t)$N$g$E@$H$g$E\\h$ps1"	# users green
     }
     ps1="$N$r$E$_x$ps1"		# prepend exit status in red
     unset S N B H r g o b m c E C
@@ -214,7 +215,7 @@ fi
 
 PS1="$ps1"	# Don't export it, as sub-shells may not be bash compatible.
 # Try to keep environment pollution down.
-unset safe_term _dircolors dir_colors match_lhs ps1
+unset safe_term dir_colors match_lhs ps1
 
 ## End Colourise	}}}1
 ######################
@@ -247,7 +248,7 @@ then
 elif type 'vim' >/dev/null 2>&1		#&& false	# comment to enable
 then	# adapted from vimmanpager script
     opts="--cmd 'let no_plugin_maps = 1'"	# stop plugin maps before vimrc
-    opts="${opts} -c 'sil! %s/\[[0-9]\+m//g'"	# remove ansi colour codes
+    opts="${opts} -c 'sil! %s/\\[[0-9]\\+m//g'"	# remove ansi colour codes
     opts="${opts} -c 'sil! %!col -b'"		# filter to remove *roff stuff
     opts="${opts} -c 'set nolist nomod ft=man'"	# set up as man page
     opts="${opts} -c 'set fdm=manual'"		# ensure there's no folds
@@ -283,9 +284,9 @@ unset t
 # Cache the definitions, so we only have to do the checks and magic once. {{{3 
 # It can't be done in individual files as complete, for example, may depend on 
 # function, but defines more, etc.
-[ -d "${SHM_D}" -a -w "${SHM_D}" ] && {
+false && [ -d "${SHM_D}" ] && [ -w "${SHM_D}" ] && {
     [ -f "${SHM_D}/complete.cache" ] ||
-	complete -p | sed "s/^complete -F _minimal\s*$/& ''/" >"${SHM_D}/complete.cache"
+	complete -p | sed "s/^complete -F _minimal\\s*$/& ''/" >"${SHM_D}/complete.cache"
     [ -f "${SHM_D}/alias.cache" ] ||
 	alias -p >"${SHM_D}/alias.cache"
     [ -f "${SHM_D}/function.cache" ] ||
@@ -307,11 +308,11 @@ priv() {	# run cmd with correct permissions and (io)niced
 for f in "$RC_D/${_DOT}autostart.$_SH" "$RC_D/${_DOT}autostart.sh"
 do
     [ -f "$f" ] &&
-	while read cmd args
+	while read -r cmd args
 	do
 	    [ -n "${cmd###*}" ] &&	# have a non-(empty|comented) cmd
 		! command pgrep -u "$USER" "$cmd" >/dev/null &&
-                cmd="$(command -v $cmd)" >/dev/null &&  # command is valid
+                cmd="$(command -v "$cmd")" >/dev/null &&  # command is valid
 		priv "$cmd" $args >/dev/null 2>&1	# run it
 	done < "$f"
 done
@@ -327,14 +328,14 @@ type 'keychain.add_all' >/dev/null 2>&1 && {
     trap ":" INT	# catch SIGINT to prevent it stopping the sourcing.
     # If not tried before, add keys; then stop future tries:
 	[ -f "${SHM_D}/keychain_added" ] || keychain.add_all --quiet
-	[ -d "${SHM_D}" -a -w "${SHM_D}" ] && >"${SHM_D}/keychain_added"
+	[ -d "${SHM_D}" ] && [ -w "${SHM_D}" ] && touch "${SHM_D}/keychain_added"
     trap - INT		# remove trap for following execution
 }
 
 if type docker-machine >/dev/null 2>&1
 then
     case "$(docker-machine status)" in
-	Running) eval `docker-machine env`;;
+	Running) eval "$(docker-machine env)";;
 	Stopped) :;;	 # don't bother with anything
     esac
 fi

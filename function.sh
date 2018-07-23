@@ -1,4 +1,5 @@
 #!/bin/sh
+# shellcheck disable=2039,2120
 
 ###############################
 ## Definition of shell functions
@@ -12,28 +13,32 @@ cd() {
 	    s:^\(.*/\)\?\.\.\.:\1../..:g
 	    t sub
 	    ')"
-    builtin cd ${d:+"$d"}	# if empty, no quoting, else quote
+    command cd ${d:+"$d"}	# if empty, no quoting, else quote
 }
 
 pushpopd() {
     # Combine pushd and popd, empty dir, or '-' is a pop, otherwise push.
     # The thought is that popd will rarely use arguments, and pushd nearly 
     # always has a path, and so they can be easily combined in this way.
-    if [ -z "$1" -o "$1" = '-' ]
+    if [ -z "$1" ] || [ "$1" = '-' ]
     then
-	popd
+	popd || return
     else
-	pushd "$@"
+	pushd "$@" || return
     fi
 }
 
 pgr() {
-    [ -n "$*" ] && [ "$1" != '-' ] &&
-	"$@" | ${PAGER:-less} ||
+    if [ -n "$*" ] && [ "$1" != '-' ]
+    then
+	"$@" | ${PAGER:-less}
+    else
 	${PAGER:-less} "$@"
+    fi
 }
 
 ls_pgr() {
+    # shellcheck disable=2012
     ls "$@" | ${PAGER:-less}
 }
 
@@ -41,7 +46,7 @@ ls_pgr() {
 type 'vim' >/dev/null 2>&1 &&	#false &&	# comment 'false &&' to enable
     vimpager() {	# function edited from vimpager script
 	local c=''
-	[ -t 1 ] || c=cat
+	[ -t 1 ] || c="cat"
 	${c:-vim --cmd 'let no_plugin_maps=1' -c 'runtime! macros/less.vim'} \
 	    "${@:--}"
     }
@@ -96,10 +101,11 @@ fifo_size() {
 
 send-message() {
     local host="$1" head="$2"; shift 2
+    # shellcheck disable=2087
     ssh "$host" sh <<- EOF
 	export DISPLAY=:0.0
 	export XAUTHORITY=/tmp/.gdm[^_]*
-	export USER=\$(users | cut -d\  -f1)
+	export USER=\$(users | cut -d\\  -f1)
 	su \$USER -c 'notify-send "$head" "$@"'
 	EOF
                     # TODO: properly quote ^this
@@ -115,14 +121,18 @@ fork() {
 }
 
 kill_after_timeout() {
-    local wait_pid=$! timeout=$1 waiter_pid= ret=0; shift
+    local wait_pid=$! timeout="$1" err='' waiter_pid='' ret=0; shift
+    err="$([ "$timeout" -gt 0 ] 2>&1)" || {
+	echo "Invalid timeout: '$timeout' : $err" >&2
+	return 1
+    }
     [ $# -gt 0 ] && {	# we've been passed a command to run
 	"$@"			# so run it
 	wait_pid=$!
     }		# otherwise assume it's been run just before us
     (   trap exit HUP
-        sleep $timeout
-        kill $wait_pid 2>/dev/null
+        sleep "$timeout"
+        kill "$wait_pid" 2>/dev/null
     ) & waiter_pid=$!
     wait $wait_pid; ret=$?
     kill -HUP $waiter_pid 2>/dev/null
@@ -131,6 +141,7 @@ kill_after_timeout() {
 
 pipe_wireshark() {
     local host="$1"; shift
+    # shellcheck disable=2029
     ssh "$host" "tcpdump -U -n -w - -s 65535 -i any ${*:-not port 22}" |
 	wireshark -k -i -
 }
@@ -141,24 +152,36 @@ java_memdump() {
 
 twinkle.remote() {
     local host="${1:-vm}"; shift
+    # shellcheck disable=2029
     ssh >/dev/null 2>&1 -f "$host" twinkle "$@"
 }
 
 my_ip() {
     # Output the first external ip of this machine
     # In case it's run under sudo with a crap setup that mangles PATH:
-    local ip="$(command -v ip || { [ -x /sbin/ip ] && echo /sbin/ip; })"
+    local ip=''
+    ip="$(command -v ip)" ||
+	{ [ -x /sbin/ip ] && ip="/sbin/ip"; } ||
+	{ echo "command ip not found" >&2; return 127; }
     "$ip" 2>/dev/null -4 -o addr show | \
-        sed -ne "
+        sed -ne '
             /\<scope\s\+global\>/ {
                 s/^.*\<inet\s\+\([0-9\.]\+\)\/[0-9]\+\>.*$/\1/p
-                $([ "$1" = -a] || echo 'q')
-            }"
+                '"$([ "$1" = -a ] || echo 'q')"'
+            }'
 }
 
 mysql_grant() {
-    ssh "$1" mysql -e \
-        "\"grant all privileges on *.* to 'root'@'${2:-$(my_ip)}' with grant option\""
+    [ $# -eq 1 ] || [ $# -eq 2 ] || {
+	echo "Usage: mysql_grant <remote_addr> [local_addr]" >&2
+	return 1
+    }
+    local remote="$1" self=''
+    # shellcheck disable=2119
+    self="${2:-$(my_ip)}" && [ -n "$self" ] || return
+    # shellcheck disable=2029
+    ssh "$remote" mysql -e \
+        "\"grant all privileges on *.* to 'root'@'$self' with grant option\""
 }
 
 mysql_convert_charset() {
@@ -172,6 +195,7 @@ mysql_convert_charset() {
 }
 
 fix_for_old_terminfo() {
+    # shellcheck disable=2088
     ssh "$1" cat '>>' '~/.bashrc' <<- EOF
 	case "\$TERM" in
 	    screen-256color)    export TERM="screen";;
@@ -205,13 +229,14 @@ watch_for() {
         -i)     int="$2"; shift 2;;
         -i*)    int="${1#-i}"; shift;;
     esac
-    [ -f "$1" ] && [ -r "$1" ] && {
+    if [ -f "$1" ] && [ -r "$1" ]
+    then
         fl="$1"
         shift
-    } || {
+    else
         echo "Cannot read file: $1" >&2
         return 1
-    }
+    fi
     case $# in
         0)  regex="";;
         1)  regex="\\$1";;
@@ -221,19 +246,20 @@ watch_for() {
             done
             regex="$regex)";;
     esac
-    while printf '\r%*s\r%i%s' "$COLUMNS" ' ' "$(($i * $int))" \
+    # shellcheck disable=2016
+    while printf '\r%*s\r%i%s' "$COLUMNS" ' ' "$(( i * int ))" \
         "$(sed "$fl" -Ene "$regex"'{s/\s+/ /g;H};${g;s/\n/\t/g;p}')"
     do
-        i=$(( $i + 1 ))
+        i=$(( i + 1 ))
         sleep "$int"
     done
 }
 
 spring_login() {
-    local host="$1" user="" pass=""; shift
+    local host="$1" user="" pass="" session=""; shift
     [ $# -gt 0 ] && { user="$1"; shift; } || user="all"
     [ $# -gt 0 ] && { pass="$1"; shift; } || pass="$user"
-    local session=$(curl 2>/dev/null -k https://"$host"/j_spring_security_check \
+    session=$(curl 2>/dev/null -k https://"$host"/j_spring_security_check \
         --data "j_username=$user&j_password=$pass" -w "%{redirect_url}" \
         | sed 's/.*\(;jsessionid=.*\)/\1/')
     echo "$session"
@@ -278,6 +304,7 @@ type pip >/dev/null 2>&1 && {
 	    update|upgrade)	shift
 		local _ifs="$IFS" IFS="
 "
+		# shellcheck disable=2046
 		set -- install --upgrade "$@" \
 		    $(pip list --outdated --format=freeze | cut -d= -f1 |
 			grep -v mercurial)	# TODO
@@ -334,15 +361,17 @@ type kubectl >/dev/null 2>&1 && {
 
 type rg >/dev/null 2>&1 && {
     rf() {
-	local i=0 t=$# a='' _g='-g'
-	while [ $i -lt $t ];
+	local i=0 t="$#" a='' _g='-g'
+	while [ "$i" -lt "$t" ];
 	do  i=$(( i + 1 )) a="$1"; shift
 	    case "$a" in
 		-i)				_g="--iglob=";	continue;;
 		-I)				_g="-g";	continue;;
 		-*)				:;;
-		'!'*'*'*|'!'*'?'*|'!'*'['*)	:;;
+		'!'/*)				a="$_g$a";;
+		'!'*'*'*|'!'*'?'*|'!'*'['*)	a="$_g$a";;
 		'!'*)				a="$_g!*${a#!}*";;
+		/*)				a="$_g$a";;
 		*'*'*|*'?'*|*'['*)		a="$_g$a";;
 		*)				a="$_g*$a*";;
 	    esac
@@ -377,24 +406,51 @@ type openssl >/dev/null 2>&1 && {
     }
 }
 
-: ${CNF=127}
+_term_detect() {	# TODO
+    local fd="${1-1}" pipe="" our_pid="$$"
+    # if it's a tty, we're good already
+    [ -t "$fd" ] && return
+    # otherwise, let's see if it's a pipe
+    pipe="$(readlink "/proc/$$/fd/$fd")" || return
+    case "$pipe" in
+	'pipe['[0-9]*']')	pipe="${pipe%]}"; pipe="${pipe#pipe[}";;
+	*)			false;;
+    esac || return	# if it's not a pipe we're done
+    # So now we need to find the other end of the pipe
+    other_pid_cmd_type="$(lsof -wu"$(id -u)" -blnP +Ui -Fpctif |
+	while read -r var
+	do  case "$var" in
+		(p*)	pid="${var#p}";;
+		(c*)	cmd="${var#c}";;
+		(t*)	typ="${var#t}";;
+		(i*)	ino="${var#i}";;
+		(f*)	fds="${var#f}";;
+	    esac
+	    [ "$pid" != "$our_pid" ] || continue
+
+	done)"
+}
+
+: "${CNF=127}"
 __cnf() {       # equivalent to the default bash command not found behaviour
     echo "$_SH: $1: command not found" >&2
-    return ${CNF-127}
+    return "${CNF-127}"
 }
 __top() {       # tests if current execution environment is a top level shell
+    local pid='' cmd='' state='' ppid='' session='' tty_nr='' tpgid='' rest=''
     # not in a pipe, or from MC
     [ -t 0 ] && [ -t 1 ] && [ -z "$MC_SID" ] || return
     # not in a subshell
     local pid cmd state ppid pgrp session tty_nr tpgid rest
-    read pid cmd state ppid pgrp session tty_nr tpgid rest </proc/self/stat
-    [ $$ -ne $tpgid ] || return
+    # shellcheck disable=2034	# makes it easier to read
+    read -r pid cmd state ppid pgrp session tty_nr tpgid rest </proc/self/stat
+    [ $$ -ne "$tpgid" ] || return
     :   # TODO: anything else?
 }
 __slp() {       # treats $1 as a single letter prefix command
-    [ ${#1} -gt 1 ] || return ${CNF-127}
+    [ ${#1} -gt 1 ] || return "${CNF-127}"
     local a="${1#?}" p="" c="" t=""; p="${1%$a}"; shift
-    c="$(command -v $p)" || return ${CNF-127}
+    c="$(command -v "$p")" || return "${CNF-127}"
     case "$c" in
         $p)             # function or builtin
             set -- "$p" "$a" "$@"
@@ -408,7 +464,7 @@ __slp() {       # treats $1 as a single letter prefix command
     esac
     case "$t" in
         [${SLP_T=fa}])  "$@";;
-        *)              return ${CNF-127};;
+        *)              return "${CNF-127}";;
     esac
 }
 command_not_found_handle() {
