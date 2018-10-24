@@ -17,7 +17,10 @@
 
 [merge]
 	conflictstyle = diff3
-	tool = vimdiff
+	tool = fugitive
+
+[mergetool "fugitive"]
+	cmd = vim -f "$MERGED" -S "extra/fugitive-merge.vim"
 
 [diff]
 	renames = copy
