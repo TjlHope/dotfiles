@@ -212,3 +212,15 @@
 [submodule "vim/all-bundles/tcomment"]
 	path = vim/all-bundles/tcomment
 	url = https://github.com/tomtom/tcomment_vim.git
+[submodule "vim/all-bundles/cst"]
+	path = vim/all-bundles/cst
+	url = https://github.com/vim-scripts/Color-Scheme-Test
+[submodule "vim/all-bundles/rooter"]
+	path = vim/all-bundles/rooter
+	url = https://github.com/airblade/vim-rooter.git
+[submodule "vim/all-bundles/clang_complete"]
+	path = vim/all-bundles/clang_complete
+	url = https://github.com/Rip-Rip/clang_complete.git
+[submodule "vim/all-bundles/gutentags"]
+	path = vim/all-bundles/gutentags
+	url = https://github.com/ludovicchabant/vim-gutentags.git

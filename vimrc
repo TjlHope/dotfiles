@@ -908,6 +908,9 @@ autocmd BufRead,BufNew */avr/**/*.c setlocal tags+=~/.vim/tags/avr
 "autocmd Filetype cpp set tags+=~/.vim/tags/qt4
 "set tags+=~/.vim/tags/gtk-2
 
+""" clang_complete		{{{2
+let g:clang_library_path = '/usr/lib64/llvm/5/lib64/'
+
 """ diffchar			{{{2
 let g:DiffUpdate = 1
 
@@ -916,27 +919,27 @@ nnoremap <Leader>dd	:DiffChangesDiffToggle<CR>
 nnoremap <Leader>dp	:DiffChangesPatchToggle<CR>
 
 """ easytags			{{{2
-" DoC ubuntu machines default to ctags.emacs23, so do this manually.
-for cmd in ["exuberant-ctags", "ctags-exuberant"]	" [gentoo, DoC-ubuntu]
-    let full_cmd = system("which " . cmd)
-    if full_cmd[0:-2] =~ cmd . "$"	" has newline on the end
-	let g:easytags_cmd = full_cmd[0:-2]
-	break
-    endif
-endfor
-unlet cmd full_cmd
-"autocmd Filetype c,cpp let g:easytags_on_cursorhold = 0
-let g:easytags_file = "~/.vim/tags/general"
-let g:easytags_by_filetype = "~/.vim/tags/"
-let g:easytags_async = 1
-let g:easytags_dynamic_files = 2
-let g:easytags_include_members = 0
-let g:easytags_autorecurse = 0
-let g:easytags_resolve_links = 1
-let g:easytags_include_members = 1
-nnoremap <Leader>tu	:UpdateTags<CR>
-nnoremap <Leader>th	:HighlightTags<CR>
-set notagbsearch	" tag file seems to not play nice with binary search
+" " DoC ubuntu machines default to ctags.emacs23, so do this manually.
+" for cmd in ["exuberant-ctags", "ctags-exuberant"]	" [gentoo, DoC-ubuntu]
+"     let full_cmd = system("which " . cmd)
+"     if full_cmd[0:-2] =~ cmd . "$"	" has newline on the end
+" 	let g:easytags_cmd = full_cmd[0:-2]
+" 	break
+"     endif
+" endfor
+" unlet cmd full_cmd
+" "autocmd Filetype c,cpp let g:easytags_on_cursorhold = 0
+" let g:easytags_file = "~/.vim/tags/general"
+" let g:easytags_by_filetype = "~/.vim/tags/"
+" let g:easytags_async = 1
+" let g:easytags_dynamic_files = 2
+" let g:easytags_include_members = 0
+" let g:easytags_autorecurse = 0
+" let g:easytags_resolve_links = 1
+" let g:easytags_include_members = 1
+" nnoremap <Leader>tu	:UpdateTags<CR>
+" nnoremap <Leader>th	:HighlightTags<CR>
+" set notagbsearch	" tag file seems to not play nice with binary search
 
 """ Grep (lvimgrep with hl)	{{{2
 function! s:grepClear()
@@ -971,6 +974,18 @@ nnoremap grN	:lNext<CR>zv
 nnoremap grp	:lprevious<CR>zv
 nnoremap grq	:GrepClose<CR>
 
+""" gutentags			{{{2
+for cmd in ["exuberant-ctags", "ctags-exuberant"]	" [gentoo, DoC-ubuntu]
+    let full_cmd = system("which " . cmd)
+    if full_cmd[0:-2] =~ cmd . "$"	" has newline on the end
+	let g:gutentags_ctags_executable = full_cmd[0:-2]
+	break
+    endif
+endfor
+unlet cmd full_cmd
+let g:gutentags_ctags_tagfile = ".tags"
+
+
 """ fixmyjs			{{{2
 autocmd FileType typescript	let g:fixmyjs_engine = 'tslint'
 	    \| noremap <LocalLeader>f :Fixmyjs<CR>
@@ -988,7 +1003,34 @@ let g:bugsummary_browser = "xdg-open '%s'"	" uses the desktop default
 """ gundo			{{{2
 noremap gu	:GundoToggle<CR>
 
-""" jedi
+""" javacomplete2		{{{2
+autocmd FileType java setlocal omnifunc=javacomplete#Complete
+autocmd FileType java let g:JavaComplete_PomPath = FindPom()
+function! FindPom(...)
+    let a:force = get(a:, 0, 1)
+    let root = FindRootDirectory()
+    let pom_xml = glob(root . '/pom.xml', 0)
+    echom 'pom.xml:' pom_xml
+    if len(pom_xml) | return pom_xml | endif
+    let build_xml = glob(root . '/build.xml', 0)
+    echom 'build.xml:' build_xml
+    if ! len(build_xml) | return '' | endif
+    if a:force || ! len(glob(root . '/dist', 0))
+	silent call system('ant -f ' . shellescape(build_xml) . ' gen-pom')
+	echom 'ant gen-pom exited:' v:shell_error
+    endif
+    if v:shell_error | return '' | endif
+    let pom_xml = glob(root . '/dist/pom.xml', 0)
+    echom 'dist/*.xml:' pom_xml
+    if len(pom_xml) | return pom_xml | endif
+    let poms = glob(root . '/dist/*.pom', 0, 1)
+    echom 'dist/*.xml:' string(poms)
+    if len(poms) | return poms[0] | endif
+    return ''
+endfunction
+
+
+""" jedi			{{{2
 let g:jedi#popup_on_dot = 0
 let g:jedi#show_call_signatures = 0
 autocmd FileType python setlocal omnifunc=jedi#completions
@@ -1041,6 +1083,9 @@ let g:racer_cmd = exepath("racer")
 let g:racer_experimental_completer = 1
 autocmd FileType rust
 	    \ let b:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
+
+""" rooter			{{{2
+let g:rooter_change_directory_for_non_project_files = ''
 
 """ ros				{{{2
 " Enable ros specific scripts if we're in a ROS environment.
@@ -1151,6 +1196,12 @@ let g:syntastic_check_on_open = 0
 let g:syntastic_check_on_wq = 0
 nnoremap	<Leader>cs	:SyntasticCheck<CR>
 
+let g:syntastic_java_checkers = ['checkstyle']
+let g:syntastic_typescript_checkers = ['tsuquyomi', 'tslint']
+let g:syntastic_c_checkers = ['clang_check']
+let g:syntastic_cpp_checkers = ['clang_check']
+
+
 """ TagList			{{{2
 noremap <Leader>tl :TlistToggle<CR>
 
@@ -1168,7 +1219,6 @@ autocmd FileType *.tft.?,*.tft.??,*.tft.???,*.tft.???? setlocal
 """ Tsuquyomi			{{{2
 let g:tsuquyomi_shortest_import_path = 1
 let g:tsuquyomi_disable_quickfix = 1
-let g:syntastic_typescript_checkers = ['tsuquyomi', 'tslint']
 autocmd FileType typescript
 	    \ let b:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
 
