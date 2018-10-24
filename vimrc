@@ -1086,6 +1086,8 @@ autocmd FileType rust
 
 """ rooter			{{{2
 let g:rooter_change_directory_for_non_project_files = ''
+let g:rooter_use_lcd = 1
+let g:rooter_silent_chdir = 1
 
 """ ros				{{{2
 " Enable ros specific scripts if we're in a ROS environment.
