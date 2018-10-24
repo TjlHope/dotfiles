@@ -1,5 +1,5 @@
 # My Git Config
-# vim: ft=gitconfig ts=4 noet
+# vim: ft=gitconfig ts=4 sw=4 noet
 
 [user]
 	name = Tom JL Hope
@@ -9,6 +9,8 @@
 	excludesfile = ~/.cvsignore
 	#pager = $VIMPAGER
 	whitespace = cr-at-eol	# need to edit dos style files
+	# prefer centrally managed hooks to templated ones using init.templatedir
+	hooksPath = ~/.git/hooks
 
 [color]
 	ui = true
@@ -77,9 +79,6 @@
 
 [rerere]
 	enabled = true
-
-[init]
-	templatedir = ~/.git/templates
 
 [cvsimport]
 	d = $CVSROOT

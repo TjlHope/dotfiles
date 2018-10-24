@@ -6,11 +6,19 @@
 #       This hook is meant primarily for notification, and cannot affect the
 #       outcome of git commit.
 
-[ -z "$GIT_DBG" ] || echo "post-commit"
+git_dbg() {
+    [ -z "$GIT_DBG" ] || echo "post-commit:" "$@"
+}
+
+
+# Call git updated-server-info on commit to support local http serving of repo.
+
+# If commit.update-server-info is not set, then attempt to guess based on if
+# it it is served on localhost.
 
 CONFIG="commit.update-server-info"
 BASE_URL="http://localhost/git"
-if ! update_server_info="$(git config "$CONFIG")"
+if ! git config "$CONFIG" >/dev/null
 then    # it's not set, so guess
     dir="${GIT_DIR##*/}"
     case "$GIT_DIR" in
@@ -26,7 +34,7 @@ then    # it's not set, so guess
         *)              val=false;;
     esac
 
-    [ -z "$GIT_DBG" ] || echo "post-commit: config $CONFIG $val"
+    git_dbg "config $CONFIG $val"
     git config "$CONFIG" "$val"
 fi
 
@@ -40,7 +48,12 @@ yesno() {
 
 if yesno "$(git config "$CONFIG")"
 then
-    [ -z "$GIT_DBG" ] || echo "post-commit: update-server-info"
+    git_dbg "update-server-info"
     git update-server-info
+else
+    git_dbg "not calling update-server-info"
 fi
 
+
+# Cannot affect the outcome, so don't even try.
+exit 0
