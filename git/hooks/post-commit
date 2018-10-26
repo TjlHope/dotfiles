@@ -27,7 +27,7 @@ then    # it's not set, so guess
         */.git)         dir="${GIT_DIR##${GIR_DIR%/*/.git}/}";;
         *)              dir="${GIT_DIR##${GIT_DIR%/*}/}";;
     esac
-    code="$(curl -L -w '%{http_code}' "$BASE_URL/$dir" | tail -n1)"
+    code="$(curl -sm2 -L -w '%{http_code}' "$BASE_URL/$dir" | tail -n1)"
 
     case "$code" in
         2??|403)        val=true;;
