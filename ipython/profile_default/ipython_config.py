@@ -256,8 +256,8 @@ c.TerminalInteractiveShell.confirm_exit = False
 # c.TerminalInteractiveShell.logfile = ''
 
 # The shell program to be used for paging.
-import os
-c.TerminalInteractiveShell.pager = os.environ['PAGER'] or 'less'
+#import os  # TODO
+#c.TerminalInteractiveShell.pager = os.environ['PAGER'] or 'less'
 
 # Enable magic commands to be called without the leading %.
 # c.TerminalInteractiveShell.automagic = True
