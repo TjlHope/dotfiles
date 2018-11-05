@@ -1,5 +1,5 @@
 #!/bin/sh
-# vi: set sw=4 et
+# vi: sw=4 et
 # post-checkout
 #       This hook is invoked when a git checkout is run after having updated
 #       the worktree. The hook is given three parameters: the ref of the
@@ -17,19 +17,24 @@
 #       auto-display differences from the previous HEAD if different, or set
 #       working dir metadata properties.
 
+set -e
+
 NL="
 "
 _IFS="$IFS"
 
-git_dbg() {
-    [ -z "$GIT_DBG" ] || echo "post-checkout:" "$@"
-}
+git_dbg() { [ -z "$GIT_DBG" ] || echo "post-checkout:" "$@"; }
 
 PREV_HEAD="$1"
 NEW_HEAD="$2"
 BRANCH="$3"
 git_dbg "argv: [$PREV_HEAD,$NEW_HEAD,$BRANCH]"
 
+if [ "${GIT_DIR+}${GIT_DIR-unset}" = "unset" ]
+then
+    GIT_DIR="$(git rev-parse --git-dir)"
+    git_dbg "GIT_DIR not set, set to '$GIT_DIR'"
+fi
 
 # Set up hg bridge, if appropriate
 case "$(git config remote.origin.url)" in
@@ -58,49 +63,7 @@ case "$(git config remote.origin.url)" in
         if [ -f .hgignore ] && [ "$BRANCH" -eq 1 ]; then  # branch checkout
             # (re)generate the .gitignore file
             git_dbg "bridge: generate .gitignore"
-            sed <.hgignore >.gitignore -nEe '
-                /^[[:space:]]*#/ {
-                    p; b;       # pass through comments, next cycle
-                }
-                /^syntax:/ {
-                    h; d;       # record current match syntax, next cycle
-                }
-
-                x;              # not special, exchange to get match syntax
-                /^[[:space:]]*$|^syntax:[[:space:]]*regexp/ {
-                    x;          # exchange to get match line back,
-                    b regexp;   # and branch to regexp (default) handling
-                }
-                /^syntax:[[:space:]]*glob/ {
-                    x;          # exchange to get match line back,
-                    b glob;     # and branch to glob handling
-                }
-                {               # unknown syntax
-                    x; G;       # so exchange to get match line back,
-                    s/^([^\n]*)\n(.*)$/# invalid \2 ; ignoring: \1/
-                    p; b;       # print an informative comment, then next cycle
-                }
-
-                # regexp conversion to globs (best effort)
-                :regexp
-                # first try and do something about groups
-                s/([^\])[()|]+/\1/g;         # TODO: proper group handling
-                # just replace repeat counts with a *
-                s/([^\])[?+]/\1/g; s/([^\\])\{[0-9,]+\}/\1*/g;
-                # now get rid of extra backslashes
-                s/\\//g;
-                # replace anchors with stars at the opposite end
-                s/^\^(.*)\$$/\1/; s/^\^(.*)/\1*/; s/(.*)\$$/*\1/;
-                # replace .* with *; . with ?; and []+ with []*
-                s/([^\\])\.\*/\1*/g; s/([^\\])\./\1?/g; s/([^\\])\+/\1*/g;
-                # TODO: anything* should be changed to just *
-                p; b;           # done, so print, and next cycle
-
-                # globs can just pass through
-                :glob
-                p; b;           # so print, and next cycle
-                '
-            printf '\n.gitignore\n' >>.gitignore
+            git hg-xignore -i
         fi
         ;;
     *)
@@ -126,8 +89,13 @@ then
             git_dbg "autoderiv: $d.derived already exists"
         fi
     done
-    "$found" ||
+    if "$found"
+    then
+        grep -q '.derived' .gitignore ||
+            echo '.derived' >> .gitignore
+    else
         git_dbg "autoderiv: no .project" IFS="$_IFS"; set +f
+    fi
 else
     git_dbg "autoderiv: no .gitignore"
 fi

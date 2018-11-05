@@ -6,9 +6,7 @@
 #       This hook is meant primarily for notification, and cannot affect the
 #       outcome of git commit.
 
-git_dbg() {
-    [ -z "$GIT_DBG" ] || echo "post-commit:" "$@"
-}
+git_dbg() { [ -z "$GIT_DBG" ] || echo "post-commit:" "$@"; }
 
 
 # Call git updated-server-info on commit to support local http serving of repo.

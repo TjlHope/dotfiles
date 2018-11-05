@@ -20,7 +20,7 @@
 	tool = fugitive
 
 [mergetool "fugitive"]
-	cmd = vim -f "$MERGED" -S "extra/fugitive-merge.vim"
+	cmd = vim -f "$MERGED" -c 'runtime extra/fugitive-merge.vim'
 
 [diff]
 	renames = copy
