@@ -1,0 +1,4 @@
+# Zathura configuration file
+
+set scroll-page-aware true
+set window-height 1024
