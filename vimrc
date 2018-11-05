@@ -593,6 +593,7 @@ let g:readlinke_has_bash = 1
 let g:highlight_sedtabs = 1
 let g:sh_noisk = 1			" don't add '.' to 'iskeyword'
 let g:sh_syn_embed = "asprP"
+"let g:vimsyn_embed = "lPr"	" default is enabled interpreters
 autocmd FileType json	hi link jsonCommentError Comment
 
 """"""""""""""""""""""""""""""	{{{1
@@ -702,7 +703,7 @@ let g:rcs_folding = 1
 let g:ruby_fold = 1
 let g:sh_fold_enabled = 31
 let g:tex_fold_enabled = 1
-"let g:vimsyn_folding = "aflprPtm"
+let g:vimsyn_folding = "aflmprPt"
 let g:xml_syntax_folding = 1
 
 """ filetype settings		{{{2
@@ -1085,6 +1086,7 @@ autocmd FileType rust
 	    \ let b:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
 
 """ rooter			{{{2
+let g:rooter_manual_only = 1
 let g:rooter_change_directory_for_non_project_files = ''
 let g:rooter_use_lcd = 1
 let g:rooter_silent_chdir = 1
