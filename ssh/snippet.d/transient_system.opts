@@ -1,0 +1,4 @@
+# vi: ft=sshconfig
+
+Include snippet.d/test_system.opts
+UserKnownHostsFile /dev/null

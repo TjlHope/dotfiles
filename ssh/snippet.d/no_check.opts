@@ -1,0 +1,4 @@
+# vi: ft=sshconfig
+
+StrictHostKeyChecking no
+CheckHostIP no

@@ -29,6 +29,7 @@ tags-*
 
 # c
 *.[oad]
+!*.d/
 *.[ks]o
 *.out
 
@@ -52,6 +53,10 @@ tags-*
 
 # ant
 .ant-targets-build.xml
+
+# Eclipse
+# only I use AutoDeriv for now...
+.derived
 
 # intellij IDEA
 *.iml

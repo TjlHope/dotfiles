@@ -1,0 +1,4 @@
+
+# The deploy directory contains symlinks to directories, so the negation in
+cvsignore to allow *.d dirs isn't enough.
+!deploy/**/*.d

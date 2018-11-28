@@ -1,0 +1,4 @@
+# vi: ft=sshconfig
+
+Include snippet.d/no_check.opts
+user root
