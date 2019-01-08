@@ -33,7 +33,7 @@ git_dbg "argv: [$PREV_HEAD,$NEW_HEAD,$BRANCH]"
 if [ "${GIT_DIR+}${GIT_DIR-unset}" = "unset" ]
 then
     GIT_DIR="$(git rev-parse --git-dir)"
-    git_dbg "GIT_DIR not set, set to '$GIT_DIR'"
+    git_dbg "GIT_DIR not set, set to:" "$GIT_DIR"
 fi
 
 # Set up hg bridge, if appropriate
@@ -45,18 +45,18 @@ case "$(git config remote.origin.url)" in
             git_dbg "bridge: cloning..."
             # Include the notes ref in the log
             git config notes.displayRef refs/notes/hg
-            git_dbg "bridge: notes.displayRef: $(
-                                            git config notes.displayRef)"
+            git_dbg "bridge: notes.displayRef:" \
+                "$(git config notes.displayRef)"
         fi
 
         if [ ! -f "$GIT_DIR/refs/notes/hg" ]; then
             # Set up notes ref for the mercurial commit hash
             if hg_ref_fl="$(ls "$GIT_DIR/refs/notes/hg-"* 2>&1)"; then
                 hg_ref="${hg_ref_fl#$GIT_DIR/}"
-                git_dbg "bridge: hg ref: $hg_ref"
+                git_dbg "bridge: hg ref:" "$hg_ref"
                 git symbolic-ref refs/notes/hg "$hg_ref"
             else
-                git_dbg "bridge: $hg_ref_fl"
+                git_dbg "bridge:" "$hg_ref_fl"
             fi
         fi
 
@@ -80,7 +80,7 @@ then
     for p in $(find ./ -name .project -print -o -name '.?*' -prune)
     do  found=true
         d="${p%/*}/"; d="${d#./}"
-        if [ ! -e "$d.derived" ]
+        if [ ! -e "$d.derived" ] && [ ! -h "$d.derived" ]
         then
             r="$(echo "$d" | sed -Ee 's|[^/]+|..|g')"
             git_dbg "autoderiv: ln -s $r.gitignore $d.derived"
@@ -89,17 +89,31 @@ then
             git_dbg "autoderiv: $d.derived already exists"
         fi
     done
+    IFS="$_IFS"; set +f
     if "$found"
     then
-        grep -q '.derived' .gitignore ||
+        for f in \
+            "$(git config --global core.excludesFile | sed "s:^~/:$HOME/:")" \
+            "$HOME/.gitignore" ".gitignore" "$GIT_DIR/info/exclude"
+        do
+            [ -f "$f" ] && grep -qF '.derived' "$f" && {
+                git_dbg "autoderiv: .derived already configured in:" "$f"
+                break
+            }
+        done || {
+            # This should potentially be added to $GIT_DIR/info/exclude, but
+            # then it will be much harder to spot. So I can always move it
+            # there manually if necessary.
+            git_dbg "autoderiv: adding .derived to .gitignore"
             echo '.derived' >> .gitignore
+        }
     else
-        git_dbg "autoderiv: no .project" IFS="$_IFS"; set +f
+        git_dbg "autoderiv: no .project"
     fi
 else
     git_dbg "autoderiv: no .gitignore"
 fi
 
 
-# Cannot affect the outcome, so don't even try.
+# Cannot effect the outcome, so don't even try.
 exit 0

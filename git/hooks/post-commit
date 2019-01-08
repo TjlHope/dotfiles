@@ -53,5 +53,5 @@ else
 fi
 
 
-# Cannot affect the outcome, so don't even try.
+# Cannot effect the outcome, so don't even try.
 exit 0
