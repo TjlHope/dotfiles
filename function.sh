@@ -56,11 +56,11 @@ date_time() {
 }
 
 quote_url() {
-    python -c "from urllib2 import quote; print(quote('$*'))"
+    python2 -c "from urllib2 import quote; print(quote('$*'))"
 }
 
 unquote_url() {
-    python -c "from urllib2 import unquote; print(unquote('$*'))"
+    python2 -c "from urllib2 import unquote; print(unquote('$*'))"
 }
 
 fifo_size() {

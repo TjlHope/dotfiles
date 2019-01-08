@@ -238,12 +238,12 @@ type python > /dev/null 2>&1 && {       # python goodies
     }
 
     type a2b > /dev/null 2>&1 || {
-        alias a2b="python -c \"from sys import argv as a, stdin as i;"
+        alias a2b="python2 -c \"from sys import argv as a, stdin as i;"
         eval "$(alias a2b)'from binascii import a2b_hex as a2b;'"
         eval "$(alias a2b)'print(a2b(a[1] if len(a)>1 else i.read().strip()))\"'"
     }
     type b2a > /dev/null 2>&1 || {
-        alias b2a="python -c \"from sys import argv as a, stdin as i;"
+        alias b2a="python2 -c \"from sys import argv as a, stdin as i;"
         eval "$(alias b2a)'from binascii import b2a_hex as b2a;'"
         eval "$(alias b2a)'print(b2a(a[1] if len(a)>1 else i.read().strip()))\"'"
     }
