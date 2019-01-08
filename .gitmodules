@@ -224,3 +224,6 @@
 [submodule "vim/all-bundles/gutentags"]
 	path = vim/all-bundles/gutentags
 	url = https://github.com/ludovicchabant/vim-gutentags.git
+[submodule "vim/all-bundles/bracketed-paste"]
+	path = vim/all-bundles/bracketed-paste
+	url = https://github.com/ConradIrwin/vim-bracketed-paste.git

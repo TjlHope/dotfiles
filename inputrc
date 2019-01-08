@@ -18,27 +18,43 @@ set skip-completed-text			on
 # FIXME: if 'on' duplicates cd completion in ${HOME}
 #set expand-tilde		off
 
+### Display
+# prefix prompt with mode if on
+set show-mode-in-prompt		off
+set vi-ins-mode-string		"+"
+set vi-cmd-mode-string		":"
+
 ### Movement / Editing
 # attempt to preserve cursor position when navigating history
 set history-preserve-point	on
 # vi editing mode
 set editing-mode		vi
-set keymap			vi
+
+#set keyseq-timeout		500
+
+set enable-bracketed-paste	on
+
 
 # Vi bindings
-$if mode=vi
-    "\C-r":	re-read-init-file
-    ",rc":	re-read-init-file
-    "gg":	beginning-of-history
-    G:		end-of-history
-    K:		history-search-backward
-    J:		history-search-forward
-    ",xl":	alias-expand-line
-    ",xh":	history-expand-line
-    ",xs":	shell-expand-line
-    # ",xb":	brace-expand-line	# doesn't exist?
-    # ",xa":	all-expand-line		# doesn't exist?
-    "!a":	yank-nth-arg
-    "!$":	yank-last-arg
-$endif
+set keymap		vi-command
+"\C-r":		vi-redo
+",rc":		re-read-init-file
+"gg":		beginning-of-history
+G:		end-of-history
+K:		history-search-backward
+J:		history-search-forward
+",xl":		alias-expand-line
+",xh":		history-expand-line
+",xs":		shell-expand-line
+# ",xb":	brace-expand-line	# doesn't exist?
+# ",xa":	all-expand-line		# doesn't exist?
+"!a":		yank-nth-arg
+"!$":		yank-last-arg
+# let bracketed paste work in command mode
+"\e[200~":	bracketed-paste-begin
+# fix broken bracketed paste in insert mode
+"200":		vi-append-mode
+
+set keymap		vi-insert
+"\C-r":		re-read-init-file
 
