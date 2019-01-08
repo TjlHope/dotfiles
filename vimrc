@@ -294,7 +294,12 @@ autocmd CmdwinEnter * cmap <buffer> <silent> <Esc> <C-u>quit<CR>
 
 let mapleader = ','
 let maplocalleader = '\'
-noremap!	jj			<Esc>
+" , is the opposite of ; for moving within a line, don't use it often, but give
+" it a mapping so we don't have to wait for timeoutlen
+nnoremap	,;	,
+" <Esc> is sometimes a pain, but j is easy, and it's very rare you ever need to
+" enter it twice in inset.
+noremap!	jj	<Esc>
 
 set scrolloff=4					" keep cursor 5 lines from edge
 set sidescroll=8
@@ -910,7 +915,8 @@ autocmd BufRead,BufNew */avr/**/*.c setlocal tags+=~/.vim/tags/avr
 "set tags+=~/.vim/tags/gtk-2
 
 """ clang_complete		{{{2
-let g:clang_library_path = '/usr/lib64/llvm/5/lib64/'
+" TODO: get this dynamically
+let g:clang_library_path = '/usr/lib64/llvm/6/lib64/'
 
 """ diffchar			{{{2
 let g:DiffUpdate = 1
@@ -985,6 +991,7 @@ for cmd in ["exuberant-ctags", "ctags-exuberant"]	" [gentoo, DoC-ubuntu]
 endfor
 unlet cmd full_cmd
 let g:gutentags_ctags_tagfile = ".tags"
+let g:gutentags_exclude_project_root = ['/usr/local', $HOME]
 
 
 """ fixmyjs			{{{2
@@ -1204,6 +1211,7 @@ let g:syntastic_java_checkers = ['checkstyle']
 let g:syntastic_typescript_checkers = ['tsuquyomi', 'tslint']
 let g:syntastic_c_checkers = ['clang_check']
 let g:syntastic_cpp_checkers = ['clang_check']
+let g:syntastic_clang_check_config_file = '.clang_complete'
 
 
 """ TagList			{{{2
@@ -1225,9 +1233,13 @@ let g:tsuquyomi_shortest_import_path = 1
 let g:tsuquyomi_disable_quickfix = 1
 autocmd FileType typescript
 	    \ let b:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
-
-nnoremap <buffer> gi :TsuImport<CR>
-nnoremap <buffer> <LocalLeader>h :echo tsuquyomi#hint()<CR>
+autocmd FileType typescript
+	    \ command! -buffer TsuHint		echo tsuquyomi#hint()
+	    \ command! -buffer TsuquyomiHint	echo tsuquyomi#hint()
+autocmd FileType typescript
+	    \ nnoremap <buffer> <LocalLeader>i :TsuImport<CR>
+autocmd FileType typescript
+	    \ nnoremap <buffer> <LocalLeader>h :echo tsuquyomi#hint()<CR>
 
 """ zencoding			{{{2
 let g:user_zen_leader_key = '<LocalLeader>z'
@@ -1470,7 +1482,7 @@ command! CurrentHL	echo
 	    \ .' trans<' . synIDattr(synID(line("."),col("."),0),"name") . '>'
 	    \ .' lo<' . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . '>'
 	    \ .' fg<' . synIDattr(synIDtrans(synID(line("."),col("."),1)),"fg#") . '>'
-map <Leader>hi	:CurrentHL<CR>
+map <Leader>hl	:CurrentHL<CR>
 " end CurrentHL								}}}
 
 """ Nagios			{{{2
