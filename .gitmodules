@@ -105,7 +105,7 @@
 	url = https://github.com/mattn/zencoding-vim.git
 [submodule "vim/all-bundles/detectindent"]
 	path = vim/all-bundles/detectindent
-	url = https://github.com/raymond-w-ko/detectindent/
+	url = https://github.com/roryokane/detectindent/
 [submodule "vim/all-bundles/accordion"]
 	path = vim/all-bundles/accordion
 	url = https://github.com/mattboehm/vim-accordion.git
