@@ -227,3 +227,6 @@
 [submodule "vim/all-bundles/bracketed-paste"]
 	path = vim/all-bundles/bracketed-paste
 	url = https://github.com/ConradIrwin/vim-bracketed-paste.git
+[submodule "vim/all-bundles/go"]
+	path = vim/all-bundles/go
+	url = https://github.com/fatih/vim-go.git
