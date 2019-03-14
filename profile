@@ -7,7 +7,9 @@ NL="
 
 . "$HOME/.rc.d/pathmunge.sh"
 export PATH="$(TEST=true _pathmunge \
-    "${HOME}/bin" "${HOME}/Documents/Code/scripts/bin" \
+    "${HOME}/bin" \
+    "${HOME}/Documents/Code/utils/bin" \
+    "${HOME}/Documents/Code/scripts/bin" \
     "${HOME}/lib/node_modules/bin" \
     "${HOME}/go/bin" \
     "${HOME}/lib/CPAN/bin" \
