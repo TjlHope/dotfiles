@@ -230,3 +230,6 @@
 [submodule "vim/all-bundles/go"]
 	path = vim/all-bundles/go
 	url = https://github.com/fatih/vim-go.git
+[submodule "vim/all-bundles/pug"]
+	path = vim/all-bundles/pug
+	url = https://github.com/digitaltoad/vim-pug
