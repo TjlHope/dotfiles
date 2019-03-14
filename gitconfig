@@ -74,6 +74,12 @@
 	insteadOf = "tgit:"
 	insteadOf = "tgit::"
 
+[protocol "hg"]
+	allow = always
+
+[protocol "bzr"]
+	allow = always
+
 [pull]
 	rebase = preserve
 
