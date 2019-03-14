@@ -56,11 +56,15 @@ date_time() {
 }
 
 quote_url() {
-    python2 -c "from urllib2 import quote; print(quote('$*'))"
+    python2 \
+	-c 'import urllib2 as u,sys;print(u.quote(" ".join(sys.argv[1:])))' \
+	"$@"
 }
 
 unquote_url() {
-    python2 -c "from urllib2 import unquote; print(unquote('$*'))"
+    python2 \
+	-c 'import urllib2 as u,sys;print(u.unquote(" ".join(sys.argv[1:])))' \
+	"$@"
 }
 
 fifo_size() {
