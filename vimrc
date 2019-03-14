@@ -843,9 +843,11 @@ autocmd Filetype conf,help,info,man setlocal nospell
 "autocmd StdinReadPost * setlocal nospell		" but not in man
 
 set spelllang=en_gb					" spell check language to GB
-set spellfile=/home/tom/.vim/spell/I.latin1.add		" set my spellfile
-autocmd FileType tex setlocal spellfile+=/home/tom/.vim/spell/latex.latin1.add
-autocmd BufRead **/Imperial/**/*.* setlocal spellfile+=/home/tom/.vim/spell/elec.latin1.add
+let &spellfile = $HOME."/.vim/spell/I.".&encoding.".add"	" set my spellfile
+autocmd FileType tex
+	    \ let &l:spellfile .= ",".$HOME."/.vim/spell/latex.".&encoding.".add"
+autocmd BufRead **/Imperial/**/*.*
+	    \ let &l:spellfile .= ",".$HOME."/.vim/spell/elec.".&encoding.".add"
 
 " set dictionary+=/usr/share/dict/words			" add standard words
 
