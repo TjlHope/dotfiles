@@ -198,7 +198,7 @@ mysql_convert_charset() {
     mysql -BNe "$query" | mysql
 }
 
-fix_for_old_terminfo() {
+ssh_fix_for_old_terminfo() {
     # shellcheck disable=2088
     ssh "$1" cat '>>' '~/.bashrc' <<- EOF
 	case "\$TERM" in
@@ -209,11 +209,13 @@ fix_for_old_terminfo() {
 }
 
 ssh_set_up() {
+    local fix_term=false
+    case "$1" in (-f|-t|--fix-term) fix_term=true; shift;; esac
     while [ $# -gt 0 ]
     do
         sudo ssh-copy-id -i "/root/.ssh/id_rsa.pub" "$1"
         sudo ssh-copy-id -i "$HOME/.ssh/id_rsa.pub" "$1"
-        fix_for_old_terminfo "$1"
+        "$fix_term" && ssh_fix_for_old_terminfo "$1"
         shift
     done
 }
