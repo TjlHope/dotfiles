@@ -411,6 +411,17 @@ type openssl >/dev/null 2>&1 && {
     }
 }
 
+rel_path() {
+    # TODO: get this working generically
+    # NB: this doesn't bother finding the shortest common root, as ../ doesn't
+    # work with docker anyway.
+    local from="$1" to="$2" from_d="" to_d=""
+    [ -d "$from" ] || err "From not a directory: $from" || return
+    from_d="$(cd "$from" >/dev/null && pwd)/"
+    to_d="$(cd "$(dirname "$to")" >/dev/null && pwd)/"
+    echo "${to_d#$from_d}$(basename "$to")"
+}
+
 _term_detect() {	# TODO
     local fd="${1-1}" pipe="" our_pid="$$"
     # if it's a tty, we're good already
