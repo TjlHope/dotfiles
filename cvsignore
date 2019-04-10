@@ -26,6 +26,7 @@ syntax: glob
 tags
 tags-*
 .tags
+.tags.*
 
 # c
 *.[oad]
