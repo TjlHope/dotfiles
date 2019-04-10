@@ -340,6 +340,16 @@ then
     esac
 fi
 
+[ -d "$HOME/.nvm" ] && {
+    function setup_nvm() {
+	export NVM_DIR="$HOME/.nvm"
+	. "$HOME/.nvm/nvm.sh"
+	. "$HOME/.nvm/bash_completion"
+    }
+    alias .nvm=setup_nvm
+}
+
+
 # Output the current task status
 type t >/dev/null 2>&1 &&
     t || :
