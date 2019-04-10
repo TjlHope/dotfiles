@@ -611,13 +611,18 @@ autocmd FileType json	hi link jsonCommentError Comment
 					" breaks *n?x shebangs (#!/path/2/prog)
 
 let g:tex_flavor = 'latex'		" use latex styles
-autocmd BufRead,BufNewFile */WEB_INF/tags/*.tag set filetype=jsp
+
+" some JSP projects use .tag for shared snippets
+autocmd BufRead,BufNewFile */WEB_INF/tags/*.tag setfiletype=jsp
 
 " terraform tfstate files are pure JSON
-autocmd BufRead,BufNewFile *.tfstate,*.tfstate.* set filetype=json
+autocmd BufRead,BufNewFile *.tfstate,*.tfstate.* setfiletype=json
 
 " Cassandra Query Language
-autocmd BufRead,BufNewFile *.cql,*.cqlsh set filetype=cql
+autocmd BufRead,BufNewFile *.cql,*.cqlsh setfiletype=cql
+
+" Jenkins pipeline scripts
+autocmd BufRead,BufNewFile Jenkinsfile setfiletype=groovy
 
 """ use skeleton files		{{{2
 autocmd BufNewFile * silent! 0r ~/Templates/%:e.%:e
@@ -712,8 +717,9 @@ let g:vimsyn_folding = "aflmprPt"
 let g:xml_syntax_folding = 1
 
 """ filetype settings		{{{2
-" let $code = "ant,c,cpp,css,dtd,gentoo-init-d,html,java,javascript,jsp,json,perl,php,prolog,python,sh,verilog,vhdl,xml,xsd"
-autocmd Filetype ant,c,cpp,gentoo-init-d,html,java,jsp,json,perl,php,sh,xml,xsd setlocal
+" let $code =
+" "ant,c,cpp,css,dtd,gentoo-init-d,groovy,html,java,javascript,jsp,json,perl,php,prolog,python,ruby,sh,verilog,vhdl,xml,xsd"
+autocmd Filetype ant,c,cpp,gentoo-init-d,groovy,html,java,jsp,json,perl,php,ruby,sh,xml,xsd setlocal
 	    \ foldcolumn=5
 	    \ foldmethod=syntax
 	    \ foldlevel=1
@@ -1209,12 +1215,13 @@ let g:syntastic_check_on_open = 0
 let g:syntastic_check_on_wq = 0
 nnoremap	<Leader>cs	:SyntasticCheck<CR>
 
-let g:syntastic_java_checkers = ['checkstyle']
-let g:syntastic_typescript_checkers = ['tsuquyomi', 'tslint']
 let g:syntastic_c_checkers = ['clang_check']
 let g:syntastic_cpp_checkers = ['clang_check']
 let g:syntastic_clang_check_config_file = '.clang_complete'
-
+let g:syntastic_groovy_checkers = ['groovyc']
+let g:syntastic_java_checkers = ['checkstyle']
+let g:syntastic_sh_shellcheck_args = "-ax"
+let g:syntastic_typescript_checkers = ['tsuquyomi', 'tslint']
 
 """ TagList			{{{2
 noremap <Leader>tl :TlistToggle<CR>
