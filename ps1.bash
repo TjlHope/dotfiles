@@ -77,7 +77,7 @@ _sW () {
     echo "$PWD" | sed -e "\
 	s:^$HOME:\~:
 	:chk
-	\:^.\{,$len\}$: b
+	\:^.\{0,$len\}$: b
 	:sub
 	s:\(\.\?[^/]\{$chs,\}\)[^/$_el]\{1,\}\($_el\)\?/:\1$_el/:${1-}
 	t chk
@@ -201,7 +201,7 @@ _xf () {	# Outputs non-zero exit status (iff a new command)
 # This only works at the start of PS1:
 #_x="\[\033[F\033[\$((\${COLUMNS}-\${#?}+1))G\$(_xf \\#)\033[E\]"
 # By saving and restoring cursor position this should work anywhere:
-_x="\[\033[s\033[F\033[\$((\${COLUMNS}-\${#?}+1))G\$(_xf \\#)\033[u\]"
+_x="\\[\033[s\033[F\033[\$((\${COLUMNS}-\${#?}+1))G\$(_xf \\#)\033[u\\]"
 
 # If run as a program, output a representation of PS1
 [ "${0##*/}" = "ps1.bash" ] && {

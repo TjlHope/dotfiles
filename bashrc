@@ -184,7 +184,7 @@ then
 	eval "$(dircolors -b ${dir_colors:+"$dir_colors"})"
     fi
     # Variables to help setting PS1
-    S='\[\033[00;'		# start colour code (always reset first)
+    S="\\[\033[00;"		# start colour code (always reset first)
     N="${S}3"			# normal colour code
     B="${S}1;3"			# bold colour code
     [ "$TERM" != "linux" ] &&

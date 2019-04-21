@@ -3,7 +3,7 @@
 # ~/.profile.d/shm_d.sh
 # Setup the $TMP_D and $SHM_D env vars (user temporary storage)
 
-export TMP_D="/tmp/$USER"
+export TMP_D="${TMPDIR:-/tmp}/$USER"
 
 { [ -f /proc/mounts ] && cat /proc/mounts || mount; } |
     grep -Eq '^\s*\S+\s+/dev/shm\s+tmpfs\s+' &&

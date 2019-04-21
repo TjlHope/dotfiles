@@ -51,7 +51,7 @@ type 'dash'						>/dev/null 2>&1 &&
     alias dash='dash -V'
 alias :q='exit'
 type 'vim'						>/dev/null 2>&1 && {
-    ! vim -h | sed -ne '/--servername/q1' &&	# only in later versions
+    vim -h | grep -q '--servername' &&		# only in later versions
 	alias vim='vim --servername VIM'	# Needed for LaTeX-Box latexmk
     alias svim='SUDO_EDITOR=vim sudoedit'	# try to stop 'sudo vim'ing!!!
     alias sudovim='SUDO_EDITOR=vim sudoedit'
