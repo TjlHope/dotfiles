@@ -613,16 +613,16 @@ autocmd FileType json	hi link jsonCommentError Comment
 let g:tex_flavor = 'latex'		" use latex styles
 
 " some JSP projects use .tag for shared snippets
-autocmd BufRead,BufNewFile */WEB_INF/tags/*.tag setfiletype=jsp
+autocmd BufRead,BufNewFile */WEB_INF/tags/*.tag set filetype=jsp
 
 " terraform tfstate files are pure JSON
-autocmd BufRead,BufNewFile *.tfstate,*.tfstate.* setfiletype=json
+autocmd BufRead,BufNewFile *.tfstate,*.tfstate.* set filetype=json
 
 " Cassandra Query Language
-autocmd BufRead,BufNewFile *.cql,*.cqlsh setfiletype=cql
+autocmd BufRead,BufNewFile *.cql,*.cqlsh set filetype=cql
 
 " Jenkins pipeline scripts
-autocmd BufRead,BufNewFile Jenkinsfile setfiletype=groovy
+autocmd BufRead,BufNewFile Jenkinsfile set filetype=groovy
 
 """ use skeleton files		{{{2
 autocmd BufNewFile * silent! 0r ~/Templates/%:e.%:e

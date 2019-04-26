@@ -1,0 +1,10 @@
+plugin
+sshfs
+plugins
+loopback
+devtmpfs
+stdout
+stderr
+shellcheck
+Dockerfile
+fd
