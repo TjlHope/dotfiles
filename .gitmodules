@@ -16,9 +16,6 @@
 [submodule "vim/all-bundles/OmniCppComplete"]
 	path = vim/all-bundles/OmniCppComplete
 	url = https://github.com/vim-scripts/OmniCppComplete.git
-[submodule "vim/all-bundles/SudoEdit"]
-	path = vim/all-bundles/SudoEdit
-	url = https://github.com/vim-scripts/SudoEdit.vim.git
 [submodule "vim/all-bundles/Tail"]
 	path = vim/all-bundles/Tail
 	url = https://github.com/vim-scripts/Tail-Bundle.git
