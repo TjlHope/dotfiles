@@ -72,6 +72,15 @@ export GNASH_PLUGIN_DESCRIPTION="Shockwave Flash 10.1 r999"
 #export WINEDEBUG="-all"
 export INTEL_BATCH=1
 
+# Setup DISPLAY for cygwin XWin server
+if [ "${DISPLAY:+set}" != set ] &&
+    [ "$(uname -o)" = "Cygwin" ] &&
+    ps -u "$(id -un)" -f | grep -q XWin
+then	# TODO: work out exactly what DISPLAY should be
+    export DISPLAY=:0.0
+fi
+
+
 [ -f "${HOME}/.profile.local" ] &&	# If there are local settings,
     . "${HOME}/.profile.local"		# source them now
 
