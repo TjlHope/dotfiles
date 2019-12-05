@@ -148,7 +148,8 @@ _R () {
 	    fi
 	    #b="$(< "$d/.hg/branch")"				# FIXME:bashism
 	    read -r b < "$d/.hg/branch"
-	elif [ -d "$d/CVS" ]				# CVS repo
+	elif [ -d "$d/CVS" ] &&				# CVS repo
+	    [ -f "$d/CVS/Root" ] && [ -f "$d/CVS/Repository" ]
 	then
 	    if [ -f "$d/CVS/Tag" ]
 	    then
