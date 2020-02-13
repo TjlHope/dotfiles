@@ -31,24 +31,37 @@
 #    card 0
 #}
 
-# improve mic in
-
-pcm.mic_in {
+# Improve capture with noise cancellation
+# NB: it sounds good with >=S16_LE, but not when auto converted down to U8.
+# (So use `arecord -fS16_LE`)
+pcm.mic_nc {
     type plug
-    slave.pcm "dsnoop"
+    slave.pcm {
+	type speex
+	slave.pcm {
+	    type plug
+	    slave.pcm dsnoop
+	}
+	frames 512
+	denoise 1
+	#agc 1
+	#agc_level 8000
+	#echo 1
+	filter_length 8192
+	dereverb 1
+	#dereverb_decay 0
+	#dereverb_level 0
+    }
 }
+pcm.!default {
+    type asym
+    capture.pcm mic_nc
+    playback.pcm cards.pcm.default
+}
+ctl.!default ctl.sysdefault
 
-pcm.mic_speex {
-    type speex
-    slave.pcm "mic_in"
-    frames 512
-    denoise 1
-    #agc 1
-    #agc_level 8000
-    #echo 1
-    filter_length 8192
-    dereverb 1
-    #dereverb_decay 0
-    #dereverb_level 0
-}
+# ctl.!default {
+#     type hw
+#     card 2
+# }
 
