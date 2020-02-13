@@ -4,6 +4,7 @@
 ## Shell alias definitions	{{{1
 
 # source aliases		{{{2
+# shellcheck disable=2139
 alias .rc=". '${RC_D}/${_DOT}${_SH}rc'"
 for t in "ps1" "function" "alias" "complete"
 do
@@ -22,11 +23,12 @@ alias d='dirs'
 alias pd='pushpopd'
 
 # fs viewing aliases		{{{2
-${USE_COLOR}					&& {
+if "${USE_COLOR:-false}"
+then	# TODO finish _term_detect() and use that instead
     alias ls='ls --color=always -x'
     alias tree='tree -C'
     alias dmesg='dmesg --color=always'
-}
+fi
 
 alias l='ls'
 alias lpg='ls_pager'
@@ -58,9 +60,11 @@ type 'vim'						>/dev/null 2>&1 && {
 }
 
 # searching aliases		{{{2
-${USE_COLOR}					&&
-    alias grep='grep --colour=always'		||
-    alias grep='grep --colour=never'
+if "${USE_COLOR:-false}"
+then alias grep='grep --colour=always'
+else alias grep='grep --colour=never'
+fi
+# shellcheck disable=2230 # check if which supports -i
 which -i which </dev/null				>/dev/null 2>&1 &&
     alias which='{ alias; declare -f; } | which -i'
 
@@ -95,13 +99,16 @@ type 'sshfs'						>/dev/null 2>&1 &&
     alias deps="${HOME}/Documents/Code/t/t.py"
     eval "$(alias deps)' --task-dir \"\$HOME/Documents/tasks\" --list deps'"
 }
+type 'skopeo'						>/dev/null 2>&1 &&
+    alias docker-skopeo="skopeo"	# I keep forgetting the name
 
 
 # gentoo aliases		{{{2
 type 'equery'						>/dev/null 2>&1 && {
-    ${USE_COLOR}				&&
-	alias equery='equery --no-pipe'		||
-	alias equery='equery --no-color --no-pipe'
+    if "${USE_COLOR:-false}"
+    then alias equery='equery --no-pipe'
+    else alias equery='equery --no-color --no-pipe'
+    fi
     alias elist='equery list --installed --portage-tree --overlay-tree'
     alias euses='equery uses'
     alias ehas='equery hasuse'
@@ -109,9 +116,10 @@ type 'equery'						>/dev/null 2>&1 && {
     alias edepend='equery depends'
 }
 type 'eix'						>/dev/null 2>&1 && {
-    ${USE_COLOR}				&&
-	alias eix='eix --force-color'		||
-	alias eix='eix --nocolor'
+    if "${USE_COLOR:-false}"
+    then alias eix='eix --force-color'
+    else alias eix='eix --nocolor'
+    fi
     alias eex='eix --exact'
     alias eie='eix --installed --exact'
     alias eicat='eix --installed --category'
@@ -152,7 +160,7 @@ for f in "${HOME}/Games/"*/*.exe
 do
     if [ "${f}" != "${HOME}/Games/*/*.exe" ]
     then
-	[ -x "${f}" -a "${f%orig*.exe}" = "${f}" ]	&& {
+	[ -x "${f}" ] && [ "${f%orig*.exe}" = "${f}" ]	&& {
 	    name="$(echo "${f}" | sed -e 's:^.*/\(.*\)\.exe$:\1:; s:\s\+:_:g')"
 	    # Don't want to overwrite a system command.
 	    type "wine.${name}" >/dev/null 2>&1 ||
@@ -276,10 +284,10 @@ type kubectl >/dev/null 2>&1 && {
 	case "$ns_name" in
 	    kube[_-]*|k8s[_-]*|k8[_-]*|kubernetes[_-]*) ns_name="${ns_name#*_}";;
 	esac
-	alias k$ns_name="kubectl --namespace=$ns"
-	alias kuse_$ns_name="kubectl config use-context $ns"
+	alias "k$ns_name=kubectl --namespace=$ns"
+	alias "kuse_$ns_name=kubectl config use-context $ns"
     done
-    unset ns ns_name
+    unset nss ns ns_name
 }
 
 type mvn >/dev/null 2>&1 && {

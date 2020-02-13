@@ -4,8 +4,9 @@
 ## Definition of bash completions
 
 # Use drop in scripts
+# shellcheck disable=2140 # seems rather dodgy detection...
 for comp in \
-    ${PREFIX:+
+    ${PREFIX:+ \
 	"$PREFIX/etc/bash/bashrc.d/bash_completion.sh" \
 	"$PREFIX/etc/profile.d/bash-completion.sh" \
 	"$PREFIX/etc/profile.d/bash_completion.sh" \
@@ -17,6 +18,7 @@ for comp in \
     "/etc/profile.d/bash_completion.sh" \
     "/etc/bash_completion"
 do
+    # shellcheck source=/dev/null
     [ -f "$comp" ] && . "$comp" && break
 done
 unset comp
@@ -56,14 +58,14 @@ type 'vm' >/dev/null 2>&1 &&
 # great-grandparent, etc. Complement to 'cdd' function.
 _cdd () {
     COMP_WORDS[${COMP_CWORD}]="$( \
-	echo "${COMP_WORDS[${COMP_CWORD}]}" | \
+	echo "${COMP_WORDS[$COMP_CWORD]}" | \
 	    sed -e ':sub
 		s:^\(.*/\)\?\.\.\.:\1../..:g
 		t sub'
 	)"
     [ "${1}" = "${2}" ] &&	# only do substitution once if needed
-	two="${COMP_WORDS[${COMP_CWORD}]}" || two="${2}"
-    _cd ${1} "${COMP_WORDS[${COMP_CWORD}]}" "${two}"
+	two="${COMP_WORDS[$COMP_CWORD]}" || two="$2"
+    _cd "$1" "${COMP_WORDS[${COMP_CWORD}]}" "$two"
 }
 complete -p cd >/dev/null 2>&1 && {
     complete -o nospace -F _cdd cd		# ./..../file 'cd' completion
@@ -75,7 +77,7 @@ complete -p cd >/dev/null 2>&1 && {
 # in a tmux session)
 _sudo () {
     # Start default sudo completion
-    local PATH="${PATH}:/sbin:/usr/sbin:/usr/local/sbin"
+    local PATH="$PATH:/sbin:/usr/sbin:/usr/local/sbin"
     local offset i;
     offset=1;
     for ((i=1; i <= COMP_CWORD; i++ ))
@@ -85,7 +87,7 @@ _sudo () {
 	    break;
 	fi;
     done;
-    _command_offset ${offset}
+    _command_offset $offset
     # End default sudo completion
     #if [ ${#COMPREPLY[@]} -gt 1 ]; then
 	#return 0	# If we have several, return now
@@ -105,15 +107,17 @@ _sudo () {
     #fi
     #echo;echo "|${COMPREPLY[*]}|";echo
     if [ ${#COMPREPLY[@]} -le 0 ]; then
-	local comp_func="$(complete -p "${COMP_WORDS[${offset}]}" 2>/dev/null \
-	    | sed -ne \
-	    "s:complete\s.*-F\s*\(\S\+\)\s\+${COMP_WORDS[${offset}]}\s*$:\1:p")"
+	local comp_func=""
+	comp_func="$(complete -p "${COMP_WORDS[$offset]}" 2>/dev/null |
+	    sed -nEe \
+		"s:complete\s.*-F\s*(\S+)\s+${COMP_WORDS[$offset]}\s*$:\1:p"
+	    )"
 	if [ -n "${comp_func}" ]; then
-	    COMP_WORDS=( "${COMP_WORDS[@]:${offset}}" )
-	    COMP_CWORD=$(( ${COMP_CWORD} - ${offset} ))
+	    COMP_WORDS=( "${COMP_WORDS[@]:$offset}" )
+	    COMP_CWORD=$(( COMP_CWORD - offset ))
 	    c_l=${#COMP_LINE}
 	    COMP_LINE="${COMP_WORDS[${offset}]}${COMP_LINE#*${COMP_WORDS[${offset}]}}"
-	    COMP_POINT=$(( ${COMP_POINT} - ${c_l} + ${#COMP_LINE} ))
+	    COMP_POINT=$(( COMP_POINT - c_l + ${#COMP_LINE} ))
 	    unset c_l
 	    "${comp_func}" "${COMP_WORDS[0]}" "$2" "$3"
 	fi
@@ -150,25 +154,27 @@ type git-sparse >/dev/null 2>&1 &&
 # pollution less obvious. TODO: get working for non function completion
 _wrap_alias () {
     # Function to generate wrapper
-    local name="${1}"	; shift
-    local cmd="${1}" cmdline="${*}"
-    [ "${name}" = "${cmd}" ] &&	# don't process ones like ls='ls --color=auto'
+    local name="$1"	; shift
+    local cmd="$1" cmdline="$*"
+    [ "$name" = "$cmd" ] &&	# don't process ones like ls='ls --color=auto'
 	return 0
     local ns="_alias_comp."	# namespace for aliases
     # Get the old completion function and completion line for the new alias
-    local comp="$(complete -p ${cmd} 2>/dev/null | sed -ne \
-	"s:^\(complete\s.*\s-F\s\+\)\(\S\+\)\s\(.*\)${cmd}\s*$:\2|\1${ns}${name} \3${name}:p")"
-    [ -z "${comp}" ] &&		# no completion function
+    local comp=""
+    comp="$(complete -p "$cmd" 2>/dev/null | sed -nEe \
+	"s:^(complete\s.*\s-F\s+)(\S+)\s(.*)$cmd\s*$:\2|\1$ns$name \3$name:p"
+	)" || return
+    [ -z "$comp" ] &&		# no completion function
 	return 0
     local comp_func="${comp%%|complete*}"	# Get original function name
     # Generate the new wrapper function
     eval "
-${ns}${name} () {
-    COMP_CWORD=\$(( \${COMP_CWORD} + $(( ${#} - 1 )) ))
-    COMP_WORDS=( ${cmdline} \"\${COMP_WORDS[@]:1}\" )
+$ns$name () {
+    COMP_CWORD=\$(( \${COMP_CWORD} + $(( $# - 1 )) ))
+    COMP_WORDS=( $cmdline \"\${COMP_WORDS[@]:1}\" )
     COMP_POINT=\$(( \${COMP_POINT} - ${#name} + ${#cmdline} ))
-    COMP_LINE=\"${cmdline}\${COMP_LINE#${name}}\"
-    ${comp_func} ${cmd} \"\${COMP_WORDS[\${COMP_CWORD}]}\" \"\${COMP_WORDS[\$((\${COMP_CWORD} - 1))]}\" 
+    COMP_LINE=\"$cmdline\${COMP_LINE#$name}\"
+    $comp_func $cmd \"\${COMP_WORDS[\${COMP_CWORD}]}\" \"\${COMP_WORDS[\$((\${COMP_CWORD} - 1))]}\" 
 }"
     # Generate the new completion
     eval "${comp#*|}"
@@ -179,6 +185,7 @@ eval "$(alias -p | sed -ne \
 # don't need function anymore
 unset _wrap_alias
 
+# shellcheck source=/dev/null
 type 'tmuxinator_completion' >/dev/null 2>&1 &&
     . tmuxinator_completion
 type 'teamocil' >/dev/null 2>&1 &&
