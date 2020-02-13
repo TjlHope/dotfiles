@@ -88,7 +88,7 @@ type 'xdg-open'						>/dev/null 2>&1 && {
     type 'open' >/dev/null 2>&1 || alias open='xdg-open >/dev/null 2>&1'
 }
 type 'sshfs'						>/dev/null 2>&1 &&
-    alias sshfs='sshfs -o reconnect -o workaround=all'
+    alias sshfs='sshfs -o reconnect' # doesn't seemt to work: ' -o workaround=all'
 [ -f "${HOME}/Documents/Code/t/t.py" ] && {
     alias t="${HOME}/Documents/Code/t/t.py"
     eval "$(alias t)' --task-dir \"\${HOME}/Documents/tasks\" --list tasks'"
@@ -195,6 +195,7 @@ type ant >/dev/null 2>&1 && {
 }
 
 alias vm='IWD="${PWD#$HOME/}" ssh test@vm'
+alias vm7='IWD="${PWD#$HOME/}" ssh test@tosp-a'
 
 type rpmbuild > /dev/null 2>&1 &&
     alias build_rpm='CLASSPATH="$CLASSPATH:$(echo $(find ${PWD}/../*/dist -name *.jar) | sed "s/\s\+/:/g")" rpmbuild --nodeps --define "_topdir ${PWD}/build/rpmbuild" --rebuild build/rpmbuild/SRPMS/*.src.rpm'
@@ -272,9 +273,10 @@ type watch_for >/dev/null 2>&1 &&
 type kubectl >/dev/null 2>&1 && {
     alias k="kubectl"
     alias kall="kubectl --all-namespaces=true"
-    for ns in $(kubectl --request-timeout=2s \
+    nss="$(kubectl --request-timeout=2s \
 	get namespace --no-headers=true \
-	--output=custom-columns=:.metadata.name)
+	--output=custom-columns=:.metadata.name
+    )" && for ns in $nss
     do
 	case "$ns" in (*['&;| 	']*)	# TODO: fix complete.bash
 	    echo "Cannot alias k8s namespace: $ns" >&2
@@ -292,6 +294,10 @@ type kubectl >/dev/null 2>&1 && {
 
 type mvn >/dev/null 2>&1 && {
     alias mvn="mvn -D'https.protocols=TLSv1,TLSv1.1,TLSv1.2'"
+}
+
+type tmux-xpanes >/dev/null 2>&1 && {
+    alias tmux-xssh="tmux-xpanes --ssh -ss -lev"
 }
 
 ## End aliases		}}}1

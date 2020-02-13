@@ -5,8 +5,8 @@
 ## Definition of shell functions
 
 cd() {
-    # Function allowing 'cd' to interpret N '.'s to mean the (N-1)th parent 
-    # directory; i.e. '..' is up to parent, '...' is grandparent, '....' is 
+    # Function allowing 'cd' to interpret N '.'s to mean the (N-1)th parent
+    # directory; i.e. '..' is up to parent, '...' is grandparent, '....' is
     # great-grandparent, etc. Complement to '_cdd' completion function.
     local d="" >/dev/null 2>&1 || :
     d="$(echo "$1" | sed -e ':sub
@@ -18,7 +18,7 @@ cd() {
 
 pushpopd() {
     # Combine pushd and popd, empty dir, or '-' is a pop, otherwise push.
-    # The thought is that popd will rarely use arguments, and pushd nearly 
+    # The thought is that popd will rarely use arguments, and pushd nearly
     # always has a path, and so they can be easily combined in this way.
     if [ -z "$1" ] || [ "$1" = '-' ]
     then
@@ -53,6 +53,28 @@ type 'vim' >/dev/null 2>&1 &&	#false &&	# comment 'false &&' to enable
 
 date_time() {
     date "+$1%F_%X$2"
+}
+
+sleep_until() {
+    local target='' now='' secs='' sleep_for=''
+    target="$(date -d "$1" '+%s')" || return
+    # sleep is normally CPU tick based, which could skew over long periods.
+    # So sleep in smaller increments (~an order of magnitude less than the
+    # remaining time, or 10s if that's bigger) and keep re-checking how much
+    # longer to go.
+    # This still keeps the load quite low (especially for long periods), whilst
+    # still (hopefully) giving the sleep second accuracy.
+    while now="$(date '+%s')" && secs=$(( target - now )) && [ $secs -gt 0 ]
+    do
+	if [ "$secs" -gt 100 ]
+	then sleep_for="$(( secs / 10 ))"
+	elif [ "$secs" -gt 9 ]
+	then sleep_for="10"
+	else sleep_for="$secs"
+	fi
+	sleep "$sleep_for" || return	# if there's an error, don't keep going
+    done
+    [ $secs -ge 0 ] || return 2	# we've slept too long
 }
 
 quote_url() {
@@ -229,6 +251,18 @@ snc() {
     $WRAPPER ssh "$host" nc localhost "$@"
 }
 
+random_bytes() {
+    local bytes="${1-}" encode="${ENCODE-}"	# TODO
+    dd if=/dev/urandom status=none count=1 bs="$bytes" | {
+	if [ -n "$encode" ]
+	then "$encode"
+	elif [ -t 1 ]
+	then hexdump -ve '/1 "%02x"' && echo
+	else cat
+	fi
+    }
+}
+
 watch_for() {
     local i=0 int=2 fl regex
     case "$1" in
@@ -307,16 +341,18 @@ type firefox >/dev/null 2>&1 && {
 type pip >/dev/null 2>&1 && {
     pip() {
 	case "$1" in
+	    install)		shift
+		set -- install --user "$@";;
 	    update|upgrade)	shift
 		local _ifs="$IFS" IFS="
 "
 		# shellcheck disable=2046
-		set -- install --upgrade "$@" \
+		set -- install --user --upgrade "$@" \
 		    $(pip list --outdated --format=freeze | cut -d= -f1 |
 			grep -v mercurial)	# TODO
 		IFS="$_ifs";;
 	    reinstall)		shift
-		set -- install --upgrade --force-reinstall --no-deps "$@";;
+		set -- install --user --upgrade --force-reinstall --no-deps "$@";;
 	    *)	:;;
 	esac
 	command pip "$@"
@@ -367,7 +403,7 @@ type kubectl >/dev/null 2>&1 && {
 
 type rg >/dev/null 2>&1 && {
     rf() {
-	local i=0 t="$#" a='' _g='-g'
+	local i=0 t="$#" a='' _g='-g' g=false
 	while [ "$i" -lt "$t" ];
 	do  i=$(( i + 1 )) a="$1"; shift
 	    case "$a" in
@@ -375,10 +411,13 @@ type rg >/dev/null 2>&1 && {
 		-I)				_g="-g";	continue;;
 		-*)				:;;
 		*/*)				:;;	# assume it's a PATH
-		'!'*'*'*|'!'*'?'*|'!'*'['*)	a="$_g$a";;
-		'!'*)				a="$_g!*${a#!}*";;
-		*'*'*|*'?'*|*'['*)		a="$_g$a";;
-		*)				a="$_g*$a*";;
+		'!'*'*'*|'!'*'?'*|'!'*'['*)	a="$_g$a" g=:;;
+		'!'*)				a="$_g!*${a#!}*" g=:;;
+		*'*'*|*'?'*|*'['*)		a="$_g$a" g=:;;
+		*)  if { "$g" && [ -e "$a" ]; }
+		    then :	# assume it was meant as a path
+		    else a="$_g*$a*" g=:
+		    fi;;
 	    esac
 	    set -- "$@" "$a"
 	done
@@ -410,6 +449,18 @@ type openssl >/dev/null 2>&1 && {
 	openssl aes-256-cbc -d -a -in "$in" -out "$out"
     }
 }
+
+if type jq >/dev/null 2>&1
+then
+    whats_my_ip() {
+	curl -s 'https://api.ipify.org?format=json' | jq -r .ip
+    }
+else
+    whats_my_ip() {
+	curl -s 'https://api.ipify.org?format=json'
+	echo
+    }
+fi
 
 rel_path() {
     # TODO: get this working generically
