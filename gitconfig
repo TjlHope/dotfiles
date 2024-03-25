@@ -1,5 +1,5 @@
 # My Git Config
-# vim: ft=gitconfig ts=4 sw=4 noet
+# vim: ft=gitconfig sw=4 sts=4 ts=4 noet
 
 [user]
 	name = Tom JL Hope
@@ -13,7 +13,28 @@
 	hooksPath = ~/.git/hooks
 
 [color]
+	# Use colour if going to a terminal
 	ui = true
+	# Always use colour for status (for gita, vcs, etc.)
+	status = always
+
+[pager]
+	#svn-diff = true
+
+[log]
+	decorate = true
+
+[fetch]
+	recurseSubmodules = true
+
+[pull]
+	rebase = merges
+
+[push]
+	default = simple
+
+[diff]
+	renames = copy
 
 [merge]
 	conflictstyle = diff3
@@ -22,11 +43,14 @@
 [mergetool "fugitive"]
 	cmd = vim -f "$MERGED" -c 'runtime extra/fugitive-merge.vim'
 
-[diff]
-	renames = copy
+[rerere]
+	enabled = true
 
-[log]
-	decorate = true
+[instaweb]
+	browser = default
+
+[browser "default"]
+	cmd = xdg-open
 
 [alias]
 	b = branch
@@ -36,13 +60,17 @@
 
 	ch = checkout
 
-	l = log --exclude='refs/notes/*' --exclude='refs/hg/*'
-	log = log --exclude='refs/notes/*' --exclude='refs/hg/*'
-	gl = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph
-	lg = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph
-	glog = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph
-	la = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph --all
-	gla = log --exclude='refs/notes/*' --exclude='refs/hg/*' --graph --all
+	l		= log --date-order --exclude='refs/notes/*' --exclude='refs/hg/*' --exclude='refs/remotes/old*/*'
+	log		= log --date-order --exclude='refs/notes/*' --exclude='refs/hg/*' --exclude='refs/remotes/old*/*'
+	gl		= log --date-order --exclude='refs/notes/*' --exclude='refs/hg/*' --exclude='refs/remotes/old*/*' --graph
+	gl1		= log --date-order --exclude='refs/notes/*' --exclude='refs/hg/*' --exclude='refs/remotes/old*/*' --graph --oneline
+	lg		= log --date-order --exclude='refs/notes/*' --exclude='refs/hg/*' --exclude='refs/remotes/old*/*' --graph
+	lg1		= log --date-order --exclude='refs/notes/*' --exclude='refs/hg/*' --exclude='refs/remotes/old*/*' --graph --oneline
+	glog	= log --date-order --exclude='refs/notes/*' --exclude='refs/hg/*' --exclude='refs/remotes/old*/*' --graph
+	la		= log --date-order --exclude='refs/notes/*' --exclude='refs/hg/*' --exclude='refs/remotes/old*/*' --graph --all
+	gla		= log --date-order --exclude='refs/notes/*' --exclude='refs/hg/*' --exclude='refs/remotes/old*/*' --graph --all
+	la1		= log --date-order --exclude='refs/notes/*' --exclude='refs/hg/*' --exclude='refs/remotes/old*/*' --graph --all --oneline
+	gla1	= log --date-order --exclude='refs/notes/*' --exclude='refs/hg/*' --exclude='refs/remotes/old*/*' --graph --all --oneline
 
 	d = diff
 	w = diff --word-diff=color --word-diff-regex='[[:alnum:]]+|[^[:space:]]' --diff-algorithm=minimal
@@ -51,19 +79,20 @@
 
 	diff-root = diff 4b825dc642cb6eb9a060e54bf8d69288fbee4904
 
+	lwd = log --patch --word-diff=color --word-diff-regex='\\w+|\\S' --diff-algorithm=minimal
+
 	s = status
 	st = status
 
 	vn = svn
 
-[pager]
-	#svn-diff = true
 
-[credential "https://github.com"]
-	username = TjlHope
 
 [remote-hg]
 	hg-git-compat = true
+
+[credential "https://github.com"]
+	username = TjlHope
 
 [url "hg::http://hg.eng.telsis.local/hg/"]
 	insteadOf = "thg:"
@@ -79,23 +108,4 @@
 
 [protocol "bzr"]
 	allow = always
-
-[pull]
-	rebase = preserve
-
-[push]
-	default = simple
-
-[rerere]
-	enabled = true
-
-[cvsimport]
-	d = $CVSROOT
-	r = cvs
-
-[instaweb]
-	browser = default
-
-[browser "default"]
-	cmd = xdg-open
 
