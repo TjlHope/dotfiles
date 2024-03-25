@@ -29,6 +29,12 @@ setup = !f() {
 [command ecr]
 host = !f() {
         [ $# -eq 0 ] || { echo "no args supported" >&2; return 1; }
+        : "${AWS_PROFILE:?profile needed}" || return
         a="$(aws account)" && r="$(aws region)" &&
             printf '%s.dkr.ecr.%s.amazonaws.com\n' "$a" "$r"
+    } && f
+login = !f() {
+        : "${AWS_PROFILE:?profile needed}" || return
+        aws ecr get-login-password |
+            docker login --username AWS --password-stdin "$(aws ecr host)"
     } && f
