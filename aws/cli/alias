@@ -1,0 +1,34 @@
+# aws cli aliases
+# vi: ft=dosini sw=4 sts=4 ts=8 et
+
+[toplevel]
+login = sso login
+whoami = sts get-caller-identity
+account = whoami --output text --query Account
+user = whoami --output text --query UserId
+region = configure get region
+
+[command configure]
+sso = sso --no-browser
+
+[command sso]
+login = login --no-browser
+
+[command eks]
+cluster0 = list-clusters --output text --query 'clusters[0]'
+setup = !f() {
+        set -x
+        p="${AWS_PROFILE:?profile needed}" || return
+        [ $# -gt 0 ] || {
+            cluster="$(aws eks cluster0)" && : "${cluster:?not found}" || return
+            set -- --name "$cluster"
+        }
+        aws eks update-kubeconfig --alias "$p" --user-alias "$p" "$@" 
+    } && f
+
+[command ecr]
+host = !f() {
+        [ $# -eq 0 ] || { echo "no args supported" >&2; return 1; }
+        a="$(aws account)" && r="$(aws region)" &&
+            printf '%s.dkr.ecr.%s.amazonaws.com\n' "$a" "$r"
+    } && f
