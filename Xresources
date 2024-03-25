@@ -1,66 +1,237 @@
+!!!! Xresources
+!!!
+!! Use '!' not '#' for comments
+!  vim: fdm=marker
 
-!// Urxvt resources
-!//////////////////
+!// Colourschemes	{{{1
+!///////////////////
 
-!// depth: bitdepth
+!// original colours I used	{{{2
+#define o_black		#000000
+#define o_red		#cd5c5c
+#define o_green		#2e8b57
+#define o_yellow	#daa520
+#define o_blue		#5757d7
+#define o_magenta	#875f87
+#define o_cyan		#578787
+#define o_white		#cccccc
+#define o_BLACK		#4d4d4d
+#define o_RED		#ffa0a0
+#define o_GREEN		#98fb98
+#define o_YELLOW	#foe68c
+#define o_BLUE		#6699ff
+#define o_MAGENTA	#af87d7
+#define o_CYAN		#87ebeb
+#define o_WHITE		#ffffff
+
+!// xfce4-terminal defaults	{{{2
+#define x_black		#000000
+#define x_red		#aa0000
+#define x_green		#00aa00
+#define x_yellow	#aa5500
+#define x_blue		#0000aa
+#define x_magenta	#aa00aa
+#define x_cyan		#00aaaa
+#define x_white		#aaaaaa
+#define x_BLACK		#555555
+#define x_RED		#ff5555
+#define x_GREEN		#55ff55
+#define x_YELLOW	#ffff55
+#define x_BLUE		#5555ff
+#define x_MAGENTA	#ff55ff
+#define x_CYAN		#55ffff
+#define x_WHITE		#ffffff
+
+!// vim desert256		{{{2
+#define d_black		#000000
+#define d_red		#cd5c5c
+#define d_green		#2c5f2c
+#define d_yellow	#daa520
+#define d_blue		#
+#define d_magenta	#772c5f
+#define d_cyan		#87ceeb
+#define d_white		#
+#define d_BLACK		#4d4d4d
+#define d_RED		#cd5c5c
+#define d_GREEN		#98fb98
+#define d_YELLOW	#f0e68c
+#define d_BLUE		#
+#define d_MAGENTA	#
+#define d_CYAN		#addbe7
+#define d_WHITE		#cccccc
+
+!// solarised			{{{2
+#define S_base03        #002b36
+#define S_base02        #073642
+#define S_base01        #586e75
+#define S_base00        #657b83
+#define S_base0         #839496
+#define S_base1         #93a1a1
+#define S_base2         #eee8d5
+#define S_base3         #fdf6e3
+#define S_yellow        #b58900
+#define S_orange        #cb4b16
+#define S_red           #dc322f
+#define S_magenta       #d33682
+#define S_violet        #6c71c4
+#define S_blue          #268bd2
+#define S_cyan          #2aa198
+#define S_green         #859898
+
+#define S_black		S_base02
+!#define S_red		S_red
+!#define S_green	S_green
+!#define S_yellow	S_yellow
+!#define S_blue		S_blue
+!#define S_magenta	S_magenta
+!#define S_cyan		S_cyan
+#define S_white		S_base2
+#define S_BLACK		S_base03
+#define S_RED		S_orange
+#define S_GREEN		S_base01
+#define S_YELLOW	S_base00
+#define S_BLUE		S_base0
+#define S_MAGENTA	S_violet
+#define S_CYAN		S_base1
+#define S_WHITE		S_base3
+
+!// Nord			{{{2
+#define nord0		#2E3440
+#define nord1		#3B4252
+#define nord2		#434C5E
+#define nord3		#4C566A
+#define nord4		#D8DEE9
+#define nord5		#E5E9F0
+#define nord6		#ECEFF4
+#define nord7		#8FBCBB
+#define nord8		#88C0D0
+#define nord9		#81A1C1
+#define nord10		#5E81AC
+#define nord11		#BF616A
+#define nord12		#D08770
+#define nord13		#EBCB8B
+#define nord14		#A3BE8C
+#define nord15		#B48EAD
+
+#define n_black		nord0
+#define n_red		nord11
+#define n_green		nord14
+#define n_yellow	nord13
+#define n_blue		nord10
+#define n_magenta	nord15
+#define n_cyan		nord8
+#define n_white		nord4
+#define n_BLACK		nord3
+#define n_RED		nord11
+#define n_GREEN		nord14
+#define n_YELLOW	nord13
+#define n_BLUE		nord9
+#define n_MAGENTA	nord15
+#define n_CYAN		nord7
+#define n_WHITE		nord5
+
+!// Chalk (github.com/mbadolato/iTerm2-Color-Schemes)	{{{2
+#define c_black		#2b2d2e
+#define c_BLACK		#888888
+#define c_red		#b23a52
+#define c_RED		#f24840
+#define c_green		#789b6a
+#define c_GREEN		#80c470
+#define c_yellow	#b9ac4a
+#define c_YELLOW	#ffeb62
+#define c_blue		#2a7fac
+#define c_BLUE		#4196ff
+#define c_magenta	#bd4f5a
+#define c_MAGENTA	#fc5275
+#define c_cyan		#44a799
+#define c_CYAN		#53cdbd
+#define c_white		#d2d8d9
+#define c_WHITE		#d2d8d9
+
+!// DimmedMonokai (github.com/mbadolato/iTerm2-Color-Schemes)	{{{2
+#define dm_black	#1f1f1f
+#define dm_BLACK	#888987
+#define dm_red		#be3f48
+#define dm_RED		#fb001f
+#define dm_green	#879a3b
+#define dm_GREEN	#0f722f
+#define dm_yellow	#c5a635
+#define dm_YELLOW	#c47033
+#define dm_blue		#4f76a1
+#define dm_BLUE		#186de3
+#define dm_magenta	#855c8d
+#define dm_MAGENTA	#fb0067
+#define dm_cyan		#2e706d
+#define dm_CYAN		#578fa4
+#define dm_white	#b9bcba
+#define dm_WHITE	#fdffb9
+
+!// MaterialDark (github.com/mbadolato/iTerm2-Color-Schemes)	{{{2
+#define md_black	#212121
+#define MD_black	#101010
+#define md_BLACK	#424242
+#define md_red		#b7141f
+#define md_RED		#e83b3f
+#define md_green	#457b24
+#define md_GREEN	#7aba3a
+#define md_yellow	#f6981e
+#define md_YELLOW	#ffea2e
+#define md_blue		#134eb2
+#define md_BLUE		#54a4f3
+#define md_magenta	#560088
+#define md_MAGENTA	#aa4dbc
+#define md_cyan		#0e717c
+#define md_CYAN		#26bbd1
+#define md_white	#efefef
+#define MD_white	x_white
+#define md_WHITE	#d9d9d9
+
+
+!// final mapping		{{{2
+#define _black		x_black
+#define _red		x_red
+#define _green		x_green
+#define _yellow		x_yellow
+#define _blue		x_blue
+#define _magenta	x_magenta
+#define _cyan		x_cyan
+#define _white		x_white
+#define _BLACK		x_BLACK
+#define _RED		x_RED
+#define _GREEN		x_GREEN
+#define _YELLOW		x_YELLOW
+#define _BLUE		x_BLUE
+#define _MAGENTA	x_MAGENTA
+#define _CYAN		x_CYAN
+#define _WHITE		x_WHITE
+
+!// Urxvt resources	{{{1
+!//////////////////	{{{2
+
+!// depth: bitdepth		{{{3
 !//   Compile xft: Attempt to find a visual with the given bit depth
 URxvt*.depth:		32
 
-!// buffered: boolean
+!// buffered: boolean		{{{3
 !//   Compile xft: Turn on/off double-buffering for xft (default enabled). On
 !//   some card/driver combination enabling it slightly decreases performance,
 !//   on most it greatly helps it. The slowdown is small, so it should normally
 !//   be enabled.
 
-!// geometry: geom
+!// geometry: geom		{{{3
 !//   Create the window with the specified X window geometry [default 80x24]
-URxvt*.geometry:	180x65
+URxvt*.geometry:	220x80
 
-!// the colours I'm using
-!#define _black	#000000
-!#define _red	#cd5c5c
-!#define _green	#2e8b57
-!#define _yellow #daa520
-!#define _blue	#5757d7
-!#define _magenta #875f87
-!#define _cyan	#578787
-!#define _white	#cccccc
-!#define _BLACK	#4d4d4d
-!#define _RED	#ffa0a0
-!#define _GREEN	#98fb98
-!#define _YELLOW #foe68c
-!#define _BLUE	#6699ff
-!#define _MAGENTA #af87d7
-!#define _CYAN	#87ebeb
-!#define _WHITE	#ffffff
 
-!// xfce4-terminal defaults
-#define _black	#000000
-#define _red	#aa0000
-#define _green	#00aa00
-#define _yellow #aa5500
-#define _blue	#0000aa
-#define _magenta #aa00aa
-#define _cyan	#00aaaa
-#define _white	#aaaaaa
-#define _BLACK	#555555
-#define _RED	#ff5555
-#define _GREEN	#55ff55
-#define _YELLOW #ffff55
-#define _BLUE	#5555ff
-#define _MAGENTA #ff55ff
-#define _CYAN	#55ffff
-#define _WHITE	#ffffff
-
-!// background: colour
+!// background: colour		{{{3
 !//   Use the specified colour as the window's background colour [default White]
 URxvt*.background:	[85]_black
 
-!// foreground: colour
+!// foreground: colour		{{{3
 !//   Use the specified colour as the window's foreground colour [default Black]
 URxvt*.foreground:	_white
 
-!// colorn: colour
+!// colorn: colour		{{{3
 !//   Use the specified colour for the colour value n, where 0-7 corresponds to
 !//   low-intensity (normal) colours and 8-15 corresponds to high-intensity
 !//   (bold = bright foreground, blink = bright background) colours. The
@@ -90,43 +261,43 @@ URxvt*.color13:		_MAGENTA
 URxvt*.color14:		_CYAN
 URxvt*.color15:		_WHITE
 
-!// colorBD: colour
+!// colorBD: colour		{{{3
 !// colorIT: colour
 !//   Use the specified colour to display bold or italic characters when the
 !//   foreground colour is the default. If font styles are not available
 !//   (Compile styles) and this option is unset, reverse video is used instead.
 
-!// colorUL: colour
+!// colorUL: colour		{{{3
 !//   Use the specified colour to display underlined characters when the
 !//   foreground colour is the default.
 
-!// underlineColor: colour
+!// underlineColor: colour	{{{3
 !//   If set, use the specified colour as the colour for the underline itself.
 !//   If unset, use the foreground colour.
 
-!// highlightColor: colour
+!// highlightColor: colour	{{{3
 !//   If set, use the specified colour as the background for highlighted
 !//   characters. If unset, use reverse video.
 
-!// highlightTextColor: colour
+!// highlightTextColor: colour	{{{3
 !//   If set and highlightColor is set, use the specified colour as the
 !//   foreground for highlighted characters.
 
-!// cursorColor: colour
+!// cursorColor: colour		{{{3
 !//   Use the specified colour for the cursor. The default is to use the
 !//   foreground colour
 
-!// cursorColor2: colour
+!// cursorColor2: colour	{{{3
 !//   Use the specified colour for the colour of the cursor text. For this to
 !//   take effect, cursorColor must also be specified. The default is to use
 !//   the background colour.
 
-!// reverseVideo: boolean
+!// reverseVideo: boolean	{{{3
 !//   True: simulate reverse video by foreground and background colours. False:
 !//   regular screen colours [default].  See note in COLOURS AND GRAPHICS
 !//   section.
 
-!// jumpScroll: boolean
+!// jumpScroll: boolean		{{{3
 !//   True: specify that jump scrolling should be used. When receiving lots of
 !//   lines, urxvt will only scroll once a whole screen height of lines has
 !//   been read, resulting in fewer updates while still displaying every
@@ -135,7 +306,7 @@ URxvt*.color15:		_WHITE
 !//   False: specify that smooth scrolling should be used. urxvt will force a
 !//   screen refresh on each new line it received
 
-!// skipScroll: boolean
+!// skipScroll: boolean		{{{3
 !//   True: (the default) specify that skip scrolling should be used. When
 !//   receiving lots of lines, urxvt will only scroll once in a while (around
 !//   60 times per second), resulting in far fewer updates. This can result in
@@ -145,29 +316,29 @@ URxvt*.color15:		_WHITE
 !//   too fast for the human eye to read anything (or the monitor to display
 !//   anything)
 
-!// fading: number
+!// fading: number		{{{3
 !//   Fade the text by the given percentage when focus is lost
 
-!// fadeColor: colour
+!// fadeColor: colour		{{{3
 !//   Fade to this colour, when fading is used (see fading:). The default
 !//   colour is black
 
-!// iconFile: file
+!// iconFile: file		{{{3
 !//   Set the application icon pixmap
 URxvt*.iconFile:	/usr/share/icons/Faenza/apps/scalable/utilities-terminal.svg
 
-!// scrollColor: colour
+!// scrollColor: colour		{{{3
 !//   Use the specified colour for the scrollbar [default #B2B2B2].
 
-!// troughColor: colour
+!// troughColor: colour		{{{3
 !//   Use the specified colour for the scrollbar's trough area [default
 !//   #969696]. Only relevant for rxvt (non XTerm/NeXT) scrollbar.
 
-!// borderColor: colour
+!// borderColor: colour		{{{3
 !//   The colour of the border around the text area and between the scrollbar
 !//   and the text.
 
-!// font: fontlist
+!// font: fontlist		{{{3
 !//   Select the fonts to be used. This is a comma separated list of font names
 !//   that are checked in order when trying to find glyphs for characters. The
 !//   first font defines the cell size for characters; other fonts might be
@@ -206,10 +377,9 @@ URxvt*.iconFile:	/usr/share/icons/Faenza/apps/scalable/utilities-terminal.svg
 !//
 !//   The last font is a useful catch-all font that supplies most of the
 !//   remaining unicode characters.
-URxvt*.font:		-xos4-terminus-medium-r-normal--14-140-72-72-c-80-iso8859-1,\
-			-xos4-terminus-medium-r-normal--14-140-72-72-c-80-iso10646-1
+URxvt*.font:		 -xos4-terminus-medium-r-normal--14-140-72-72-c-80-iso10646-1
 
-!// boldFont: fontlist
+!// boldFont: fontlist		{{{3
 !// italicFont: fontlist
 !// boldItalicFont: fontlist
 !//   The font list to use for displaying bold, italic or bold italic
@@ -226,48 +396,47 @@ URxvt*.font:		-xos4-terminus-medium-r-normal--14-140-72-72-c-80-iso8859-1,\
 !//
 !//   If set, but empty, then this specific style is disabled and the normal
 !//   text font will being used for the given style.
-URxvt*.boldFont:	-xos4-terminus-bold-r-normal--14-140-72-72-c-80-iso8859-1,\
-			-xos4-terminus-bold-r-normal--14-140-72-72-c-80-iso10646-1
+URxvt*.boldFont:	 -xos4-terminus-bold-r-normal--14-140-72-72-c-80-iso10646-1
 
-!// intensityStyles: boolean
+!// intensityStyles: boolean	{{{3
 !//   When font styles are not enabled, or this option is enabled (True, the
 !//   default), bold/blink font styles imply high intensity
 !//   foreground/background colours. Disabling this option (False) disables
 !//   this behaviour, the high intensity colours are not reachable.
 
-!// title: string
+!// title: string		{{{3
 !//   Set window title string, the default title is the command-line specified
 !//   after the -e option, if any, otherwise the application name
 
-!// iconName: string
+!// iconName: string		{{{3
 !//   Set the name used to label the window's icon or displayed in an icon
 !//   manager window, it also sets the window's title unless it is explicitly
 !//   set
 
-!// mapAlert: boolean
+!// mapAlert: boolean		{{{3
 !//   True: de-iconify (map) on receipt of a bell character. False: no
 !//   de-iconify (map) on receipt of a bell character [default].
 
-!// urgentOnBell: boolean
+!// urgentOnBell: boolean	{{{3
 !//   True: set the urgency hint for the wm on receipt of a bell character.
 !//   False: do not set the urgency hint [default].
 !//
 !//   urxvt resets the urgency hint on every focus change.
 URxvt*.urgentOnBell:	True
 
-!// visualBell: boolean
+!// visualBell: boolean		{{{3
 !//   True: use visual bell on receipt of a bell character. False: no visual
 !//   bell [default].
 
-!// loginShell: boolean
+!// loginShell: boolean		{{{3
 !//   True: start as a login shell by prepending a `-' to argv[0] of the shell.
 !//   False: start as a normal sub-shell [default].
 
-!// utmpInhibit: boolean
+!// utmpInhibit: boolean	{{{3
 !//   True: inhibit writing record into the system log file utmp. False: write
 !//   record into the system log file utmp [default].
 
-!// print-pipe: string
+!// print-pipe: string		{{{3
 !//   Specify a command pipe for vt100 printer [default lpr(1)]. Use Print to
 !//   initiate a screen dump to the printer and Ctrl-Print or Shift-Print to
 !//   include the scrollback as well.
@@ -281,123 +450,123 @@ URxvt*.urgentOnBell:	True
 !//   This creates a new file in your home directory with the screen contents
 !//   every time you hit "Print".
 
-!// scrollstyle: mode
+!// scrollstyle: mode		{{{3
 !//   Set scrollbar style to rxvt, plain, next or xterm. plain is the author's
 !//   favourite.
 
-!// thickness: number
+!// thickness: number		{{{3
 !//   Set the scrollbar width in pixels.
 
-!// scrollBar: boolean
+!// scrollBar: boolean		{{{3
 !//   True: enable the scrollbar [default]. False: disable the scrollbar.
 URxvt*.scrollBar:		False
 
-!// scrollBar_right: boolean
+!// scrollBar_right: boolean	{{{3
 !//   True: place the scrollbar on the right of the window.  False: place the
 !//   scrollbar on the left of the window.
 
-!// scrollBar_floating: boolean
+!// scrollBar_floating: boolean	{{{3
 !//   True: display an rxvt scrollbar without a trough. False: display an rxvt
 !//   scrollbar with a trough.
 
-!// scrollBar_align: mode
+!// scrollBar_align: mode	{{{3
 !//   Align the top, bottom or centre [default] of the scrollbar thumb with the
 !//   pointer on middle button press/drag.
 
-!// scrollTtyOutput: boolean
+!// scrollTtyOutput: boolean	{{{3
 !//   True: scroll to bottom when tty receives output. False: do not scroll to
 !//   bottom when tty receives output.
 URxvt*.scrollTtyOutput:		False
 
-!// scrollWithBuffer: boolean
+!// scrollWithBuffer: boolean	{{{3
 !//   True: scroll with scrollback buffer when tty receives new lines (i.e.
 !//   try to show the same lines) and scrollTtyOutput is False.  False: do not
 !//   scroll with scrollback buffer when tty receives new lines.
 URxvt*.scrollWithBuffer:	True
 
-!// scrollTtyKeypress: boolean
+!// scrollTtyKeypress: boolean	{{{3
 !//   True: scroll to bottom when a non-special key is pressed. Special keys
 !//   are those which are intercepted by rxvt-unicode for special handling and
 !//   are not passed onto the shell. False: do not scroll to bottom when a
 !//   non-special key is pressed.
 URxvt*.scrollTtyKeypress:	True
 
-!// saveLines: number
+!// saveLines: number		{{{3
 !//   Save number lines in the scrollback buffer [default 64]. This resource is
 !//   limited on most machines to 65535.
 URxvt*.saveLines:		5000
 
-!// internalBorder: number
+!// internalBorder: number	{{{3
 !//   Internal border of number pixels. This resource is limited to 100.
 URxvt*.internalBorder:		0
 
-!// externalBorder: number
+!// externalBorder: number	{{{3
 !//   External border of number pixels. This resource is limited to 100.
 URxvt*.externalBorder:		0
 
-!// borderLess: boolean
+!// borderLess: boolean		{{{3
 !//   Set MWM hints to request a borderless window, i.e. if honoured by the WM,
 !//   the rxvt-unicode window will not have window decorations.
 URxvt*.borderLess:		True
 
-!// skipBuiltinGlyphs: boolean
+!// skipBuiltinGlyphs: boolean	{{{3
 !//   Compile frills: Disable the usage of the built-in block graphics/line
 !//   drawing characters and just rely on what the specified fonts provide. Use
 !//   this if you have a good font and want to use its block graphic glyphs.
 URxvt*.skipBuiltinGlyphs:	True
 
-!// termName: termname
+!// termName: termname		{{{3
 !//   Specifies the terminal type name to be set in the TERM environment
 !//   variable.
 
-!// lineSpace: number
+!// lineSpace: number		{{{3
 !//   Specifies number of lines (pixel height) to insert between each row of
 !//   the display [default 0].
 
-!// meta8: boolean
+!// meta8: boolean		{{{3
 !//   True: handle Meta (Alt) + keypress to set the 8th bit. False: handle Meta
 !//   (Alt) + keypress as an escape prefix [default].
 
-!// mouseWheelScrollPage: boolean
+!// mouseWheelScrollPage: boolean	{{{3
 !//   True: the mouse wheel scrolls a page full. False: the mouse wheel scrolls
 !//   five lines [default].
 
-!// pastableTabs: boolean
+!// pastableTabs: boolean	{{{3
 !//   True: store tabs as wide characters. False: interpret tabs as cursor
 !//   movement only.
 
-!// cursorBlink: boolean
+!// cursorBlink: boolean	{{{3
 !//   True: blink the cursor. False: do not blink the cursor [default].
 
-!// cursorUnderline: boolean
+!// cursorUnderline: boolean	{{{3
 !//   True: Make the cursor underlined. False: Make the cursor a box [default].
 
-!// pointerBlank: boolean
+!// pointerBlank: boolean	{{{3
 !//   True: blank the pointer when a key is pressed or after a set number of
 !//   seconds of inactivity. False: the pointer is always visible [default].
 
-!// pointerColor: colour
+!// pointerColor: colour	{{{3
 !//   Mouse pointer foreground colour.
 
-!// pointerColor2: colour
+!// pointerColor2: colour	{{{3
 !//   Mouse pointer background colour.
 
-!// pointerBlankDelay: number
+!// pointerBlankDelay: number	{{{3
 !//   Specifies number of seconds before blanking the pointer [default 2]. Use
 !//   a large number (e.g. 987654321) to effectively disable the timeout.
 
-!// backspacekey: string
+!// backspacekey: string	{{{3
 !//   The string to send when the backspace key is pressed. If set to DEC or
 !//   unset it will send Delete (code 127) or, with control, Backspace (code 8)
 !//   - which can be reversed with the appropriate DEC private mode escape
 !//   sequence.
 
-!// deletekey: string
+!// deletekey: string		{{{3
 !//   The string to send when the delete key (not the keypad delete key) is
 !//   pressed. If unset it will send the sequence traditionally associated with
 !//   the Execute key.
 
-!// cutchars: string
+!// cutchars: string		{{{3
 !//   The characters used as delimiters for double-click word selection
 !//   (whitespace delimiting is added automatically if resource is given).
 !//
@@ -411,31 +580,31 @@ URxvt*.skipBuiltinGlyphs:	True
 !//
 !//   BACKSLASH `"'&()*,;<=>?@[]^{|}
 
-!// preeditType: style
+!// preeditType: style		{{{3
 !//   OverTheSpot, OffTheSpot, Root.
 
-!// inputMethod: name
+!// inputMethod: name		{{{3
 !//   name of inputMethod to use.
 
-!// imLocale: name
+!// imLocale: name		{{{3
 !//   The locale to use for opening the IM. You can use an "LC_CTYPE" of e.g.
 !//   "de_DE.UTF-8" for normal text processing but "ja_JP.EUC-JP" for the input
 !//   extension to be able to input japanese characters while staying in
 !//   another locale.
 
-!// imFont: fontset
+!// imFont: fontset		{{{3
 !//   Specify the font-set used for XIM styles "OverTheSpot" or "OffTheSpot".
 !//   It must be a standard X font set (XLFD patterns separated by commas),
 !//   i.e. it's not in the same format as the other font lists used in urxvt.
 !//   The default will be set-up to chose *any* suitable found found,
 !//   preferably one or two pixels differing in size to the base font.
 
-!// tripleclickwords: boolean
+!// tripleclickwords: boolean	{{{3
 !//   Change the meaning of triple-click selection with the left mouse button.
 !//   Instead of selecting a full line it will extend the selection to the end
 !//   of the logical line only.
 
-!// insecure: boolean
+!// insecure: boolean		{{{3
 !//   Enables "insecure" mode. Rxvt-unicode offers some escape sequences that
 !//   echo arbitrary strings like the icon name or the locale.  This could be
 !//   abused if somebody gets 8-bit-clean access to your display, whether
@@ -448,37 +617,37 @@ URxvt*.skipBuiltinGlyphs:	True
 !//   -insecure as an option. At the moment, this enables display- answer,
 !//   locale, findfont, icon label and window title requests.
 
-!// modifier: modifier
+!// modifier: modifier		{{{3
 !//   Set the key to be interpreted as the Meta key to: alt, meta, hyper,
 !//   super, mod1, mod2, mod3, mod4, mod5.
 
-!// answerbackString: string
+!// answerbackString: string	{{{3
 !//   Specify the reply rxvt-unicode sends to the shell when an ENQ (control-E)
 !//   character is passed through. It may contain escape values as described in
 !//   the entry on keysym following.
 
-!// secondaryScreen: boolean
+!// secondaryScreen: boolean	{{{3
 !//   Turn on/off secondary screen (default enabled).
 
-!// secondaryScroll: boolean
+!// secondaryScroll: boolean	{{{3
 !//   Turn on/off secondary screen scroll (default enabled). If this option is
 !//   enabled, scrolls on the secondary screen will change the scrollback
 !//   buffer and, when secondaryScreen is off, switching to/from the secondary
 !//   screen will instead scroll the screen up.
 
-!// hold: boolean
+!// hold: boolean		{{{3
 !//   Turn on/off hold window after exit support. If enabled, urxvt will not
 !//   immediately destroy its window when the program executed within it exits.
 !//   Instead, it will wait till it is being killed or closed by the user.
 !URxvt*.hold:	True
 
-!// chdir: path
+!// chdir: path			{{{3
 !//   Sets the working directory for the shell (or the command specified via
 !//   -e). The path must be an absolute path and it must exist for urxvt to
 !//   start. If it isn't specified then the current working directory will be
 !//   used.
 
-!// keysym.sym: string
+!// keysym.sym: string		{{{3
 !//   Compile frills: Associate string with keysym sym. The intervening
 !//   resource name keysym. cannot be omitted.
 !//
@@ -561,7 +730,7 @@ URxvt*.skipBuiltinGlyphs:	True
 !//     URxvt.keysym.M-C-3: command:\033[8;25;80t
 !//     URxvt.keysym.M-C-4: command:\033[8;48;110t
 
-!// perl-ext-common: string
+!// perl-ext-common: string	{{{3
 !// perl-ext: string
 !//   Comma-separated list(s) of perl extension scripts (default: "default") to use in this terminal instance.
 !//
@@ -587,11 +756,11 @@ URxvt*.skipBuiltinGlyphs:	True
 URxvt*.perl-ext-common:
 URxvt*.perl-ext:
 
-!// perl-eval: string
+!// perl-eval: string				{{{3
 !//   Perl code to be evaluated when all extensions have been registered. See
 !//   the urxvtperl(3) manpage.
 
-!// perl-lib: path
+!// perl-lib: path				{{{3
 !//   Colon-separated list of additional directories that hold extension
 !//   scripts. When looking for perl extensions, urxvt will first look in these
 !//   directories, then in $URXVT_PERL_LIB, $HOME/.urxvt/ext and lastly in
@@ -599,35 +768,35 @@ URxvt*.perl-ext:
 !//
 !//   See the urxvtperl(3) manpage.
 
-!// selection.pattern-idx: perl-regex
+!// selection.pattern-idx: perl-regex		{{{3
 !//   Additional selection patterns, see the urxvtperl(3) manpage for details.
 
-!// selection-autotransform.idx: perl-transform
+!// selection-autotransform.idx: perl-transform	{{{3
 !//   Selection auto-transform patterns, see the urxvtperl(3) manpage for
 !//   details.
 
-!// searchable-scrollback: keysym
+!// searchable-scrollback: keysym	{{{3
 !//   Sets the hotkey that starts the incremental scrollback buffer search
 !//   (default: "M-s").
 
-!// url-launcher: string
+!// url-launcher: string		{{{3
 !//   Specifies the program to be started with a URL argument. Used by the
 !//   "selection-popup" and "matcher" perl extensions.
 
-!// transient-for: windowid
+!// transient-for: windowid		{{{3
 !//   Compile frills: Sets the WM_TRANSIENT_FOR property to the given window id.
 
-!// override-redirect: boolean
+!// override-redirect: boolean		{{{3
 !//   Compile frills: Sets override-redirect for the terminal window, making it
 !//   almost invisible to window managers
 
-!// iso14755: boolean
+!// iso14755: boolean			{{{3
 !//   Turn on/off ISO 14755 (default enabled).
 
-!// iso14755_52: boolean
+!// iso14755_52: boolean		{{{3
 !//   Turn on/off ISO 14755 5.2 mode (default enabled).
 
-!// backgroundPixmap: file[;oplist]
+!// backgroundPixmap: file[;oplist]	{{{3
 !//   Compile pixbuf: Use the specified image file as the window's background
 !//   and also optionally specify a colon separated list of operations to
 !//   modify it. Note that you may need to quote the ";" character when using
@@ -676,19 +845,19 @@ URxvt*.perl-ext:
 !//   If used in conjunction with pseudo-transparency, the specified pixmap
 !//   will be blended over the transparent background using alpha- blending.
 
-!// transparent: boolean
+!// transparent: boolean		{{{3
 !//   Turn on/off pseudo-transparency by using the root pixmap as background.
 
-!// tintColor: colour
+!// tintColor: colour			{{{3
 !//   Tint the transparent background with the given colour. Note that a black
 !//   tint yields a completely black image while a white tint yields the image
 !//   unchanged.
 
-!// shading: number
+!// shading: number			{{{3
 !//   Darken (0 .. 99) or lighten (101 .. 200) the transparent background.
 !//   A value of 100 means no shading.
 
-!// blurRadius: HxV
+!// blurRadius: HxV			{{{3
 !//   Apply gaussian blur with the specified radius to the transparent
 !//   background. If a single number is specified, the vertical and horizontal
 !//   radii are considered to be the same. Setting one of the radii to 1 and
@@ -696,7 +865,7 @@ URxvt*.perl-ext:
 !//   backgrounds. The maximum radius value is 128. An horizontal or vertical
 !//   radius of 0 disables blurring.
 
-!// path: path
+!// path: path				{{{3
 !//   Specify the colon-delimited search path for finding background image
 !//   files.
 
