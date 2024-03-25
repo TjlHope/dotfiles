@@ -16,7 +16,7 @@ vimdiff.premerge = keep
 [extensions]
 color =
 graphlog =
-hgshelve = ~/.hg.d/hgshelve/hgshelve.py
+#hgshelve = ~/.hg.d/hgshelve/hgshelve.py
 highlight =
 inotify =
 pager =
