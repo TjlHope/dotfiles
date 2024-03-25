@@ -1,1 +1,2 @@
-prefix=${HOME}/
+#interferes with nvm# prefix=${HOME}/
+#registry=http://npm.eng.tcs.local/repository/npm-registry/
