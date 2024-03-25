@@ -1,65 +1,73 @@
-# Using the name cvsignore, as utilities like rsync will use it as well.  
-# Formats shold be consistant: '#' denotes a comment at the start, and 
-# otherwise it's one glob pattern per line.
+#_Using_the_name_cvsignore,_as_utilities_like_rsync_can_then_use_it_as_well.__
+#_Basic_formats_are_consistent,_but_cvs/rsync_don't_support_comments,_and_split
+#_per_whitespace,_not_per_new-line._Hence_using_underscores_to_make_the
+#_comments_really_long_strings_that_won't_ever_match._Also,_cvs_format_doesn't
+#_support_negation_with_'!'_-_that_means_clear_all_previous_globs._I_can't
+#_think_of_a_way_to_get_that_working...
 
-# Line to make it work as a mercurial ignore file, hopefully there would never 
-# be a file called 'syntax: glob' that I ever needed to include!
-syntax: glob
+#_Line_to_make_it_work_as_a_mercurial_ignore_file,_hopefully_there_would_never_
+#_be_a_file_called_'syntax:_glob'_that_I_ever_needed_to_include!
+syntax:glob
 
-# vcs
+#_vcs
 *.orig
 .git
 .msg
 .hg
 .svn
 .bzr
-# although diffs might have to be included, They should be called *.patch, as
-# that's their purpose
+#_although_diffs_might_have_to_be_included,_They_should_be_called_*.patch,_as
+#_that's_their_purpose
 *.diff
+*.wdiff
 
-# backup
+#_backup
 *~
 .*.sw[po]
 .sw[po]
 
-# ctags
+#_ctags
 tags
 tags-*
 .tags
 .tags.*
 
-# c
-*.[oad]
-!*.d/
+#_c
+*.[oa]
+#_Ideally_we'd_ignore_*.d_but_not_!*.d/;_but_that_doesn't_work_for_cvs/rsync
 *.[ks]o
 *.out
+.clang_complete
 
-# python
+#_python
+__pycache__
 *.pyc
 
-# tex
+#_tex
 *.aux
 *.log
 
-# latexmk
+#_latexmk
 *._aux
 *.fdb_latexmk
 
-# archives
+#_archives
 *.zip
 *.tar
-*.t[gb]z
+*.t[gbx]z
 *.tar.gz
 *.tar.bz2
+*.tar.xz
+*.7z
 
-# ant
+#_ant
 .ant-targets-build.xml
 
-# Eclipse
-# only I use AutoDeriv for now...
+#_Eclipse
+#_only_I_use_AutoDeriv_for_now...
 .derived
 
-# intellij IDEA
+#_intellij_IDEA
 *.iml
 .idea
 
