@@ -189,6 +189,49 @@ endfunction			" }}}
 " end dictionary functions	}}}3
 
 
+""" Locations			{{{2
+function! MungePath(...) abort
+    if ! a:0 | return '' | endif
+    let sep = ':' | let test = 0
+    let parts = [] | let a_i = 0
+    if type(a:1) == v:t_dict
+	if has_key(a:1, 'sep')  | let sep  = a:1['sep']  | endif
+	if has_key(a:1, 'test') | let test = a:1['test'] | endif
+	let a_i += 1
+    endif
+    while a_i < a:0
+	let arg = a:000[a_i] | let a_i += 1
+	if type(arg) != v:t_string
+	    throw 'MungePath argument '.a_i.' is not a string: '.string(arg)
+	endif
+	for part in split(arg, sep)
+	    let part = fnamemodify(part, ':p')
+	    if index(parts, part) >= 0 | continue | endif
+	    if test && getftype(part) != "dir"
+		if exists('g:MungePath_debug') && g:MungePath_debug
+		    echoerr "MungePath: part not a dir, ignoring: ".part
+		endif
+		continue
+	    endif
+	    call add(parts, part)
+	endfor
+    endwhile
+    return join(parts, sep)
+endfunction
+
+""" npm's <project_root>/node_modules/.bin folder
+if executable('npm')
+    " TODO: make this compatible for non-unix
+    autocmd FileType javascript,typescript silent let $PATH = MungePath(
+		\  {'test': 1},
+		\  trim(
+		\    system("cd ".expand('%:h:S')." >/dev/null && npm root"),
+		\    "\r\n"
+		\  ).'/.bin',
+		\  $PATH
+		\)
+endif
+
 """"""""""""""""""""""""""""""	{{{1
 " VIM UI			{{{1
 """""""""""""""""""""""""	{{{2
@@ -199,7 +242,7 @@ set vb t_vb=					" disable bell
 
 set ruler					" always show ruler (position)
 " Customise ruler
-let s:_ruler_head = "%=%.24(%f%)%m%( %h%w%r%) "	" file name and status
+let s:_ruler_head = "%=%{winnr()}: %<%.24(%f%)%([%M%H%W%R]%) "	" file name and status
 if exists("*fugitive#statusline")			" fugitive branch info
     let s:_ruler_mid = "%.24(%{fugitive#statusline()}%)"
 else | let s:_ruler_mid = ""
@@ -207,7 +250,7 @@ endif
 let s:_ruler_tail = "%=%7(%c%V%)%=,%-6(%l%) %P"	" current position
 " set rulerformat and statusline so they look identical.
 let s:_ruler = s:_ruler_head . s:_ruler_mid . s:_ruler_tail
-let &rulerformat = "%50(" . s:_ruler . "%)"
+let &rulerformat = "%80(" . s:_ruler . "%)"
 let &statusline = "%=" . s:_ruler . " "
 " function to change ruler highlighting FIXME: no local ruler?
 function! RulerHighlight(hlGroup)
@@ -424,9 +467,15 @@ autocmd Filetype ebuild
 autocmd QuickFixCmdPost [^l]* nested cwindow
 autocmd QuickFixCmdPost    l* nested lwindow
 
+""" quit helpers
+
+command! -bang Q	q<bang>
+command! -bang Qa	qa<bang>
+command! -bang QA	qa<bang>
+
 """ quit for buffers		{{{2
 
-function! QuitBuf(...)
+function! QuitBuf(...)			" {{{3
     " function to inteligently close windows and buffers
     if a:0	| let bang = a:1
     else	| let bang = ''
@@ -495,7 +544,7 @@ function! QuitBuf(...)
     else	| let x_com = bn_com	" 1/n bufs, 1/n wins->buf : close ?
     endif
     execute x_com
-endfunction
+endfunction			" }}}3
 command! Bwq		write<Bar>call QuitBuf()
 command! Bx		update<Bar>call QuitBuf()
 command! -bang Bq	call QuitBuf('<bang>')
@@ -528,9 +577,8 @@ if ! $VIM_SIMPLE
     syntax on					" enable syntax highlighting
 endif
 
-" allow syntax (and diff) refreshing
+" allow syntax refreshing
 noremap		<Leader>rs		:syntax sync fromstart<CR>
-noremap		<Leader>rd		:diffupdate<CR>
 
 " allow for ineficient regexes
 set maxmempattern=100000
@@ -539,8 +587,10 @@ set maxmempattern=100000
 set tabstop=8					" literal tab width
 "autocmd Filetype c,cpp setlocal tabstop=4
 set softtabstop=8				" spaces per tab (pressed)
+autocmd Filetype json,markdown,rst,xml,xsd,yaml setlocal
+	    \ softtabstop=4
 set shiftwidth=4				" spaces per indent
-autocmd Filetype ant,dtd,json,markdown,proto,terraform,xml,xsd,yaml setlocal
+autocmd Filetype ant,dtd,json,proto,rst,terraform,xml,xsd,yaml setlocal
 	    \ shiftwidth=2
 set noexpandtab					" don't expand tabs to spaces
 autocmd Filetype apiblueprint,ant,c,cpp,cql,dtd,java,javascript,jsp,json,markdown,python,terraform,rst,xml,xsd,yaml setlocal
@@ -566,6 +616,7 @@ autocmd Filetype ant,c,cpp,css,dtd,html,javascript,make,python,sh,vim,xml,xsd se
 autocmd Filetype markdown,rst,tex,text setlocal
 	    \ textwidth=0
 	    \ formatoptions+=n
+	    \ autoindent
 	    " overide system vimrc (for text, others standard)
 	    " recognise numbered and bulleted lists
 
@@ -594,7 +645,8 @@ let g:java_highlight_debug = 1
 let g:php_sql_query = 1
 let g:php_htmlInStrings = 1
 let g:python_highlight_all = 1
-let g:readlinke_has_bash = 1
+let g:python_mode = 'python3'
+let g:readline_has_bash = 1
 let g:highlight_sedtabs = 1
 let g:sh_noisk = 1			" don't add '.' to 'iskeyword'
 let g:sh_syn_embed = "asprP"
@@ -623,6 +675,9 @@ autocmd BufRead,BufNewFile *.cql,*.cqlsh set filetype=cql
 
 " Jenkins pipeline scripts
 autocmd BufRead,BufNewFile Jenkinsfile set filetype=groovy
+
+" Graphviz (dot) files
+autocmd BufRead,BufNewFile *.gv set filetype=dot
 
 """ use skeleton files		{{{2
 autocmd BufNewFile * silent! 0r ~/Templates/%:e.%:e
@@ -719,7 +774,7 @@ let g:xml_syntax_folding = 1
 """ filetype settings		{{{2
 " let $code =
 " "ant,c,cpp,css,dtd,gentoo-init-d,groovy,html,java,javascript,jsp,json,perl,php,prolog,python,ruby,sh,verilog,vhdl,xml,xsd"
-autocmd Filetype ant,c,cpp,gentoo-init-d,groovy,html,java,jsp,json,perl,php,ruby,sh,xml,xsd setlocal
+autocmd Filetype ant,c,cpp,gentoo-init-d,groovy,html,java,jsp,json,perl,php,ruby,sh,typescript,xml,xsd setlocal
 	    \ foldcolumn=5
 	    \ foldmethod=syntax
 	    \ foldlevel=1
@@ -732,6 +787,11 @@ autocmd Filetype ada,dtd,javascript,prolog,proto,python,verilog,vhdl,yaml setloc
 	    \ foldmethod=indent
 	    \ foldlevel=1
 autocmd Filetype c,cpp setlocal foldignore="#"
+
+autocmd Filetype java syn clear javaBraces
+autocmd Filetype java syn region javaFoldBraces matchgroup=javaBraces start="{" end="}" transparent fold keepend extend
+autocmd Filetype java syn region javaFoldJavadoc start="/\*" end="\*/" transparent fold keepend
+
 "autocmd Filetype python autocmd BufWritePre python mkview
 "autocmd Filetype python autocmd BufReadPost python silent loadview
 
@@ -813,11 +873,20 @@ nnoremap g<C-]> g]
 nnoremap g[ <C-T>
 
 " typescript			{{{3
-autocmd Filetype typescript
-	    \ nnoremap <buffer> g] :TsuDefinition<CR>
-	    \|nnoremap <buffer> g} :TsuTypeDefinition<CR>
-	    \|nnoremap <buffer> g[ :TsuGoBack<CR>
-	    \|nnoremap <buffer> g{ :TsuReferences<CR>
+" Note: we also support javascript for looking at compiled code
+command! -bang TsuJumpMappings
+	    \ if "<bang>" == "!" ||
+	    \     (exists('*tsuquyomi#statusServer') && tsuquyomi#statusServer() == 'run')
+	    \|  if !(exists('b:tsu_done_mappings') && b:tsu_done_mappings)
+	    \|    nnoremap <buffer> g] :TsuDefinition<CR>
+	    \|    nnoremap <buffer> g} :TsuTypeDefinition<CR>
+	    \|    nnoremap <buffer> g[ :TsuGoBack<CR>
+	    \|    nnoremap <buffer> g{ :TsuReferences<CR>
+	    \|    let b:tsu_done_mappings=1
+	    \|  endif
+	    \|endif
+autocmd Filetype typescript TsuJumpMappings!
+autocmd Filetype javascript TsuJumpMappings
 
 """ Redifine goto mark mappings	{{{2
 " Think the default should be the position in the previous line, rather than
@@ -838,6 +907,22 @@ noremap gcN	:cNext<CR>
 noremap gcp	:cprevious<CR>
 
 """"""""""""""""""""""""""""""	{{{1
+" Diff				{{{1
+"""""""""""""""""""""""""	{{{2
+
+command! DiffToggle
+	    \ if &diff | diffoff | else | diffthis | endif
+noremap		<Leader>dt		:DiffToggle<CR>
+
+noremap		<Leader>rd		:diffupdate<CR>
+noremap		<Leader>du		:diffupdate<CR>
+
+""" diffget/diffput/do/dp with winnr	{{{3
+" TODO dp/do with winbufnr()
+"command! -nargs=? -range -bar DiffGet
+"	    \ <range>diffget <args>
+
+""""""""""""""""""""""""""""""	{{{1
 " Spelling			{{{1
 """""""""""""""""""""""""	{{{2
 
@@ -849,11 +934,10 @@ autocmd Filetype conf,help,info,man setlocal nospell
 "autocmd StdinReadPost * setlocal nospell		" but not in man
 
 set spelllang=en_gb					" spell check language to GB
-let &spellfile = $HOME."/.vim/spell/I.".&encoding.".add"	" set my spellfile
-autocmd FileType tex
-	    \ let &l:spellfile .= ",".$HOME."/.vim/spell/latex.".&encoding.".add"
-autocmd BufRead **/Imperial/**/*.*
-	    \ let &l:spellfile .= ",".$HOME."/.vim/spell/elec.".&encoding.".add"
+" set spellfile as 1: my generic file; 2: local (e.g. job); 3?: filetype
+let &spellfile = $HOME."/.vim/spell/I.".&encoding.".add"
+	    \ .",".$HOME."/.vim/spell/local.".&encoding.".add"
+autocmd FileType * let &l:spellfile .= ",".$HOME."/.vim/spell/".&l:filetype.".".&l:encoding.".add"
 
 " set dictionary+=/usr/share/dict/words			" add standard words
 
@@ -924,7 +1008,7 @@ autocmd BufRead,BufNew */avr/**/*.c setlocal tags+=~/.vim/tags/avr
 
 """ clang_complete		{{{2
 " TODO: get this dynamically
-let g:clang_library_path = '/usr/lib64/llvm/6/lib64/'
+let g:clang_library_path = '/usr/lib64/llvm/9/lib64/'
 
 """ diffchar			{{{2
 let g:DiffUpdate = 1
@@ -989,6 +1073,11 @@ nnoremap grN	:lNext<CR>zv
 nnoremap grp	:lprevious<CR>zv
 nnoremap grq	:GrepClose<CR>
 
+""" go				{{{2
+autocmd FileType go
+	    \ set sw=4 sts=4 ts=4 noet
+	    \| let b:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
+
 """ gutentags			{{{2
 for cmd in ["exuberant-ctags", "ctags-exuberant"]	" [gentoo, DoC-ubuntu]
     let full_cmd = system("which " . cmd)
@@ -1000,6 +1089,29 @@ endfor
 unlet cmd full_cmd
 let g:gutentags_ctags_tagfile = ".tags"
 let g:gutentags_exclude_project_root = ['/usr/local', $HOME]
+let g:gutentags_file_list_command = {
+	    \	"markers": {
+	    \		".git": "git ls-files",
+	    \		".hg": "hg files",
+	    \	},
+	    \ }
+if !exists("g:gutentags_project_info")
+    let g:gutentags_project_info = []
+endif
+for s:pi in [
+	    \ {"type": "typescript", "file": "tsconfig.json"},
+	    \ {"type": "javascript", "file": "package.json"},
+	    \ {"type": "java", "file": "build.xml"},
+	    \ {"type": "java", "file": "pom.xml"},
+	    \]
+    if index(g:gutentags_project_info, s:pi) == -1
+	call add(g:gutentags_project_info, s:pi)
+    endif
+endfor
+" Disable for certain project types by setting the executable to true
+let g:gutentags_ctags_executable_typescript = "true"
+let g:gutentags_ctags_executable_javascript = "true"
+autocmd FileType javascript,typescript let b:gutentags_enabled = 0
 
 
 """ fixmyjs			{{{2
@@ -1023,30 +1135,31 @@ noremap gu	:GundoToggle<CR>
 autocmd FileType java setlocal omnifunc=javacomplete#Complete
 autocmd FileType java let g:JavaComplete_PomPath = FindPom()
 function! FindPom(...)
-    let a:force = get(a:, 0, 1)
+    let force = get(a:, 0, 1)
     let root = FindRootDirectory()
     let pom_xml = glob(root . '/pom.xml', 0)
-    echom 'pom.xml:' pom_xml
+    "echom 'pom.xml:' pom_xml
     if len(pom_xml) | return pom_xml | endif
     let build_xml = glob(root . '/build.xml', 0)
-    echom 'build.xml:' build_xml
+    "echom 'build.xml:' build_xml
     if ! len(build_xml) | return '' | endif
-    if a:force || ! len(glob(root . '/dist', 0))
+    if force || ! len(glob(root . '/dist', 0))
 	silent call system('ant -f ' . shellescape(build_xml) . ' gen-pom')
 	echom 'ant gen-pom exited:' v:shell_error
     endif
     if v:shell_error | return '' | endif
     let pom_xml = glob(root . '/dist/pom.xml', 0)
-    echom 'dist/*.xml:' pom_xml
+    "echom 'dist/*.xml:' pom_xml
     if len(pom_xml) | return pom_xml | endif
     let poms = glob(root . '/dist/*.pom', 0, 1)
-    echom 'dist/*.xml:' string(poms)
+    "echom 'dist/*.xml:' string(poms)
     if len(poms) | return poms[0] | endif
     return ''
 endfunction
 
 
 """ jedi			{{{2
+let g:jedi#force_py_version = 3
 let g:jedi#popup_on_dot = 0
 let g:jedi#show_call_signatures = 0
 autocmd FileType python setlocal omnifunc=jedi#completions
@@ -1103,7 +1216,7 @@ autocmd FileType rust
 """ rooter			{{{2
 let g:rooter_manual_only = 1
 let g:rooter_change_directory_for_non_project_files = ''
-let g:rooter_use_lcd = 1
+let g:rooter_cd_cmd = "lcd"
 let g:rooter_silent_chdir = 1
 
 """ ros				{{{2
@@ -1169,6 +1282,7 @@ if ! exists("g:secure_modelines_allowed_items")
 endif
 for _opt in [
 	    \	'ft',	'filetype',
+	    \	'syn',	'syntax',
 	    \	'ff',	'fileformat',
 	    \	'tw',	'textwidth',
 	    \	'ts',	'tabstop',
@@ -1219,9 +1333,34 @@ let g:syntastic_c_checkers = ['clang_check']
 let g:syntastic_cpp_checkers = ['clang_check']
 let g:syntastic_clang_check_config_file = '.clang_complete'
 let g:syntastic_groovy_checkers = ['groovyc']
+" TODO: somehow enable javac checker? or rely on java plugin?
 let g:syntastic_java_checkers = ['checkstyle']
+let g:syntastic_python_checkers = ['flake8']
 let g:syntastic_sh_shellcheck_args = "-ax"
 let g:syntastic_typescript_checkers = ['tsuquyomi', 'tslint']
+
+function! SyntasticTypescriptTslintSetProject(try_on_loaded = 1)
+    " there's no way to hook the projectLoadingFinished event, and it's racy on
+    " start up, so try a few times in case we can get it to work...
+    let l:i = 0
+    while l:i < 3
+	try
+	    let l:config = Tsconfig()
+	    if len(l:config)
+		let b:syntastic_typescript_tslint_args = '-p '.l:config
+	    endif
+	    return
+	catch /^Tsconfig:.*: no configFileName$/
+	    let l:i = l:i + 1
+	catch /^Tsconfig: tsuquyomi:/
+	    echomsg "Cannot set tslint config: " .. v:exception
+	    return
+	endtry
+    endwhile
+    echoerr "SyntasticTypescriptTslintSetConfig: cannot get project info (x".string(l:i).")"
+endfunction
+
+autocmd Filetype typescript call SyntasticTypescriptTslintSetProject()
 
 """ TagList			{{{2
 noremap <Leader>tl :TlistToggle<CR>
@@ -1240,6 +1379,7 @@ autocmd FileType *.tft.?,*.tft.??,*.tft.???,*.tft.???? setlocal
 """ Tsuquyomi			{{{2
 let g:tsuquyomi_shortest_import_path = 1
 let g:tsuquyomi_disable_quickfix = 1
+let g:tsuquyomi_javascript_support = 1
 autocmd FileType typescript
 	    \ let b:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
 autocmd FileType typescript
@@ -1249,6 +1389,26 @@ autocmd FileType typescript
 	    \ nnoremap <buffer> <LocalLeader>i :TsuImport<CR>
 autocmd FileType typescript
 	    \ nnoremap <buffer> <LocalLeader>h :echo tsuquyomi#hint()<CR>
+
+function! Tsconfig(buf = '%')
+    if exists('*tsuquyomi#bufManager#isOpened') &&
+		\ exists('*tsuquyomi#tsClient#tsProjectInfo')
+	let l:bufpath = expand(a:buf.':p')
+	if tsuquyomi#bufManager#isOpened(l:bufpath)
+	    let l:info = tsuquyomi#tsClient#tsProjectInfo(l:bufpath, 0)
+	    if has_key(l:info, 'configFileName')
+		return l:info.configFileName
+	    else
+		throw "Tsconfig: tsuquyomi: no configFileName"
+	    endif
+	else
+	    throw "Tsconfig: tsuquyomi: buffer is not open"
+	endif
+    else
+	throw "Tsconfig: tsuquyomi: not available"
+    endif
+endfunction
+
 
 """ zencoding			{{{2
 let g:user_zen_leader_key = '<LocalLeader>z'
