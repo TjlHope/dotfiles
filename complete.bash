@@ -12,7 +12,7 @@ for comp in \
 	"$PREFIX/etc/profile.d/bash_completion.sh" \
 	"$PREFIX/etc/bash_completion" \
     } \
-    $(type brew >/dev/null 2>&1 && echo "$(brew --prefix)/etc/bash_completion") \
+    $(_have brew && echo "$(brew --prefix)/etc/bash_completion") \
     "/etc/bash/bashrc.d/bash_completion.sh" \
     "/etc/profile.d/bash-completion.sh" \
     "/etc/profile.d/bash_completion.sh" \
@@ -138,6 +138,13 @@ type git-sparse-clone >/dev/null 2>&1 &&
 type git-sparse >/dev/null 2>&1 &&
     _git_sparse() { _git_checkout "$@"; }
 
+
+# shellcheck source=/dev/null
+type 'tmuxinator_completion' >/dev/null 2>&1 &&
+    . tmuxinator_completion
+type 'teamocil' >/dev/null 2>&1 &&
+    complete -W "$(teamocil --list)" teamocil
+
 # Make everything with -o default have -o bashdefault
 # FIXME: doesn't work as 'bashdefault' doesn't do files, and 'default' doesn't 
 # understand $VAR etc. so it completes with filename \$VAR/file
@@ -148,48 +155,9 @@ type git-sparse >/dev/null 2>&1 &&
 	#}
     #}')
 
-# Wrap all alias definitions to allow completion when using them, generating an 
-# individual completion wrapper for each alias (more environment polution but 
-# each individual completion is faster), a 'namespace' is used to make 
-# pollution less obvious. TODO: get working for non function completion
-_wrap_alias () {
-    # Function to generate wrapper
-    local name="$1"	; shift
-    local cmd="$1" cmdline="$*"
-    [ "$name" = "$cmd" ] &&	# don't process ones like ls='ls --color=auto'
-	return 0
-    local ns="_alias_comp."	# namespace for aliases
-    # Get the old completion function and completion line for the new alias
-    local comp=""
-    comp="$(complete -p "$cmd" 2>/dev/null | sed -nEe \
-	"s:^(complete\s.*\s-F\s+)(\S+)\s(.*)$cmd\s*$:\2|\1$ns$name \3$name:p"
-	)" || return
-    [ -z "$comp" ] &&		# no completion function
-	return 0
-    local comp_func="${comp%%|complete*}"	# Get original function name
-    # Generate the new wrapper function
-    eval "
-$ns$name () {
-    COMP_CWORD=\$(( \${COMP_CWORD} + $(( $# - 1 )) ))
-    COMP_WORDS=( $cmdline \"\${COMP_WORDS[@]:1}\" )
-    COMP_POINT=\$(( \${COMP_POINT} - ${#name} + ${#cmdline} ))
-    COMP_LINE=\"$cmdline\${COMP_LINE#$name}\"
-    $comp_func $cmd \"\${COMP_WORDS[\${COMP_CWORD}]}\" \"\${COMP_WORDS[\$((\${COMP_CWORD} - 1))]}\" 
-}"
-    # Generate the new completion
-    eval "${comp#*|}"
-}
-# Process all aliases
-eval "$(alias -p | sed -ne \
-    "s:^alias\s\+\([^\:;=]\+\)='\([^;\:\"'(){}]\+\)'\s*$:_wrap_alias \1 \2:p")"
-# don't need function anymore
-unset _wrap_alias
-
-# shellcheck source=/dev/null
-type 'tmuxinator_completion' >/dev/null 2>&1 &&
-    . tmuxinator_completion
-type 'teamocil' >/dev/null 2>&1 &&
-    complete -W "$(teamocil --list)" teamocil
+# Generate completion for all aliases
+_have _complete_alias &&
+    eval "$(alias -p | _alias_name_cmdline | sed 's/.*/_complete_alias &/')"
 
 ## End completions
 ######################

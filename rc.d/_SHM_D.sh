@@ -1,6 +1,5 @@
 #!/bin/sh
 # shellcheck disable=2015
-# ~/.profile.d/shm_d.sh
 # Setup the $TMP_D and $SHM_D env vars (user temporary storage)
 
 export TMP_D="${TMPDIR:-/tmp}/$USER"
@@ -20,6 +19,7 @@ export TMP_D="${TMPDIR:-/tmp}/$USER"
     # If we've had a failure, always unset $SHM_D as it might not have the
     # permissions we need. But only unset $TMP_D if it doesn't exist.
     unset SHM_D
+    # TODO: should we instead create TMP_D if there's no SHM_D?
     [ -d "$TMP_D" ] ||
 	{ [ -h "$TMP_D" ] && [ -d "$(readlink "$SHM_D")" ]; } ||
 	unset TMP_D

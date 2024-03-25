@@ -22,6 +22,8 @@ unset t
 alias d='dirs'
 alias pd='pushpopd'
 
+alias cdp='cd $(pwd)'
+
 # fs viewing aliases		{{{2
 if "${USE_COLOR:-false}"
 then	# TODO finish _term_detect() and use that instead
@@ -45,14 +47,11 @@ alias duh='du -sh'
 alias dfh='df -h'
 
 # vi like stuff aliases		{{{2
-type "${VIMPAGER}"					>/dev/null 2>&1 &&
-    alias vp="${VIMPAGER}"
-type "${VIMMANPAGER}"					>/dev/null 2>&1 &&
-    alias vmp="${VIMMANPAGER}"
-type 'dash'						>/dev/null 2>&1 &&
-    alias dash='dash -V'
+_have "$VIMPAGER" && alias vp="${VIMPAGER}"
+_have "$VIMMANPAGER" && alias vmp="${VIMMANPAGER}"
+_have 'dash' && alias dash='dash -V'
 alias :q='exit'
-type 'vim'						>/dev/null 2>&1 && {
+_have 'vim' && {
     vim -h | grep -q '[-]-servername' &&	# only in later versions
 	alias vim='vim --servername VIM'	# Needed for LaTeX-Box latexmk
     alias svim='SUDO_EDITOR=vim sudoedit'	# try to stop 'sudo vim'ing!!!
@@ -89,18 +88,28 @@ type 'xdg-open'						>/dev/null 2>&1 && {
 }
 type 'sshfs'						>/dev/null 2>&1 &&
     alias sshfs='sshfs -o reconnect' # doesn't seemt to work: ' -o workaround=all'
-[ -f "${HOME}/Documents/Code/t/t.py" ] && {
-    alias t="${HOME}/Documents/Code/t/t.py"
-    eval "$(alias t)' --task-dir \"\${HOME}/Documents/tasks\" --list tasks'"
-    alias f="t -f"
-    alias r="t -r"
-    alias td="t --done"
-    alias b="${HOME}/Documents/Code/t/t.py --task-dir . --list bugs"
-    alias deps="${HOME}/Documents/Code/t/t.py"
-    eval "$(alias deps)' --task-dir \"\$HOME/Documents/tasks\" --list deps'"
+if [ -x "${HOME}/Documents/Code/t/t.py" ]
+then
+    # shellcheck disable=2116
+    alias t="$(echo \
+	"\"${HOME}/Documents/Code/t/t.py\"" \
+	"--task-dir \"${HOME}/Documents/tasks\" --list tasks" \
+    )"
+    alias tf="t -f"; #alias tr="t -r"	# tr is a cmd
+    alias tarchive="t --list archive"
+
+    alias b="\"${HOME}/Documents/Code/t/t.py\" --task-dir . --list bugs"
+    alias bf="b -f"; #alias br="b -r"
+fi
+_have skopeo && alias docker-skopeo="skopeo"	# I keep forgetting the name
+_have docker && {
+    # shellcheck disable=2116
+    alias docker-pids="$(echo \
+	"docker inspect \$(docker ps --format '{{.ID}}') --format" \
+	"'{{.Id|printf \"%.10s\"}} {{.State.Pid|printf \"%6s\"}} {{.Name}}'" \
+    )"
+    alias docker-pid="docker inspect --format '{{.State.Pid}}'"
 }
-type 'skopeo'						>/dev/null 2>&1 &&
-    alias docker-skopeo="skopeo"	# I keep forgetting the name
 
 
 # gentoo aliases		{{{2
@@ -211,15 +220,14 @@ type java > /dev/null 2>&1 && {
     alias java_flags='java -XX:+UnlockDiagnosticVMOptions -XX:+PrintFlagsFinal -version'
 }
 
-type rlwrap >/dev/null 2>&1 && {
-    type bsh-interpreter >/dev/null 2>&1 &&
-        alias bsh='rlwrap -rc bsh-interpreter'
+_have rlwrap && {
+    _have bsh-interpreter && alias bsh='rlwrap -rc bsh-interpreter'
 
-    type nc >/dev/null 2>&1 &&
-        alias ncrl='rlwrap nc'
+    _have nc && alias ncrl='rlwrap nc'
 
-    type snc >/dev/null 2>&1 &&
-        alias sncrl="WRAPPER=\${WRAPPER:-rlwrap} snc"
+    _have snc && alias sncrl="WRAPPER=\${WRAPPER:-rlwrap} snc"
+
+    _have perl && alias iperl='rlwrap perl -de1'
 }
 
 type python > /dev/null 2>&1 && {       # python goodies
@@ -264,40 +272,26 @@ type python > /dev/null 2>&1 && {       # python goodies
     }
 }
 
-type cacaview >/dev/null 2>&1 &&
-    alias cacaview='env -uDISPLAY cacaview'
+_have cacaview && alias cacaview='env -uDISPLAY cacaview'
 
-type watch_for >/dev/null 2>&1 &&
+_have watch_for &&
     alias watch_mem_cache="watch_for /proc/meminfo '^(Dirty|Writeback):'"
 
-type kubectl >/dev/null 2>&1 && {
-    alias k="kubectl"
-    alias kall="kubectl --all-namespaces=true"
-    nss="$(kubectl --request-timeout=2s \
-	get namespace --no-headers=true \
-	--output=custom-columns=:.metadata.name
-    )" && for ns in $nss
-    do
-	case "$ns" in (*['&;| 	']*)	# TODO: fix complete.bash
-	    echo "Cannot alias k8s namespace: $ns" >&2
-	    continue;;
-	esac
-	ns_name="$(echo "$ns" | sed 's/[^[:alnum:]]\+/_/g')"
-	case "$ns_name" in
-	    kube[_-]*|k8s[_-]*|k8[_-]*|kubernetes[_-]*) ns_name="${ns_name#*_}";;
-	esac
-	alias "k$ns_name=kubectl --namespace=$ns"
-	alias "kuse_$ns_name=kubectl config use-context $ns"
-    done
-    unset nss ns ns_name
-}
-
-type mvn >/dev/null 2>&1 && {
+_have mvn && {
     alias mvn="mvn -D'https.protocols=TLSv1,TLSv1.1,TLSv1.2'"
 }
 
-type tmux-xpanes >/dev/null 2>&1 && {
+_have tmux-xpanes && {
     alias tmux-xssh="tmux-xpanes --ssh -ss -lev"
+}
+
+alias flush_dnsmasq='sudo killall -HUP dnsmasq'
+
+alias backup.pt='sfdisk --dump'
+alias backup.vg='vgcfgbackup'	# note: dumps to files under /etc/lvm/backup
+
+type aws >/dev/null 2>&1 && {
+    : #alias aws-dev='aws --profile contact-gb-dev-s1'
 }
 
 ## End aliases		}}}1

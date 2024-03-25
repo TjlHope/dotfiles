@@ -89,6 +89,15 @@ unquote_url() {
 	"$@"
 }
 
+escape_html() {
+    python3 -c 'import html,sys;print(html.escape(sys.stdin.read()),end="")'
+}
+
+unescape_html() {
+    python3 -c 'import html,sys;print(html.unescape(sys.stdin.read()),end="")'
+}
+
+
 fifo_size() {
     [ $# -lt 1 ] || [ "$1" = -h ] && {
 	echo "Usage: fifo_size <path/to/fifo>"
@@ -125,18 +134,6 @@ fifo_size() {
 	_EOF
 }
 
-send-message() {
-    local host="$1" head="$2"; shift 2
-    # shellcheck disable=2087
-    ssh "$host" sh <<- EOF
-	export DISPLAY=:0.0
-	export XAUTHORITY=/tmp/.gdm[^_]*
-	export USER=\$(users | cut -d\\  -f1)
-	su \$USER -c 'notify-send "$head" "$@"'
-	EOF
-                    # TODO: properly quote ^this
-}
-
 fork() {
     local revert_setsid	        # local always exits with 0
     revert_setsid="$(alias setsid 2>/dev/null)" ||
@@ -166,9 +163,13 @@ kill_after_timeout() {
 }
 
 pipe_wireshark() {
-    local host="$1"; shift
+    local host="$1" _i="" IFS=" $IFS"; shift
+    case " $* " in
+        *" -i"*)    :;;
+        *)  _i="-i any";;
+    esac
     # shellcheck disable=2029
-    ssh "$host" "tcpdump -U -n -w - -s 65535 -i any ${*:-not port 22}" |
+    ssh "$host" "tcpdump -U -n -w - -s 65535 $_i ${*:-not port 22}" |
 	wireshark -k -i -
 }
 
@@ -459,6 +460,66 @@ else
     whats_my_ip() {
 	curl -s 'https://api.ipify.org?format=json'
 	echo
+    }
+fi
+
+if type gcc-config >/dev/null 2>&1
+then
+    cross_gcc() {
+	if [ $# -eq 0 ] ||
+	    case " $* " in *" -h "*|*" --help "*) :;; *) false;; esac
+	then
+	    printf '%s\n' \
+		"Usage: cross_gcc [-l|--list]" \
+	        "       cross_gcc <profile> <cmd...>"
+	    return
+	fi
+	if [ $# -eq 1 ]
+	then
+	    case "$1" in
+		-l|--list)	gcc-config -l; return;;
+		*)		echo "No command given" >&2; return 1;;
+	    esac
+	fi
+	(
+	    env="$(gcc-config -E "$1")" || return
+	    eval "$env"
+	    shift
+	    "$@"
+	)
+    }
+fi
+
+if type ipmitool >/dev/null 2>&1
+then
+    ipmi_remote() {
+	[ $# -ge 2 ] || {
+	    echo "Usage: ipmi_remote <[user[:pass]@]host[:port]> [...args] <cmd>"
+	    return
+	}
+	local user="" pass="" host="" port=""
+	case "$1" in *@*) user="${1%@*}" host="${1##*@}";; *) host="$1";; esac
+	case "$user" in *:*) pass="${user#*:}" user="${user%%:*}";; esac
+	case "$host" in *:*) port="${host##*:}" host="${host%:*}";; esac
+	shift
+	ipmitool -Ilanplus \
+	    -H"$host" ${port:+-p"$port"} \
+	    ${user:+-U"$user" ${pass:+-P"$pass"}} \
+	    "$@"
+    }
+    ipmi_remote_status() {
+	[ $# -ge 1 ] || {
+	    echo "Usage: ipmi_remote_status <[user[:pass]@]host[:port]> [...args]"
+	    return
+	}
+	ipmi_remote "$@" chassis status
+    }
+    ipmi_remote_console() {
+	[ $# -ge 1 ] || {
+	    echo "Usage: ipmi_remote_console <[user[:pass]@]host[:port]> [...args]"
+	    return
+	}
+	ipmi_remote "$@" sol activate
     }
 fi
 

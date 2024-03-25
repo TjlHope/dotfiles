@@ -1,5 +1,4 @@
 #!/bin/sh
-# ~/.profile.d/shell_name.sh
 # Find the name of the current shell
 
 # This could have checked shell dependent variables, but I thought this simpler
@@ -11,8 +10,9 @@
 # current one.
 if [ -d "/proc/$$" ]
 then
+    # shellcheck disable=2015
     [ -f "/proc/$$/comm" ] && {	# only available in later kernels.
-	read _SH < "/proc/$$/comm"
+	read -r _SH < "/proc/$$/comm"
     } || {
 	_SH="$(sed -ne "s:^-\?\([^\x00]\+\)\x00.*:\1:p" "/proc/$$/cmdline")"
 	_SH="${_SH##*/}"

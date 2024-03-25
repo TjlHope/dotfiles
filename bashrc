@@ -1,3 +1,4 @@
+#!/bin/bash
 # ~/.bashrc
 # shellcheck disable=1090,2015,2016
 #
@@ -10,15 +11,20 @@
 # point for scp and rcp, and it's important to refrain from outputting anything
 # in those cases.
 case "$-" in
-    *i*)	:;;		# Shell is interactive, carry on
-    *)		return;;	# otherwise, be done now!
+    *i*)    :;;         # Shell is interactive, carry on
+    *)      return;;    # otherwise, be done now!
 esac
+
+
+###############################
+## source any helper scripts for base variables & functions     {{{1
+for s in "$HOME"/.rc.d/_*.sh "$HOME"/.rc.d/_*.bash
+do  [ -f "$s" ] && . "$s"       # TODO: only if not already?
+done; unset s
+######################                                          }}}1
 
 ###############################
 ## Support graceful TERM fallback	{{{1
-
-type _find_sys_dir >/dev/null 2>&1 ||
-    . "$HOME/.rc.d/find_sys_dir.sh"
 
 # But we can only do anything if we can find the terminfo directories...
 if terminfo_d="$(_find_sys_dir share/terminfo)"
@@ -125,9 +131,8 @@ esac
 
 ###############################
 ## Shell configuration variables	{{{1
+# TODO: get rid of this - too magic
 
-# Find the name of the current shell	# TODO
-[ "${_SH:+set}" = set ] || . "$HOME/.rc.d/shell_name.sh"
 # Find path of this script, and consequently other conf files.
 case "${_SH}" in
     bash)	rc_path="$(readlink -f "${BASH_SOURCE[0]}")";;
@@ -140,8 +145,6 @@ unset rc_path
 
 # If not in a .dotfiles dir, the files will themselves be .dotfiles
 [ "${RC_D}" = "${HOME}" ] && _DOT='.' || _DOT=''
-
-[ "${SHM_D:+set}" = set ] || . "$HOME/.rc.d/shm_d.sh"
 
 ## End shell conf	}}}1
 ######################
@@ -171,14 +174,14 @@ do
     [ -f "$dir_colors" ] && [ -r "$dir_colors" ] &&
 	find_term <"$dir_colors" && USE_COLOR=true && break
 done ||
-    { type dircolors >/dev/null 2>&1 &&
+    { _have dircolors &&
 	dircolors -p | find_term && USE_COLOR=true; }
 unset find_term dir_colors
 
 if ${USE_COLOR}
 then
     # Prefer ~/.dir_colors #64489
-    if type dircolors >/dev/null 2>&1 &&
+    if _have dircolors &&
 	[ -n "$dir_colors" ] && [ -z "${dir_colors%%/*}" ]
     then
 	eval "$(dircolors -b ${dir_colors:+"$dir_colors"})"
@@ -239,13 +242,13 @@ export EDITOR="vim"
 
 # determine whether we have vim*pager scripts.
 
-type 'vimpager' >/dev/null 2>&1 &&	false &&	# comment to enable
+_have 'vimpager' &&	false &&	# comment to enable
     export PAGER='vimpager'
 
-if type 'vimmanpager' >/dev/null 2>&1	#&& false	# comment to enable
+if _have 'vimmanpager'	#&& false	# comment to enable
 then
     export MANPAGER='vimmanpager'
-elif type 'vim' >/dev/null 2>&1		#&& false	# comment to enable
+elif _have 'vim'	#&& false	# comment to enable
 then	# adapted from vimmanpager script
     opts="--cmd 'let no_plugin_maps = 1'"	# stop plugin maps before vimrc
     opts="${opts} -c 'sil! %s/\\[[0-9]\\+m//g'"	# remove ansi colour codes
@@ -258,10 +261,11 @@ then	# adapted from vimmanpager script
     unset opts
 fi
 
+export LESS="-R -M --shift 5 -i"
 
 ### Source shell additions, attempt to cache to reduce magic		{{{2
 
-type 'shopt' >/dev/null 2>&1 && {
+_have 'shopt' && {
     shopt -qs extglob	# used by gentoo functions, need to set it for cache
     shopt -qs no_empty_cmd_completion	# prevent cmd completion on empty line
 }
@@ -293,12 +297,6 @@ false && [ -d "${SHM_D}" ] && [ -w "${SHM_D}" ] && {
 	declare -fp >"${SHM_D}/function.cache"
 }
 
-# function to reset tty status
-# eval to bake in the initial stty settings
-eval "reset_tty() {
-    stty $(stty -g)
-    tput reset
-}"
 
 ### autostart.*sh contains stuff to run at startup - try it now		{{{2
 priv() {	# run cmd with correct permissions and (io)niced
@@ -324,32 +322,25 @@ unset priv f cmd args
 command sudo -n switch_escape-capslock >/dev/null 2>&1
 
 ### Add ssh keys to agent if we have keychain (and the handy alias).	{{{2
-type 'keychain.add_all' >/dev/null 2>&1 && {
+_have 'keychain.add_all' && {
     trap ":" INT	# catch SIGINT to prevent it stopping the sourcing.
     # If not tried before, add keys; then stop future tries:
-	[ -f "${SHM_D}/keychain_added" ] || keychain.add_all --quiet
-	[ -d "${SHM_D}" ] && [ -w "${SHM_D}" ] && touch "${SHM_D}/keychain_added"
+    [ -f "$SHM_D/keychain_added" ] || keychain.add_all --quiet
+    [ -d "$SHM_D" ] && [ -w "$SHM_D" ] && touch "$SHM_D/keychain_added"
     trap - INT		# remove trap for following execution
 }
-
-if type docker-machine >/dev/null 2>&1
-then
-    case "$(docker-machine status)" in
-	Running) eval "$(docker-machine env)";;
-	Stopped) :;;	 # don't bother with anything
-    esac
-fi
-
-[ -d "$HOME/.nvm" ] && {
-    function setup_nvm() {
-	export NVM_DIR="$HOME/.nvm"
-	. "$HOME/.nvm/nvm.sh"
-	. "$HOME/.nvm/bash_completion"
-    }
-    alias .nvm=setup_nvm
+[ -d "$SHM_D" ] || {
+    echo "WARNING: SHM_D doesn't exist: post keychain" >&2
 }
+
+
+###############################
+## source any extra rc scripts                          {{{1
+for s in "$HOME"/.rc.d/[!_]*.sh "$HOME"/.rc.d/[!_]*.bash
+do  [ -f "$s" ] && . "$s"       # TODO: only if not already?
+done; unset s
+######################                                  }}}1
 
 
 # Output the current task status
-type t >/dev/null 2>&1 &&
-    t || :
+_have t && t || :
