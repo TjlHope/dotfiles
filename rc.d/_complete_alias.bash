@@ -19,7 +19,6 @@ _complete_alias () {
         set -- $name_cmdline &&
         [ $# -gt 1 ]
     } || { echo "cannot find alias: $1" >&2; return 1; }
-    IFS="$_IFS"
     name="$1" && shift
     # remember the cmdline can be `ENV1=val1 ENV2=val2 cmd args...`
     while [ $# -gt 0 ] && case "$1" in *=*) :;; *) false;; esac
@@ -52,6 +51,7 @@ $ns$name () {
 }" &&
     # Generate the new completion
     eval "$comp"
+    IFS="$_IFS"
 }
 
 _alias_name_cmdline() {

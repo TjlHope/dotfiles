@@ -39,20 +39,24 @@ setup_k8s() {
             echo "Warning: cannot alias k8s context: $ctx" >&2
             continue
         }
-        _alias "kubectl-$ctx=kubectl --context=$ctx"
-        _alias "kubectl-$ctx-all=kubectl --context=$ctx $__all_ns"
+        _alias="kubectl --context=$ctx"
+        _alias "kubectl-$ctx=$_alias"
+        _alias "kubectl-$ctx-all=$_alias $__all_ns"
         # TODO: should this setup namespace aliases?
         _alias "kubectl-use-$ctx=kubectl config use-context $ctx"
 
         c="${ctx%${ctx#?}}"
-        if _have "k$c"
+        if _have "k$c" &&
+            case "$(alias "k$c" 2>/dev/null)" in
+                "alias k$c="*"$_alias"*) false;;
+            esac
         then
             echo "Warning: not setting up short \`k$c\` alias" >&2
             echo "         for kube context '$ctx', already exists" >&2
             c=''
         else
-            _alias "k$c=kubectl --context=$ctx"
-            _alias "k${c}all=kubectl --context=$ctx $__all_ns"
+            _alias "k$c=$_alias"
+            _alias "k${c}all=$_alias $__all_ns"
         fi
 
         IFS="$_NL"
@@ -81,6 +85,43 @@ setup_k8s() {
 }
 
 alias .k8s=setup_k8s
+
+# kubectl wrapper to provide extra commands/aliases I find useful
+kubectl() {
+    # shellcheck disable=2039
+    local i='' a='' v=''
+    i=$#
+    while [ $i -gt 0 ]
+    do  a="$1" i=$((i-1)); shift
+        case "$a" in
+            # every option seems to take a value, just rotate them
+            -*=*)   set -- "$@" "$a";;
+            -*)     v="$1" i=$((i-1)); shift; set -- "$@" "$a" "$v";;
+            *)  # found the main cmd
+                case "$a" in
+                    ###### my custom aliases ######
+                    sh) # next arg must be the pod
+                        case "${1-}" in
+                            ''|'-h'|'--help')
+                                echo "Usage: kubectl sh <pod> [...sh-args]" >&2
+                                return;;
+                        esac
+                        v="$1" i=$((i-1)); shift
+                        set -- "$@" exec -ti "$v" -- sh     # rotate to the end
+                        [ "$1" != -- ] ||                   # strip an extra --
+                            { i=$((i-1)); shift; }
+                        ;;
+                    # everything else just rotate
+                    *)  set -- "$@" "$a";;
+                esac
+                break;;     # found the main command, so break
+        esac
+    done
+    while [ $i -gt 0 ]  # rotate the rest of the way round
+    do  a="$1" i=$((i-1)); shift; set -- "$@" "$a"
+    done
+    command kubectl "$@"    # and now execute the real command
+}
 
 # if called with args, then run (eases testing)
 [ $# -eq 0 ] || {
