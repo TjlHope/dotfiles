@@ -1,5 +1,8 @@
 # aws cli aliases
-# vi: ft=dosini sw=4 sts=4 ts=8 et
+# vi: ft=dosini sw=4 sts=4 ts=8 et fdm=indent
+#
+# TODO: support a configured default.profile
+#
 
 [toplevel]
 login = sso login
@@ -7,6 +10,32 @@ whoami = sts get-caller-identity
 account = whoami --output text --query Account
 user = whoami --output text --query UserId
 region = configure get region
+profile = !echo "${AWS_PROFILE:?not set}"
+profile-env = !f() {
+        [ $# -eq 0 ] || { echo "Usage: aws profile-env >&2; return 1; }
+        p="${AWS_PROFILE:?not set}" || return
+        case "$p" in
+            *[^A-Za-z0-9_-.]*)  echo "AWS_PROFILE='$p'";;
+            *)                  echo "AWS_PROFILE=$p";;
+        esac
+    } && f
+sh = !f() {
+        [ $# -ge 1 ] || { echo "Usage: aws sh <instance> [...args]" >&2; return 1; }
+        local target=''
+        case "$1" in
+            i-) target="$1"; shift;;    # already looks like an instance id
+            *)  { target="$(aws ec2 instances --id "$1")" &&
+                    [ -n "$target" ] &&
+                    [ "$(echo "$target" | wc -l)" -eq 1 ]
+                } || {
+                    echo "cannot find one instance to connect to for '$1':" >&2
+                    echo "$target" >&2
+                    return 1
+                }
+                shift;;
+        esac
+        aws ssm start-session ${target:+--target "$target"} "$@"
+    } && f
 
 [command configure]
 sso = sso --no-browser
@@ -14,10 +43,52 @@ sso = sso --no-browser
 [command sso]
 login = login --no-browser
 
+[command ec2]
+instances = !f() {
+        local query='' output='' filter=''; output='text'
+        case "${1-}" in
+            -i|--id|--ids)
+                query='Reservations[*].Instances[*].InstanceId'; shift;;
+            -a|--ip|--ips|--ip-addr|--ip-address|--ip-addrs|--ip-addresses)
+                query='Reservations[*].Instances[*].PrivateIpAddress'; shift;;
+            -n|--name|--names)
+                query="Reservations[*].Instances[*].{
+                    name: Tags[?Key=='Name'] | [0].Value }"
+                shift;;
+            *)  query="Reservations[*].Instances[*].{
+                    name: Tags[?Key=='Name'] | [0].Value,
+                    instance_id: InstanceId,
+                    ip_address: PrivateIpAddress,
+                    state: State.Name }"
+                output='table';;
+        esac
+        while [ $# -gt 0 ]
+        do  case "$1" in
+                -*)             # found an option, break
+                    break;;
+                i-*)            # looks like an instance ID, just need the opt
+                    set -- --instance-ids "$@"; break;;
+                [A-Za-z]*)      # looks like a Name
+                    [ -z "$filter" ] &&
+                        filter="Name=tag:Name,Values=$1" ||
+                        filter="$filter,$1";;
+                [0-9]*[0-9])    # looks like an IP
+                    [ -z "$filter" ] &&
+                        filter="Name=private-ip-address,Values=$1" ||
+                        filter="$filter,$1";;
+                *)              # should never happen...
+                    echo "Unexpected argument, using as-is: $1" >&2
+                    break;;
+            esac
+            shift
+        done
+        [ -z "$filter" ] || set -- --filter "$filter" "$@"
+        aws ec2 describe-instances --query "$query" --output "$output" "$@"
+    } && f
+
 [command eks]
 cluster0 = list-clusters --output text --query 'clusters[0]'
 setup = !f() {
-        set -x
         p="${AWS_PROFILE:?profile needed}" || return
         [ $# -gt 0 ] || {
             cluster="$(aws eks cluster0)" && : "${cluster:?not found}" || return
@@ -28,13 +99,40 @@ setup = !f() {
 
 [command ecr]
 host = !f() {
-        [ $# -eq 0 ] || { echo "no args supported" >&2; return 1; }
+        [ $# -eq 0 ] || { echo "Usage: aws ecr host" >&2; return 1; }
         : "${AWS_PROFILE:?profile needed}" || return
-        a="$(aws account)" && r="$(aws region)" &&
+        { a="$(aws account)" && r="$(aws region)" &&
             printf '%s.dkr.ecr.%s.amazonaws.com\n' "$a" "$r"
+        } || { echo "Error: cannot find ECR host" >&2; return 1; }
     } && f
 login = !f() {
-        : "${AWS_PROFILE:?profile needed}" || return
+        local host=''
+        host="$(aws ecr host)" && [ -n "$host" ] || return
         aws ecr get-login-password |
             docker login --username AWS --password-stdin "$(aws ecr host)"
     } && f
+push = !f() {
+        [ $# -eq 1 ] || [ $# -eq 2 ] || {
+            echo "Usage: aws ecr push <image> [/name][:tag]" >&2; return 1; }
+        local host='' ecr_img=''
+        host="$(aws ecr host)" && [ -n "$host" ] || return
+        case "${2-}" in
+            '')     ecr_img="$host/${1#*/}";;
+            :*)     ecr_img="$host/${1#*/}" && ecr_img="${ecr_img%:*}$2";;
+            /*:*)   ecr_img="$host$2";;
+            /*)     ecr_img="$host$2"
+                    case "$1" in *:*) ecr_img="$ecr_img:${1##*:}";; esac;;
+            *)      echo "Invalid target image: $2" >&2
+                    echo "            expected: /<new-name>:<new-tag>" >&2
+                    echo "                  or: /<new-name>" >&2
+                    echo "                  or: :<new-tag>" >&2
+                    return 1;;
+        esac
+        docker pull "$1" || return
+        docker tag "$1" "$ecr_img" || return
+        echo "Tagged: $1"
+        echo "    as: $ecr_img"
+        docker push "$ecr_img"
+    } && f
+        
+
