@@ -32,7 +32,7 @@ setup_k8s() {
 
     # shellcheck disable=2039
     local IFS _IFS='' ctx='' c='' nss='' ns='' ns_name=''
-    _IFS="$IFS" IFS="${_NL?:FATAL}" || return
+    _IFS="$IFS" IFS="${_NL:?FATAL}" || return
     for ctx in $(kubectl config get-contexts -oname)
     do  IFS="$_IFS"
         _can_alias "$ctx" || {

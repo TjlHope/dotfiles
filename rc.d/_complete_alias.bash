@@ -9,7 +9,7 @@ _complete_alias () {
     # Function to generate wrapper
     local IFS _IFS='' alias='' name_cmdline='' \
         name='' env='' cmd='' cmdline='' ns=''
-    _IFS="$IFS" IFS="${_STN?:FATAL}" || return
+    _IFS="$IFS" IFS="${_STN:?FATAL}" || return
     [ $# -gt 0 ] || { echo 'no alias provided' >&2; return 1; }
     [ $# -gt 1 ] || {
         # shellcheck disable=2086
