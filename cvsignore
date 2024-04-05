@@ -23,8 +23,8 @@ syntax:glob
 
 #_backup
 *~
-.*.sw[po]
-.sw[po]
+.*.sw[ponm]
+.sw[ponm]
 
 #_ctags
 tags
