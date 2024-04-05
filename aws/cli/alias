@@ -20,6 +20,8 @@ profile-env = !f() {
         esac
     } && f
 sh = !f() {
+        echo "WARNING: <Ctrl-C> will break your session." >&2
+        # See ~/.rc.d/setup_aws.sh for a function wrapper that does this properly
         [ $# -ge 1 ] || { echo "Usage: aws sh <instance> [...args]" >&2; return 1; }
         local target=''
         case "$1" in
@@ -34,7 +36,7 @@ sh = !f() {
                 }
                 shift;;
         esac
-        aws ssm start-session ${target:+--target "$target"} "$@"
+        exec aws ssm start-session ${target:+--target "$target"} "$@"
     } && f
 
 [command configure]
@@ -56,10 +58,10 @@ instances = !f() {
                     name: Tags[?Key=='Name'] | [0].Value }"
                 shift;;
             *)  query="Reservations[*].Instances[*].{
-                    name: Tags[?Key=='Name'] | [0].Value,
-                    instance_id: InstanceId,
-                    ip_address: PrivateIpAddress,
-                    state: State.Name }"
+                    \"0:instance_id\": InstanceId,
+                    \"1:name\": Tags[?Key=='Name'] | [0].Value,
+                    \"2:ip_address\": PrivateIpAddress,
+                    \"3:state\": State.Name }"
                 output='table';;
         esac
         while [ $# -gt 0 ]
@@ -135,4 +137,52 @@ push = !f() {
         docker push "$ecr_img"
     } && f
         
-
+[command ssm]
+sessions = !f() {
+        local query='' output='' filter='' after=''; output='text' filter=''
+        case "${1-}" in
+            -i|--id|--ids)
+                query='Sessions[*].SessionId'; shift;;
+            -t|--target|--targets)
+                query='Sessions[*].Target'; shift;;
+            *)  query="Sessions[*].{
+                    \"0:session_id\": SessionId,
+                    \"1:status\": Status,
+                    \"2:start_date\": StartDate,
+                    \"3:details\": Details }"
+                output='table';;
+        esac
+        # TODO: support multiple filters, this doesn't currently work...
+        while [ $# -gt 0 ]
+        do  case "$1" in
+                -*)             # found an option, break
+                    break;;
+                i-*)            # looks like an instance ID, just need the opt
+                    [ -z "$filter" ] &&
+                        filter="key=Target,value=$1" ||
+                        filter="$filter,$1";;
+                Connected|Connecting|Disconnected|Terminated|Terminating|Failed)
+                    [ -z "$filter" ] &&
+                        filter="key=Status,value=$1" ||
+                        filter="$filter,$1";;
+                [0-9][0-9]|today*|now*)
+                    case "$1" in *[!0-9]*) after="$1";; *) after="@$1";; esac
+                    after="$(date -d"$after" -uIs)" || return
+                    case "$after" in *+00:00) after="${after%+00:00}Z";; esac
+                    [ -z "$filter" ] &&
+                        filter="key=InvokedAfter,value=$after" ||
+                        filter="$filter,$after";;
+                [A-Za-z]*)      # assume everything is a SessionId
+                    [ -z "$filter" ] &&
+                        filter="key=SessionId,value=$1" ||
+                        filter="$filter,$1";;
+                *)              # should never happen...
+                    echo "Unexpected argument, using as-is: $1" >&2
+                    break;;
+            esac
+            shift
+        done
+        [ -z "$filter" ] || set -- --filters "$filter" "$@"
+        aws ssm describe-sessions --state Active \
+            --query "$query" --output "$output" "$@"
+    } && f

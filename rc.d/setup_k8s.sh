@@ -89,7 +89,7 @@ alias .k8s=setup_k8s
 # kubectl wrapper to provide extra commands/aliases I find useful
 kubectl() {
     # shellcheck disable=2039
-    local i='' a='' v=''
+    local i='' a='' v='' multi='' IFS _IFS=''
     i=$#
     while [ $i -gt 0 ]
     do  a="$1" i=$((i-1)); shift
@@ -97,31 +97,60 @@ kubectl() {
             # every option seems to take a value, just rotate them
             -*=*)   set -- "$@" "$a";;
             -*)     v="$1" i=$((i-1)); shift; set -- "$@" "$a" "$v";;
-            *)  # found the main cmd
-                case "$a" in
-                    ###### my custom aliases ######
-                    sh) # next arg must be the pod
-                        case "${1-}" in
-                            ''|'-h'|'--help')
-                                echo "Usage: kubectl sh <pod> [...sh-args]" >&2
-                                return;;
-                        esac
-                        v="$1" i=$((i-1)); shift
-                        set -- "$@" exec -ti "$v" -- sh     # rotate to the end
-                        [ "$1" != -- ] ||                   # strip an extra --
-                            { i=$((i-1)); shift; }
-                        ;;
-                    # everything else just rotate
-                    *)  set -- "$@" "$a";;
-                esac
-                break;;     # found the main command, so break
+            ###### custom aliases ######
+            sh) # next arg must be the pod
+                { [ $i -gt 0 ] && case "$1" in -h|--help) false;; esac; } || {
+                    echo "Usage: kubectl sh <pod> [...sh-args]" >&2
+                    return
+                }
+                v="$1" i=$((i-1)); shift
+                set -- "$@" exec -ti "$v" -- sh     # rotate to the end
+                [ "$1" != -- ] ||                   # strip an extra --
+                    { i=$((i-1)); shift; }
+                break;;
+            rolling-restart) # next arg must be workload name/label
+                { [ $i -gt 0 ] && case "$1" in -h|--help) false;; esac; } || {
+                    echo "Usage: kubectl rolling-restart <app label>[...delete args]" >&2
+                    return
+                }
+                v="$1" i=$((i-1)); shift
+                # luckily opts can go before the name, so we can use multi
+                {   multi="$(
+                        # Any remaining args are for the delete,
+                        # we're now in a sub-shell, so can shift them off
+                        shift $i
+                        command kubectl "$@" get pods -lapp="$v" -oname
+                    )" &&
+                    [ -n "$multi" ]
+                } || {
+                    echo "cannot find pods with label: app=$v" >&2
+                    return 1
+                }
+                # reverse order to match normal statefulset restart order
+                multi="$(echo "$multi" | tac)"
+                set -- "$@" delete      # rotate in the delete
+                break;;
+            ###### end custom aliases ######
+            *)  set -- "$@" "$a"; break;;   # everything else just rotate
         esac
     done
     while [ $i -gt 0 ]  # rotate the rest of the way round
     do  a="$1" i=$((i-1)); shift; set -- "$@" "$a"
     done
-    command kubectl "$@"    # and now execute the real command
+    # and now execute the real command
+    if [ -n "$multi" ]
+    then    # it's a multi-run command
+        IFS="${_NL:?FATAL}"; for v in $multi
+        do  IFS="$_IFS"
+            command kubectl "$@" "$v" || return
+        done
+    else    # single run command
+        command kubectl "$@"
+    fi
 }
+
+
+case ":${_SETUP_INIT-}:" in *:k8s:*) setup_k8s;; esac
 
 # if called with args, then run (eases testing)
 [ $# -eq 0 ] || {

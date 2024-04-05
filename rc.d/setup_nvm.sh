@@ -26,6 +26,9 @@ setup_nvm() {
 
 alias .nvm=setup_nvm
 
+
+case ":${_SETUP_INIT-}:" in *:nvm:*) setup_nvm;; esac
+
 # if called with args, then run (eases testing)
 [ $# -eq 0 ] || {
     setup_nvm

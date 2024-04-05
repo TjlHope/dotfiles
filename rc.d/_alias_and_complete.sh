@@ -13,7 +13,7 @@ _can_alias() {
 
 _alias() {
     [ $# -eq 1 ] || {
-        echo "Usage: _alias_and_complete <alias_name=alias_cmd>" >&2
+        echo "Usage: _alias <alias_name=alias_cmd>" >&2
         return 1
     }
     alias "$1" || return

@@ -334,6 +334,13 @@ _have 'keychain.add_all' && {
 }
 
 
+# Any ~/.rc.d/setup_* scripts to auto-init
+_SETUP_INIT="$(_pathmunge "${_SETUP_INIT-}" \
+    #aws - aws configure list-profiles is slow switch to sed? \
+    #nvm \
+    #k8s - not k8s as it's slow and needs auth \
+)"
+
 ###############################
 ## source any extra rc scripts                          {{{1
 for s in "$HOME"/.rc.d/[!_]*.sh "$HOME"/.rc.d/[!_]*.bash
